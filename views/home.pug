@@ -1,0 +1,15 @@
+html
+  include partials/header.pug
+  body
+    include partials/nav.pug
+    .container#main
+      .row
+        .col-sm-12
+          p.text-center Search for your name in the box below and your classes will be displayed
+        .col-sm-12
+          .form-group
+              form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
+                label(for='name')
+                input.form-control.form-control-lg(type="text", id='name' name="name", placeholder="Teacher Name", value="David Steedman")
+        .col-sm-12#classes
+    include partials/footer.pug
