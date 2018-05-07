@@ -4,6 +4,21 @@ function handleClick(student, classCode, score) {
   });
 }
 
+// Fill down
+// TODO: Use router GET and pass list of students/class to fill
+function fillRadios(num, classCode) {
+  var matches = document.querySelectorAll(".form-check-input");
+  $.each(matches, function(i, stu) {
+    if(stu.value == classCode && stu.id.slice(0,1) == num) {
+      if (typeof document.getElementById(stu.id) != 'undefined') {
+        //document.getElementById(stu.id).click(); // replace with GET (send array of students/class)
+        document.getElementById(stu.id).checked = true;
+        console.log(stu.id);
+      }
+    }
+  });
+}
+
 $(document).ready(function() {
 
   // AJAX request for Teacher's classes
@@ -38,6 +53,9 @@ $(document).ready(function() {
       // Create tab content container
       $('#classes-body').append("<div class='tab-content' id='tab-container'></div>");
 
+      // Class list to hold DOM elements
+      var classLists = [];
+
       // Create table of students
       $.each(string, function(x,y) {
 
@@ -49,29 +67,30 @@ $(document).ready(function() {
           "' role='tabpanel' aria-labelledby='tab" + x + "_" + y.code + "'></div>");
         }
 
-        $('#tab-container-' + x).append("<table class='table table-striped'><thead><tr>" +
+        $('#tab-container-' + x).append("<form><table class='table table-striped'><thead><tr>" +
             "<th scope='col'>Name:</th>" +
-            "<th scope='col'>1</th>" +
-            "<th scope='col'>2</th>" +
-            "<th scope='col'>3</th>" +
-            "<th scope='col'>4</th>" +
-            "<th scope='col'>5</th>" +
-          "</tr></thead><tbody id='subjects-body-" + x + "''></tbody></table>");
+            "<th scope='col'><a href='#' onClick='fillRadios(1, \""+y.code+"\");'>1 </a></th>" +
+            "<th scope='col'><a href='#' onClick='fillRadios(2, \""+y.code+"\");'>2 </a></th>" +
+            "<th scope='col'><a href='#' onClick='fillRadios(3, \""+y.code+"\");'>3 </a></th>" +
+            "<th scope='col'><a href='#' onClick='fillRadios(4, \""+y.code+"\");'>4 </a></th>" +
+            "<th scope='col'><a href='#' onClick='fillRadios(5, \""+y.code+"\");'>5 </a></th>" +
+          "</tr></thead><tbody id='subjects-body-" + x + "''></tbody></table></form>");
 
         $.each(y.students, function(i, student) {
           $('#subjects-body-' + x).append("<tr>" +
               "<td>" + student + "</td>" +
-              "<td><input class='form-check-input' type='radio' name=" + student + "' id='option1_"
-              + student + "' value='option1_" + student + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 1);'></td>" +
-              "<td><input class='form-check-input' type='radio' name=" + student + "' id='option2_"
-              + student + "' value='option2_" + student + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 2);'></td>" +
-              "<td><input class='form-check-input' type='radio' name=" + student + "' id='option3_"
-              + student + "' value='option3_" + student + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 3);'></td>" +
-              "<td><input class='form-check-input' type='radio' name=" + student + "' id='option4_"
-              + student + "' value='option4_" + student + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 4);'></td>" +
-              "<td><input class='form-check-input' type='radio' name=" + student + "' id='option5_"
-              + student + "' value='option5_" + student + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 5);'></td>" +
+              "<td><input class='form-check-input' type='radio' name='" + student + "' id='1" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 1);'></td>" +
+              "<td><input class='form-check-input' type='radio' name='" + student + "' id='2" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 2);'></td>" +
+              "<td><input class='form-check-input' type='radio' name='" + student + "' id='3" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 3);'></td>" +
+              "<td><input class='form-check-input' type='radio' name='" + student + "' id='4" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 4);'></td>" +
+              "<td><input class='form-check-input' type='radio' name='" + student + "' id='5" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 5);'></td>" +
             "</tr>");
+
         });
       });
 
