@@ -1,23 +1,22 @@
+// Click handler for radio buttons
 function handleClick(student, classCode, score) {
-  $.get("/save?student="+student+"&classCode="+classCode+"&score="+score, function(string) {
-    // Pass student, class and score data to server
-  });
+  //$.get("/save?student="+student+"&classCode="+classCode+"&score="+score);
+  $.post( "/save", { student: student, classCode: classCode, score: score });
 }
 
 // Fill down score for particular class
 function fillRadios(num, classCode) {
-  $.get("/fillRadios?classCode="+classCode+"&score="+num, function(string) {
-    // Pass class code and score to the server
-  });
-  var matches = document.querySelectorAll(".form-check-input");
+  let stuNames = [];
+  let matches = document.querySelectorAll(".form-check-input");
   $.each(matches, function(i, stu) {
     if(stu.value == classCode && stu.id.slice(0,1) == num) {
+      stuNames.push({name: stu.name});
       if (typeof document.getElementById(stu.id) != 'undefined') {
         document.getElementById(stu.id).checked = true;
-        console.log("Fill down: " + stu.id);
       }
     }
   });
+  $.post( "/fillRadios", { classCode: classCode, score: num, students: stuNames });
 }
 
 $(document).ready(function() {
@@ -26,7 +25,6 @@ $(document).ready(function() {
   $( "#teacher-form" ).submit(function( event ) {
     var name = $('#name').val();
     $.getJSON("/teacher?name="+name, function(string) {
-      //alert("JSON Received");
 
       // destroy any class lists that are already there
       $('#classes-card').remove();
@@ -40,6 +38,7 @@ $(document).ready(function() {
       // Loop through each subject and create a tab to click
       $.each(string, function(key,val) {
 
+        // Dynamically creates the tabs for each subject
         if(key == 0) {
           $('#subject-tabs').append("<li class='nav-item'>" +
               "<a class='nav-link active' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
@@ -60,6 +59,7 @@ $(document).ready(function() {
       // Create table of students
       $.each(string, function(x,y) {
 
+        // Dynamically creates the container for each tab
         if(x == 0) {
           $('#tab-container').append("<div class='tab-pane fade show active' id='tab-container-" + x +
           "' role='tabpanel' aria-labelledby='tab" + x + "_" + y.code + "'></div>");
@@ -68,6 +68,7 @@ $(document).ready(function() {
           "' role='tabpanel' aria-labelledby='tab" + x + "_" + y.code + "'></div>");
         }
 
+        // Dynamically creates the headings for each column
         $('#tab-container-' + x).append("<form><table class='table table-striped'><thead><tr>" +
             "<th scope='col'>Name:</th>" +
             "<th scope='col'><a href='#' onClick='fillRadios(1, \""+y.code+"\");'>1 </a></th>" +
@@ -78,18 +79,28 @@ $(document).ready(function() {
           "</tr></thead><tbody id='subjects-body-" + x + "''></tbody></table></form>");
 
         $.each(y.students, function(i, student) {
+
+          // Checks radio buttons based on student's current score
+          let checked1,checked2,checked3,checked4,checked5;
+          if(student.score == 1) { checked1 = "checked" } else { checked1 = " " };
+          if(student.score == 2) { checked2 = "checked" } else { checked2 = " " };
+          if(student.score == 3) { checked3 = "checked" } else { checked3 = " " };
+          if(student.score == 4) { checked4 = "checked" } else { checked4 = " " };
+          if(student.score == 5) { checked5 = "checked" } else { checked5 = " " };
+
+          // Dynamically creates the radio buttons
           $('#subjects-body-' + x).append("<tr>" +
-              "<td>" + student + "</td>" +
-              "<td><input class='form-check-input' type='radio' name='" + student + "' id='1" + "_" + i + "_"
-              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 1);'></td>" +
-              "<td><input class='form-check-input' type='radio' name='" + student + "' id='2" + "_" + i + "_"
-              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 2);'></td>" +
-              "<td><input class='form-check-input' type='radio' name='" + student + "' id='3" + "_" + i + "_"
-              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 3);'></td>" +
-              "<td><input class='form-check-input' type='radio' name='" + student + "' id='4" + "_" + i + "_"
-              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 4);'></td>" +
-              "<td><input class='form-check-input' type='radio' name='" + student + "' id='5" + "_" + i + "_"
-              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student+"\", \""+y.code+"\", 5);'></td>" +
+              "<td>" + student.name + "</td>" +
+              "<td><input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' id='1" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 1);'></td>" +
+              "<td><input class='form-check-input' " + checked2 + " type='radio' name='" + student.name + "' id='2" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 2);'></td>" +
+              "<td><input class='form-check-input' " + checked3 + " type='radio' name='" + student.name + "' id='3" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 3);'></td>" +
+              "<td><input class='form-check-input' " + checked4 + " type='radio' name='" + student.name + "' id='4" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 4);'></td>" +
+              "<td><input class='form-check-input' " + checked5 + " type='radio' name='" + student.name + "' id='5" + "_" + i + "_"
+              + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 5);'></td>" +
             "</tr>");
 
         });
@@ -97,6 +108,7 @@ $(document).ready(function() {
 
     });
 
+    // Prevent form submission
     event.preventDefault();
 
   });
