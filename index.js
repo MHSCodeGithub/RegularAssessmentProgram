@@ -32,11 +32,6 @@ mongoose.connection.once('open',function() {
 // Set up routes
 app.use('/', routes);
 
-/*  TODO:
-    - Create an import page for the CSV function below
-    - Allow login of staff.students through Google auth
-*/
-
 function importCSV(y, t, w) {
 
   var csvFilePath = "./students.csv";
@@ -120,7 +115,6 @@ function importCSV(y, t, w) {
             } else {
 
               // If student doesn't exist then create them
-
               let stu = new Student({
                 name: studentName
               });
@@ -136,9 +130,7 @@ function importCSV(y, t, w) {
 
             }
           });
-
         }
-
       }, function(err) {
         if( err ) {
         console.log('An error occurred: ' + err);
@@ -174,13 +166,9 @@ function updateAverages() {
   });
 }
 
-function findClasses(teacher) {
-
-}
-
-//importCSV(2018,2,5);
-//updateAverages();
-//findClasses("David Steedman");
+// These need to be accessible routes from an admin page:
+// importCSV(2018,2,5);
+// updateAverages();
 
 app.get('/', (req, res) => res.render('home'));
 

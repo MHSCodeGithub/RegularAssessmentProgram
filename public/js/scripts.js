@@ -4,16 +4,17 @@ function handleClick(student, classCode, score) {
   });
 }
 
-// Fill down
-// TODO: Use router GET and pass list of students/class to fill
+// Fill down score for particular class
 function fillRadios(num, classCode) {
+  $.get("/fillRadios?classCode="+classCode+"&score="+num, function(string) {
+    // Pass class code and score to the server
+  });
   var matches = document.querySelectorAll(".form-check-input");
   $.each(matches, function(i, stu) {
     if(stu.value == classCode && stu.id.slice(0,1) == num) {
       if (typeof document.getElementById(stu.id) != 'undefined') {
-        //document.getElementById(stu.id).click(); // replace with GET (send array of students/class)
         document.getElementById(stu.id).checked = true;
-        console.log(stu.id);
+        console.log("Fill down: " + stu.id);
       }
     }
   });
