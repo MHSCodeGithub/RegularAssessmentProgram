@@ -76,7 +76,7 @@ $(document).ready(function() {
             "<th scope='col'><a href='#' onClick='fillRadios(3, \""+y.code+"\");'>3 </a></th>" +
             "<th scope='col'><a href='#' onClick='fillRadios(4, \""+y.code+"\");'>4 </a></th>" +
             "<th scope='col'><a href='#' onClick='fillRadios(5, \""+y.code+"\");'>5 </a></th>" +
-          "</tr></thead><tbody id='subjects-body-" + x + "''></tbody></table></form>");
+          "</tr></thead><tbody id='subjects-body-" + x + "'></tbody></table></form>");
 
         $.each(y.students, function(i, student) {
 

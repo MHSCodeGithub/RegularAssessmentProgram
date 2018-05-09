@@ -1,5 +1,4 @@
-/* Sticky footer
--------------------------------------------------- */
+/* ---- FOOTER ---- */
 html {
   position: relative;
   min-height: 100%;
@@ -18,6 +17,8 @@ body {
 #main {
   margin-top: 20px;
 }
+
+/* ---- NAVBAR ---- */
 .navbar-brand {
   width: 100%;
   text-align: center;
