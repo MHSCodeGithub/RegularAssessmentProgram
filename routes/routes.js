@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Student = require('../models/student');
+const Teacher = require('../models/teacher');
 
 var year = 2018;
 var term = 2;
@@ -46,6 +47,18 @@ router.get('/teacher', (req, res) => {
     res.send(JSON.stringify(classes));
   });
 
+});
+
+// Returns a list of Teachers for the autocomplete
+router.get('/autocomplete', (req, res) => {
+  Teacher.find({}).then(function(users) {
+    let teachers = [];
+    users.forEach(function(u) {
+      teachers.push(u.name);
+    });
+    //console.log(teachers);
+    res.send(JSON.stringify(teachers));
+  });
 });
 
 // Saves an individual RAP score for a certain student/class
