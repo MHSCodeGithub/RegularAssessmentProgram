@@ -29,6 +29,8 @@ const RapSchema = new Schema({
 const StudentSchema = new Schema({
   name: String,
   email: String,
+  gender: String,
+  id: Number,
   rap: [RapSchema]
 });
 

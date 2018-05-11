@@ -33,6 +33,21 @@ mongoose.connection.once('open',function() {
 // Set up routes
 app.use('/', routes);
 
+var FormData = require('form-data');
+var fs = require('fs');
+var form = new FormData();
+form.append('sentral-username', '####');
+form.append('sentral-password', '####');
+
+form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err, res) {
+  if(res.statusCode == 200) {
+    console.log("Not logged in");
+  } else {
+    console.log("Logged in");
+  }
+});
+
+
 function importCSV(y, t, w) {
 
   var csvFilePath = "./students.csv";
@@ -61,6 +76,13 @@ function importCSV(y, t, w) {
         let surname = student["Surname"].charAt(0).toUpperCase() + student["Surname"].slice(1).toLowerCase();
         let firstname = student["First name"].charAt(0).toUpperCase() + student["First name"].slice(1).toLowerCase();
         let studentName = firstname + " " + surname;
+        studentName = studentName.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); });
+
+        // Import ID Numbers, set invalid numbers to 0
+        let idNum = student["Student code"];
+        if(parseInt(idNum)!=idNum){
+        	idNum = 0;
+        }
 
         // Searches for current student in DB, adds them if not found
         Student.findOne({ name: studentName }, function (err, user) {
@@ -115,7 +137,8 @@ function importCSV(y, t, w) {
 
             // If student doesn't exist then create them
             let stu = new Student({
-              name: studentName
+              name: studentName,
+              id: idNum
             });
 
             let rand = Math.floor((Math.random() * 5) + 1);
