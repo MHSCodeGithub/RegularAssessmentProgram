@@ -229,7 +229,7 @@ async function refreshTeachers() {
 }
 
 // These need to be accessible routes from an admin page:
-// importCSV(2018,2,5);
+ importCSV(2018,2,5);
 // refreshTeachers();
 // updateAverages();
 
