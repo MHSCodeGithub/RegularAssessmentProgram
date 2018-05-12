@@ -119,3 +119,14 @@ label {
 #classes-header {
   padding: 0;
 }
+
+#upload-form {
+  margin-bottom: 0;
+}
+
+.browse-file {
+  border: 1px solid #ced4da;
+  height: 47px;
+  width: 100%;
+  padding: 4px 5px;
+}
