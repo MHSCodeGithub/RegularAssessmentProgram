@@ -47,6 +47,15 @@ form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function
   }
 });
 
+// write function for student email import from EMU
+function importStudentEmails() {
+
+}
+
+// write function for staff email import from Edval
+function importStaffEmails() {
+
+}
 
 function importCSV(y, t, w) {
 
