@@ -4,6 +4,7 @@ const routes = require('./routes/routes');
 const keys = require('./config/keys');
 const Student = require('./models/student');
 const Teacher = require('./models/teacher');
+const fileUpload = require('express-fileupload');
 var csv = require("csvtojson");
 var async = require('async');
 var bodyParser = require('body-parser');
@@ -15,6 +16,9 @@ app.set('views', './views');
 
 // Serve static files
 app.use(express.static('./public'));
+
+// Support file uploads
+app.use(fileUpload());
 
 // Support json and encoded bodies
 app.use(bodyParser.json());
@@ -59,7 +63,7 @@ function importStaffEmails() {
 
 function importCSV(y, t, w) {
 
-  var csvFilePath = "./students.csv";
+  var csvFilePath = "./uploads/imported.csv";
   var year = y;
   var term = t;
   var week = w;
@@ -229,10 +233,11 @@ async function refreshTeachers() {
 }
 
 // These need to be accessible routes from an admin page:
- importCSV(2018,2,5);
+// importCSV(2018,2,5);
 // refreshTeachers();
 // updateAverages();
 
 app.get('/', (req, res) => res.render('home'));
+app.get('/admin', (req, res) => res.render('admin'));
 
 app.listen(3000, () => console.log('RAP listening on port 3000!'));

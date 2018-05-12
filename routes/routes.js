@@ -1,6 +1,9 @@
 const router = require('express').Router();
+const fileUpload = require('express-fileupload');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
+var csv = require("csvtojson");
+var async = require('async');
 
 var year = 2018;
 var term = 2;
@@ -120,6 +123,132 @@ router.post('/fillRadios', (req, res) => {
     });
   });
   res.end();
+});
+
+router.post('/upload', function(req, res) {
+  console.log(req.files.fileUpload);
+
+  let fileUpload = req.files.fileUpload;
+
+  fileUpload.mv('./uploads/imported.csv', function(err) {
+    if (err) { return res.status(500).send(err); }
+    //res.send('File moved!');
+  });
+
+  var csvFilePath = "./uploads/imported.csv";
+  var year = 2018;
+  var term = 2;
+  var week = 5;
+
+  // Imports CSV and corrects structure for RAP usage
+  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+
+    // Async loop to play nice with MongoDB
+    async.eachSeries(jsonArrayObj, function(student, callback) {
+
+      // Ignore entire row if it is a redundant subject
+      if(student["Subject"] == "Assembly" || student["Subject"] == "Care" || student["Subject"] == "Sport"
+       || student["Subject"] == "Distance ED" || student["Teacher"] == "undefined "
+       || student["Year"] == "11" || student["Year"] == "12") {
+        callback();
+      } else {
+
+        // Fixes Teacher Name
+        let teacher = student["Teacher name"].replace(/;/g," ").replace(/  /g," ");
+        teacher = teacher.split(' ')[1] + " " + teacher.split(' ')[0].charAt(0).toUpperCase() + teacher.split(' ')[0].slice(1).toLowerCase();
+
+        // Joins first and last name together
+        let surname = student["Surname"].charAt(0).toUpperCase() + student["Surname"].slice(1).toLowerCase();
+        let firstname = student["First name"].charAt(0).toUpperCase() + student["First name"].slice(1).toLowerCase();
+        let studentName = firstname + " " + surname;
+        studentName = studentName.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); });
+
+        // Import ID Numbers, set invalid numbers to 0
+        let idNum = student["Student code"];
+        if(parseInt(idNum)!=idNum){
+        	idNum = 0;
+        }
+
+        // Searches for current student in DB, adds them if not found
+        Student.findOne({ name: studentName }, function (err, user) {
+          if (err) {
+            return handleError(err);
+            callback();
+          }
+          if(user) {
+
+            // Update student for new RAP period
+            let found = false;
+            for (let i = 0; i < user.rap.length; i++) {
+              if(user.rap[i].year == year &&
+                 user.rap[i].term == term &&
+                 user.rap[i].week == week) {
+                  found = true;
+              }
+            }
+            if(!found) {
+              user.rap.push({year: year, term: term, week: week, grade: student['Year'], average: 0});
+              user.rap[user.rap.length-1].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: 0});
+              user.save().then((newUser) => {
+                console.log('Adding RAP period data for: ' + studentName);
+              });
+            } else {
+              console.log("RAP period " + user.rap[user.rap.length-1].year + ", term " +
+                          user.rap[user.rap.length-1].term + ", week " + user.rap[user.rap.length-1].week + " already exsists for " + studentName);
+              // Update student if new class data found
+              let found2 = false;
+              //for (let i = 0; i < user.rap[user.rap.length-1].scores.length; i++) {
+              async.eachSeries(user.rap[user.rap.length-1].scores, function(score, callback2) {
+                if(score.subject == student['Subject']) {
+                    //console.log(score.subject);
+                    found2 = true;
+                }
+                callback2();
+              });
+              if(!found2) {
+                let rand = Math.floor((Math.random() * 5) + 1);
+                user.rap[user.rap.length-1].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: rand});
+                user.save().then((newUser) => {
+                  console.log('Adding new class data for: ' + studentName);
+                });
+              } else {
+                console.log("Class data already exists for " + studentName + " in " + student['Subject']);
+              }
+            }
+
+            callback();
+
+          } else {
+
+            // If student doesn't exist then create them
+            let stu = new Student({
+              name: studentName,
+              id: idNum
+            });
+
+            let rand = Math.floor((Math.random() * 5) + 1);
+            stu.rap.push({year: year, term: term, week: week, grade: student['Year'], average: 0});
+            stu.rap[0].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: rand});
+
+            stu.save().then((newUser) => {
+              console.log('New user created: ' + studentName);
+              callback();
+            });
+
+          }
+        });
+      }
+    }, function(err) {
+      if( err ) {
+      console.log('An error occurred: ' + err);
+      } else {
+        console.log('All students have been processed successfully');
+      }
+    });
+
+  });
+
+  //res.send('File uploaded:' + req.files.fileUpload.name);
 });
 
 module.exports = router;
