@@ -5,14 +5,31 @@ const keys = require('./config/keys');
 const Student = require('./models/student');
 const Teacher = require('./models/teacher');
 const fileUpload = require('express-fileupload');
-var csv = require("csvtojson");
-var async = require('async');
-var bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const csv = require("csvtojson");
+const async = require('async');
 
+// Setup app
 mongoose.Promise = global.Promise;
 const app = express();
 app.set('view engine', 'pug');
 app.set('views', './views');
+app.set('trust proxy', 1);
+
+// Set up cookies
+app.use(cookieSession({
+  name: 'session',
+  maxAge: 72*60*60*1000, // 3 Days
+  keys: [keys.session.cookieKey]
+}));
+
+// Global Vars
+app.use(function (req, res, next) {
+  res.locals.user = req.user || null;
+  next();
+});
 
 // Serve static files
 app.use(express.static('./public'));
@@ -105,7 +122,23 @@ async function refreshTeachers() {
 // refreshTeachers();
 // updateAverages();
 
-app.get('/', (req, res) => res.render('home'));
-app.get('/admin', (req, res) => res.render('admin'));
+// Check if logged in
+const authCheck = (req, res, next) => {
+  if(!req.session.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+}
+
+// Basic home route
+app.get('/', authCheck, (req, res) => {
+  res.render('home', {user: req.session.user});
+});
+
+// Basic admin route
+app.get('/admin', authCheck, (req, res) => {
+  res.render('admin', {user: req.session.user});
+});
 
 app.listen(3000, () => console.log('RAP listening on port 3000!'));

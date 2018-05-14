@@ -7,19 +7,14 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
-var year = 2018;
-var term = 2;
-var week = 5;
-
 // Render login screen
 router.get('/login', (req,res) => {
-  if(!req.user === null) {
+  if(req.session.user != null) {
     res.redirect('/');
   } else {
     res.render('login');
   }
 });
-
 
 // Authenticate against Sentral server, redirect to home page
 router.post('/login', (req, res) => {
@@ -34,10 +29,16 @@ router.post('/login', (req, res) => {
       res.render('login',{error: "Invalid username or password"});
     } else {
       console.log("Logged in");
-      req.user = username;
+      req.session.user = username;
       res.redirect('/');
     }
   });
+});
+
+// Auth logout
+router.get('/logout', function(req, res){
+  req.session = null;
+	res.redirect('/login');
 });
 
 // Returns classes and student lists for a certain teacher
@@ -157,19 +158,21 @@ router.post('/fillRadios', (req, res) => {
 });
 
 router.post('/upload', function(req, res) {
-  console.log(req.files.fileUpload);
 
+  // Read in the POST data
   let fileUpload = req.files.fileUpload;
+  let year = req.body.year;
+	let term = req.body.term;
+  let week = req.body.week;
 
+  // Move the file to a local folder on the server
   fileUpload.mv('./uploads/imported.csv', function(err) {
     if (err) { return res.status(500).send(err); }
     //res.send('File moved!');
   });
 
+  // Set CSV file path
   var csvFilePath = "./uploads/imported.csv";
-  var year = 2018;
-  var term = 2;
-  var week = 5;
 
   // Imports CSV and corrects structure for RAP usage
   csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {

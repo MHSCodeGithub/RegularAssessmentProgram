@@ -112,8 +112,14 @@ label {
   color: white;
 }
 
+.nav-link {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9em;
+}
+
 .nav-link:hover {
-  background: #cce1f1;
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0px 0px 5px rgba(0,0,0,0.3);
 }
 
 #classes-header {
