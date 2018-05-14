@@ -134,3 +134,43 @@ label {
 img {
   max-width: 100%;
 }
+
+/* ---- LOGIN ---- */
+
+.login {
+  padding: 40px 20px;
+}
+
+.loginTitle {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login .input-group-addon {
+  width: 40px;
+}
+
+.login .input-group .i {
+	width: 20px;
+}
+
+.login .input {
+  height: 40px;
+}
+
+.help-block {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: red;
+}
+
+.forgotPwd {
+  margin-top: 10px;
+}
+
+.instructions {
+  padding-bottom: 15px;
+  font-size: 1.1em;
+}

@@ -1,55 +1,32 @@
 html
   include partials/header.pug
   body
-    script(src="../js/login.js")
-    include partials/nav.pug
-    .container
-      .row.justify-content-center.align-items-center#login-screen
-        .col-8.login
-          h3.loginTitle
-            | Login or&nbsp;
-            a(href="/auth/register") Register
-          .row.socialButtons.justify-content-center
-            .col-md-4
-              a.btn.btn-lg.btn-block.btn-facebook(href="./facebook/login")
-                i.fa.fa-facebook.visible-xs
-                span.hidden-xs &nbsp;Facebook
-            .col-md-4
-              a.btn.btn-lg.btn-block.btn-twitter(href="./twitter/login")
-                i.fa.fa-twitter.visible-xs
-                span.hidden-xs &nbsp;Twitter
-            .col-md-4
-              a.btn.btn-lg.btn-block.btn-google(href="./google/login")
-                i.fa.fa-google-plus.visible-xs
-                span.hidden-xs &nbsp;Google+
-          .row.loginOr
-            .col-sm-12
-              hr.hrOr
-              span.spanOr or
-          .row
-            .col-sm-12
-              form.form-group#login-form(action="/auth/login/", autocomplete="off", method="POST")
-                .input-group
-                  span.input-group-addon
-                    i.fa.fa-envelope
-                  input.form-control.form-control-lg(type="text", name="username", placeholder="Email Address")
-                span.help-block
-                .input-group
-                  span.input-group-addon
-                    i.fa.fa-lock
-                  input.form-control.form-control-lg(type="password", name="password", placeholder="Password")
-                div.help-block
-                button.btn.btn-lg.btn-primary.btn-block#submit-button(type="submit") Login
-          .row
-            .col-sm-12
-              if success_msg != ""
-                div.alert.alert-success.text-center(role="alert") #{success_msg}
-              if error_msg != ""
-                div.alert.alert-danger.text-center(role="alert") #{error_msg}
-              if error != ""
-                div.alert.alert-danger.text-center(role="alert") #{error}
-          .row.justify-content-center.align-items-center
-            .col-sm-12.text-center
-              p.forgotPwd
-                a(href="#") Forgot password?
-    include partials/footer.pug
+    .container#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                .row.justify-content-center.align-items-center
+                  .col-8.login
+                    h3.loginTitle Log in with your DoE account
+                    .row
+                      .col-sm-12
+                        form.form-group#login-form(action="/login/", autocomplete="off", method="POST")
+                          .input-group
+                            span.input-group-addon
+                              i.fa.fa-envelope
+                            input.form-control.form-control-lg(type="text", name="username", placeholder="Email Address", required)
+                          span.help-block
+                          .input-group
+                            span.input-group-addon
+                              i.fa.fa-lock
+                            input.form-control.form-control-lg(type="password", name="password", placeholder="Password", required)
+                          div.help-block
+                          button.btn.btn-lg.btn-primary.btn-block#submit-button(type="submit") Login
+                    .row
+                      .col-sm-12
+                        if error != null
+                          div.alert.alert-danger.text-center(role="alert") #{error}
+      include partials/footer.pug

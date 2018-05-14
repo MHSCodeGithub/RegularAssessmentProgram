@@ -2,12 +2,43 @@ const router = require('express').Router();
 const fileUpload = require('express-fileupload');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
+const FormData = require('form-data');
+const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
 var year = 2018;
 var term = 2;
 var week = 5;
+
+// Render login screen
+router.get('/login', (req,res) => {
+  if(!req.user === null) {
+    res.redirect('/');
+  } else {
+    res.render('login');
+  }
+});
+
+
+// Authenticate against Sentral server, redirect to home page
+router.post('/login', (req, res) => {
+  var username = req.body.username;
+	var password = req.body.password;
+  var form = new FormData();
+  form.append('sentral-username', username);
+  form.append('sentral-password', password);
+  form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err, response) {
+    if(response.statusCode == 200) {
+      console.log("Not logged in");
+      res.render('login',{error: "Invalid username or password"});
+    } else {
+      console.log("Logged in");
+      req.user = username;
+      res.redirect('/');
+    }
+  });
+});
 
 // Returns classes and student lists for a certain teacher
 router.get('/teacher', (req, res) => {
