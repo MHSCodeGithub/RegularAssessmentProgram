@@ -80,11 +80,11 @@ $(document).ready(function() {
         $('#tab-container-' + x).append("<form><table class='table table-striped'><thead><tr>" +
             "<th scope='col'>Name:</th>" +
             "<th scope='col' class='scoreColumn'>" +
-              "<a href='#' onClick='fillRadios(1, \""+y.code+"\");'>1 </a>" +
-              "<a href='#' onClick='fillRadios(2, \""+y.code+"\");'>2 </a>" +
-              "<a href='#' onClick='fillRadios(3, \""+y.code+"\");'>3 </a>" +
-              "<a href='#' onClick='fillRadios(4, \""+y.code+"\");'>4 </a>" +
-              "<a href='#' onClick='fillRadios(5, \""+y.code+"\");'>5 </a>" +
+              "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
+              "<a href='#' onClick='fillRadios(2, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
+              "<a href='#' onClick='fillRadios(3, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
+              "<a href='#' onClick='fillRadios(4, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
+              "<a href='#' onClick='fillRadios(5, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
             "</th>" +
           "</tr></thead><tbody id='subjects-body-" + x + "'></tbody></table></form>");
 
@@ -102,7 +102,7 @@ $(document).ready(function() {
           $('#subjects-body-' + x).append(
             "<tr>" +
               "<td>" + student.name + "</td>" +
-              "<td>" +
+              "<td class='scoreColumn'>" +
                 // Radio Button 1
                 "<input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' id='1" + "_" +
                 i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 1);'>" +
@@ -128,6 +128,8 @@ $(document).ready(function() {
 
         });
       });
+
+      $('[data-toggle="tooltip"]').tooltip();
 
     });
 

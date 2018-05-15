@@ -6,8 +6,8 @@ const TeacherSchema = new Schema({
   name: {
     type: String,
     unique: true },
-  email: String,
-  access: String
+  username: String,
+  access: Number
 });
 
 // Create model

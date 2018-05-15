@@ -10,7 +10,9 @@ html
               .col-sm-12
                 .form-group
                     form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
-                      input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
-                      input(type='submit', style='display: none')
+                      .input-group
+                        input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
+                        span.input-group-btn
+                          button.btn.btn-primary(type='submit') Go!
               .col-sm-12#classes
     include partials/footer.pug

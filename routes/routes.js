@@ -2,6 +2,7 @@ const router = require('express').Router();
 const fileUpload = require('express-fileupload');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
+const settings = require('../config/settings');
 const FormData = require('form-data');
 const fs = require('fs');
 var csv = require("csvtojson");
@@ -21,16 +22,30 @@ router.post('/login', (req, res) => {
   var username = req.body.username;
 	var password = req.body.password;
   var form = new FormData();
-  form.append('sentral-username', username);
-  form.append('sentral-password', password);
-  form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err, response) {
+  form.append('login-username', username);
+  form.append('login-password', password);
+  form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
     if(response.statusCode == 200) {
       console.log("Not logged in");
-      res.render('login',{error: "Invalid username or password"});
+      res.render('login', {error: "Invalid username or password"});
     } else {
-      console.log("Logged in");
-      req.session.user = username;
-      res.redirect('/');
+      // See if user is a teacher
+      Teacher.findOne({ username: username }, function (err, user) {
+        if(user) {
+          req.session.user = user;
+          res.redirect('/');
+        } else {
+          // See if user is a student
+          Student.findOne({ username: username }, function (err, user) {
+            if(user) {
+              req.session.user = user;
+              res.redirect('/');
+            } else {
+              res.render('login', {error: "Invalid username or password"});
+            }
+          });
+        }
+      });
     }
   });
 });
@@ -44,6 +59,10 @@ router.get('/logout', function(req, res){
 // Returns classes and student lists for a certain teacher
 router.get('/teacher', (req, res) => {
 
+  // Redirect invalid requests to this route
+  if(req.query.name == null) {
+    res.redirect('home');
+  }
   var teacher = req.query.name;
   let classes = [];
 
@@ -84,6 +103,68 @@ router.get('/teacher', (req, res) => {
 
 });
 
+// teacher dashboard page
+router.get('/editTeachers', (req, res) => {
+  res.render('teachers', {user: req.session.user});
+});
+
+// teacher dashboard page
+router.get('/updateAverages', (req, res) => {
+  Student.find({}).then(function(users) {
+    users.forEach(function(u) {
+        Student.findOne({name: u.name}, function(err, stu){
+          if(err){ console.log("Something went wrong when searching the data!"); }
+          stu.rap.forEach(function(r) {
+            let total = 0;
+            let count = 0;
+            r.scores.forEach(function(s) {
+              if(s.value > 0) {
+                total += s.value;
+                count++;
+              }
+            });
+            r.average = Number(total/count).toFixed(2);
+          });
+          stu.save().then((newUser) => {
+            console.log('Updated averages for ' + stu.name);
+          });
+        });
+    });
+  });
+  res.render('home', {user: req.session.user});
+});
+
+// refresh teacher list
+router.get('/refreshTeachers', (req, res) => {
+  // Find all students
+  Student.find({}).then(async function(users) {
+    users.forEach(async function(u) {
+      // then loop through RAP period for each student
+      u.rap.forEach(async function(r) {
+        // then through the individual subjects for each student
+        r.scores.forEach(async function(s) {
+          try {
+            // search for the teacher
+            let foundTeacher = await Teacher.findOne({ name: s.teacher });
+              if(!foundTeacher) {
+                // If teacher doesn't exist then create them
+                let newTeacher = new Teacher({ name: s.teacher });
+                try {
+                  let newTeacherResult = await newTeacher.save()
+                  console.log(newTeacher);
+                } catch(err) {
+                  console.log(err);
+                }
+              }
+            } catch(err) {
+              console.log(err);
+            }
+        });
+      });
+    });
+  });
+});
+
 // Returns a list of Teachers for the autocomplete
 router.get('/autocomplete', (req, res) => {
   Teacher.find({}).then(function(users) {
@@ -109,7 +190,9 @@ router.post('/save', (req, res) => {
       //console.log("student="+student+"&classCode="+classCode+"&score="+score);
       user.rap.forEach(function(r) {
         //console.log(r);
-        if(r.year == year && r.term == term && r.week == week) {
+        if(r.year == settings.rapPeriod.year
+          && r.term == settings.rapPeriod.term
+          && r.week == settings.rapPeriod.week) {
           r.scores.forEach(function(s) {
             if(s.code == classCode) {
               s.value = score;
@@ -277,6 +360,59 @@ router.post('/upload', function(req, res) {
       console.log('An error occurred: ' + err);
       } else {
         console.log('All students have been processed successfully');
+      }
+    });
+
+  });
+
+});
+
+// Useful for updating teacher email addresses
+router.post('/uploadTeachers', function(req, res) {
+
+  // Read in the POST data
+  let fileUpload = req.files.fileUpload;
+
+  // Move the file to a local folder on the server
+  fileUpload.mv('./uploads/teachers.csv', function(err) {
+    if (err) { return res.status(500).send(err); }
+  });
+
+  // Set CSV file path
+  var csvFilePath = "./uploads/teachers.csv";
+
+  // Imports CSV and corrects structure for RAP usage
+  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+
+    // Async loop to play nice with MongoDB
+    async.eachSeries(jsonArrayObj, function(teacher, callback) {
+
+      let teacherName = teacher['First Name'] + " " + teacher['Last Name'];
+      let username = teacher['Username'].toLowerCase();
+
+      // Searches for current student in DB, adds them if not found
+      Teacher.findOneAndUpdate({ name: teacherName }, {username: username, access: 0},
+                              {upsert: true}, function (err, user) {
+        if (err) {
+          return handleError(err);
+          console.log("Error with query");
+          callback();
+        }
+
+        if(user) {
+          console.log("Teacher updated: " + user);
+          callback();
+        } else {
+          console.log("error");
+          callback();
+        }
+
+      });
+    }, function(err) {
+      if( err ) {
+      console.log('An error occurred: ' + err);
+      } else {
+        console.log('All teachers have been processed successfully');
       }
     });
 

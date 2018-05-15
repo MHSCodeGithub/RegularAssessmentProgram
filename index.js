@@ -54,74 +54,6 @@ mongoose.connection.once('open',function() {
 // Set up routes
 app.use('/', routes);
 
-// write function for student email import from EMU
-function importStudentEmails() {
-
-}
-
-// write function for staff email import from Edval
-function importStaffEmails() {
-
-}
-
-function updateAverages() {
-  Student.find({}).then(function(users) {
-    users.forEach(function(u) {
-        Student.findOne({name: u.name}, function(err, stu){
-          if(err){ console.log("Something went wrong when searching the data!"); }
-          stu.rap.forEach(function(r) {
-            let total = 0;
-            let count = 0;
-            r.scores.forEach(function(s) {
-              if(s.value > 0) {
-                total += s.value;
-                count++;
-              }
-            });
-            r.average = Number(total/count).toFixed(2);
-          });
-          stu.save().then((newUser) => {
-            console.log('Updated averages for ' + stu.name);
-          });
-        });
-    });
-  });
-}
-
-async function refreshTeachers() {
-  // Find all students
-  Student.find({}).then(async function(users) {
-    users.forEach(async function(u) {
-      // then loop through RAP period for each student
-      u.rap.forEach(async function(r) {
-        // then through the individual subjects for each student
-        r.scores.forEach(async function(s) {
-          try {
-            // search for the teacher
-            let foundTeacher = await Teacher.findOne({ name: s.teacher });
-              if(!foundTeacher) {
-                // If teacher doesn't exist then create them
-                let newTeacher = new Teacher({ name: s.teacher });
-                try {
-                  let newTeacherResult = await newTeacher.save()
-                  console.log(newTeacher);
-                } catch(err) {
-                  //console.log(err);
-                }
-              }
-            } catch(err) {
-              //console.log(err);
-            }
-        });
-      });
-    });
-  });
-}
-
-// These need to be accessible routes from an admin page:
-// refreshTeachers();
-// updateAverages();
-
 // Check if logged in
 const authCheck = (req, res, next) => {
   if(!req.session.user) {
@@ -139,6 +71,7 @@ app.get('/', authCheck, (req, res) => {
 // Basic admin route
 app.get('/admin', authCheck, (req, res) => {
   res.render('admin', {user: req.session.user});
+  console.log(req.session.user);
 });
 
 app.listen(3000, () => console.log('RAP listening on port 3000!'));
