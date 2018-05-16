@@ -78,7 +78,11 @@ app.get('/', authCheck, (req, res) => {
 // Basic admin route
 app.get('/admin', authCheck, (req, res) => {
   res.render('admin', {user: req.session.user});
-  console.log(req.session.user);
+});
+
+// Rubric
+app.get('/rubric', (req, res) => {
+  res.render('rubric', {user: req.session.user});
 });
 
 app.listen(3000, () => console.log('RAP listening on port 3000!'));
