@@ -22,20 +22,22 @@ router.post('/login', (req, res) => {
   var username = req.body.username;
 	var password = req.body.password;
   var form = new FormData();
-  form.append('login-username', username);
-  form.append('login-password', password);
+  form.append('username', username);
+  form.append('password', password);
   form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
-    if(response.statusCode == 200) {
+    if(response.headers.location != "/portal/dashboard") {
       console.log("Not logged in");
       res.render('login', {error: "Invalid username or password"});
     } else {
       // See if user is a teacher
+      console.log("Checking to see if the user is a staff member...");
       Teacher.findOne({ username: username }, function (err, user) {
         if(user) {
           req.session.user = user;
           res.redirect('/');
         } else {
           // See if user is a student
+          console.log("Checking to see if the user is a student...");
           Student.findOne({ username: username }, function (err, user) {
             if(user) {
               req.session.user = user;
@@ -61,7 +63,8 @@ router.get('/teacher', (req, res) => {
 
   // Redirect invalid requests to this route
   if(req.query.name == null) {
-    res.redirect('home');
+    res.render('home', {user: req.session.user});
+    return null;
   }
   var teacher = req.query.name;
   let classes = [];
@@ -103,12 +106,12 @@ router.get('/teacher', (req, res) => {
 
 });
 
-// teacher dashboard page
+// Teacher dashboard page
 router.get('/editTeachers', (req, res) => {
-  res.render('teachers', {user: req.session.user});
+  res.render('teachers', {user: req.session.user, message: req.session.message});
 });
 
-// teacher dashboard page
+// Re-calculate averages for each student
 router.get('/updateAverages', (req, res) => {
   Student.find({}).then(function(users) {
     users.forEach(function(u) {
@@ -171,6 +174,18 @@ router.get('/autocomplete', (req, res) => {
     let teachers = [];
     users.forEach(function(u) {
       teachers.push(u.name);
+    });
+    //console.log(teachers);
+    res.send(JSON.stringify(teachers));
+  });
+});
+
+// Returns a list of Teachers including all details
+router.get('/getTeachers', (req, res) => {
+  Teacher.find({}).then(function(users) {
+    let teachers = [];
+    users.forEach(function(u) {
+      teachers.push({name: u.name, username: u.username, access: u.access});
     });
     //console.log(teachers);
     res.send(JSON.stringify(teachers));
@@ -391,19 +406,21 @@ router.post('/uploadTeachers', function(req, res) {
       let username = teacher['Username'].toLowerCase();
 
       // Searches for current student in DB, adds them if not found
-      Teacher.findOneAndUpdate({ name: teacherName }, {username: username, access: 0},
-                              {upsert: true}, function (err, user) {
+      Teacher.findOne({ name: teacherName }, function (err, user) {
         if (err) {
           return handleError(err);
           console.log("Error with query");
           callback();
         }
-
         if(user) {
-          console.log("Teacher updated: " + user);
+          user.username = username;
+          user.access = 0; // Comment this out after initial setup
+          user.save().then((stu) => {
+            console.log("Details updated for " + user.name);
+          });
           callback();
         } else {
-          console.log("error");
+          console.log(teacherName + " not found");
           callback();
         }
 
@@ -413,12 +430,15 @@ router.post('/uploadTeachers', function(req, res) {
       console.log('An error occurred: ' + err);
       } else {
         console.log('All teachers have been processed successfully');
+        req.flash('success_msg', 'All teachers have been processed successfully');
+        res.redirect('editTeachers');
+        return null;
       }
     });
 
   });
 
-  //res.send('File uploaded:' + req.files.fileUpload.name);
+
 });
 
 module.exports = router;

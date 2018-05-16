@@ -27,6 +27,6 @@ html
                           button.btn.btn-lg.btn-primary.btn-block#submit-button(type="submit") Login
                     .row
                       .col-sm-12
-                        if error != null
+                        if error != null && error != ""
                           div.alert.alert-danger.text-center(role="alert") #{error}
     include partials/footer.pug

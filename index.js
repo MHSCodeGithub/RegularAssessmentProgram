@@ -5,6 +5,7 @@ const keys = require('./config/keys');
 const Student = require('./models/student');
 const Teacher = require('./models/teacher');
 const fileUpload = require('express-fileupload');
+const flash = require('connect-flash');
 const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -25,8 +26,14 @@ app.use(cookieSession({
   keys: [keys.session.cookieKey]
 }));
 
+// Connect Flash
+app.use(flash());
+
 // Global Vars
 app.use(function (req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
   res.locals.user = req.user || null;
   next();
 });

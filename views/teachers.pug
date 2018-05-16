@@ -1,3 +1,5 @@
+- var page = "editTeachers"
+doctype html
 html
   include partials/header.pug
   body
@@ -20,7 +22,7 @@ html
                   .card-body#classes-body
                     .tab-content#tab-container
                       .tab-pane.fade.show.active#tab-container-1(role='tabpanel', aria-labelledby='tab-upload')
-                        p Hello World
+                        #display
                       .tab-pane.fade#tab-container-2(role='tabpanel', aria-labelledby='tab-instructions')
                         .row
                           .col-sm-12
@@ -32,4 +34,8 @@ html
                                 .col-md-4.form-group
                                   div(style='margin-top: 32px;')
                                   button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Upload
+                .row
+                  .col-sm-12
+                    if success_msg != ""
+                      div.alert.alert-success.text-center(role="alert", style='margin-top: 20px;') #{success_msg}
     include partials/footer.pug

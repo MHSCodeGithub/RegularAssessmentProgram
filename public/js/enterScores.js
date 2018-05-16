@@ -79,11 +79,13 @@ $(document).ready(function() {
         // Dynamically creates the headings for each column
         $('#tab-container-' + x).append("<form><table class='table table-striped'><thead><tr>" +
             "<th scope='col'>Name:</th>" +
-            "<th scope='col' class='scoreColumn'><a href='#' onClick='fillRadios(1, \""+y.code+"\");'>1 </a></th>" +
-            "<th scope='col' class='scoreColumn'><a href='#' onClick='fillRadios(2, \""+y.code+"\");'>2 </a></th>" +
-            "<th scope='col' class='scoreColumn'><a href='#' onClick='fillRadios(3, \""+y.code+"\");'>3 </a></th>" +
-            "<th scope='col' class='scoreColumn'><a href='#' onClick='fillRadios(4, \""+y.code+"\");'>4 </a></th>" +
-            "<th scope='col' class='scoreColumn'><a href='#' onClick='fillRadios(5, \""+y.code+"\");'>5 </a></th>" +
+            "<th scope='col' class='scoreColumn'>" +
+              "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
+              "<a href='#' onClick='fillRadios(2, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
+              "<a href='#' onClick='fillRadios(3, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
+              "<a href='#' onClick='fillRadios(4, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
+              "<a href='#' onClick='fillRadios(5, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
+            "</th>" +
           "</tr></thead><tbody id='subjects-body-" + x + "'></tbody></table></form>");
 
         $.each(y.students, function(i, student) {
@@ -100,20 +102,34 @@ $(document).ready(function() {
           $('#subjects-body-' + x).append(
             "<tr>" +
               "<td>" + student.name + "</td>" +
-              "<td><label class='scoreRadio'><input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' id='1" + "_"
-              + i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 1);'>1</label></td>" +
-              "<td><label class='scoreRadio'><input class='form-check-input' " + checked2 + " type='radio' name='" + student.name + "' id='2" + "_"
-              + i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 2);'>2</label></td>" +
-              "<td><label class='scoreRadio'><input class='form-check-input' " + checked3 + " type='radio' name='" + student.name + "' id='3" + "_"
-              + i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 3);'>3</label></td>" +
-              "<td><label class='scoreRadio'><input class='form-check-input' " + checked4 + " type='radio' name='" + student.name + "' id='4" + "_"
-              + i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 4);'>4</label></td>" +
-              "<td><label class='scoreRadio'><input class='form-check-input' " + checked5 + " type='radio' name='" + student.name + "' id='5" + "_"
-              + i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 5);'>5</label></td>" +
+              "<td class='scoreColumn'>" +
+                // Radio Button 1
+                "<input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' id='1" + "_" +
+                i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 1);'>" +
+                "<label for='1" + "_" + i + "_" + y.code + "' class='scoreRadio'>1</label>" +
+                // Radio Button 2
+                "<input class='form-check-input' " + checked2 + " type='radio' name='" + student.name + "' id='2" + "_" +
+                i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 2);'>" +
+                "<label for='2" + "_" + i + "_" + y.code + "' class='scoreRadio'>2</label>" +
+                // Radio Button 3
+                "<input class='form-check-input' " + checked3 + " type='radio' name='" + student.name + "' id='3" + "_" +
+                i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 3);'>" +
+                "<label for='3" + "_" + i + "_" + y.code + "' class='scoreRadio'>3</label>" +
+                // Radio Button 4
+                "<input class='form-check-input' " + checked4 + " type='radio' name='" + student.name + "' id='4" + "_" +
+                i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 4);'>" +
+                "<label for='4" + "_" + i + "_" + y.code + "' class='scoreRadio'>4</label>" +
+                // Radio Button 5
+                "<input class='form-check-input' " + checked5 + " type='radio' name='" + student.name + "' id='5" + "_" +
+                i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 5);'>" +
+                "<label for='5" + "_" + i + "_" + y.code + "' class='scoreRadio'>5</label>" +
+              "</td>" +
             "</tr>");
 
         });
       });
+
+      $('[data-toggle="tooltip"]').tooltip();
 
     });
 
@@ -121,5 +137,8 @@ $(document).ready(function() {
     event.preventDefault();
 
   });
+
+
+
 
 });
