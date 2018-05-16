@@ -8,7 +8,7 @@ $.getJSON("/getTeachers", function(teacher) {
           "<th scope='col'>Name:</th>" +
           "<th scope='col'>DoE Username:</th>" +
           "<th scope='col'>Access:</th>" +
-          "<th scope='col'></th>" +
+          "<th scope='col' style='width: 120px;'></th>" +
         "</tr>" +
       "</thead>" +
       "<tbody id='teacher-table'></tbody>" +
