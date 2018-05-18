@@ -41,6 +41,10 @@ body {
   border-bottom-right-radius: 10px;
 }
 
+h3 {
+  margin-bottom: 10px;
+}
+
 #content-body {
   margin: 10px;
 }

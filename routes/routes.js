@@ -106,6 +106,43 @@ router.get('/teacher', (req, res) => {
 
 });
 
+// Updates a single teacher's username, returns true if successful
+router.get('/updateTeacher', (req, res) => {
+
+  console.log(req.query.name);
+
+  // Redirect invalid requests to this route
+  if(req.query.name == null) {
+    return false;
+  }
+  var teacher = req.query.name;
+  var username = req.query.username;
+  var access = req.query.access;
+
+  // Loop through every student
+  Teacher.findOne({ name: teacher }, function (err, user) {
+    if (err) {
+      return handleError(err);
+      console.log("Error with query");
+      return false;
+      res.send(JSON.stringify({"result":false}));
+    }
+    if(user) {
+      user.username = username;
+      user.access = access;
+      user.save().then((stu) => {
+        console.log("Details updated for " + user.name);
+        res.send(JSON.stringify({"result":true}));
+      });
+    } else {
+      console.log(teacher + " not found");
+      return false;
+      res.send(JSON.stringify({"result":false}));
+    }
+  });
+
+});
+
 // Teacher dashboard page
 router.get('/editTeachers', (req, res) => {
   res.render('teachers', {user: req.session.user, message: req.session.message});
@@ -405,7 +442,7 @@ router.post('/uploadTeachers', function(req, res) {
       let teacherName = teacher['First Name'] + " " + teacher['Last Name'];
       let username = teacher['Username'].toLowerCase();
 
-      // Searches for current student in DB, adds them if not found
+      // Searches for current teacher in DB
       Teacher.findOne({ name: teacherName }, function (err, user) {
         if (err) {
           return handleError(err);

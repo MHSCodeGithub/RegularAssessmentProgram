@@ -2,7 +2,7 @@
 doctype html
 html
   include partials/header.pug
-  body
+  body(onload="generateScores();")
     .container#main
       include partials/nav.pug
       .row
@@ -10,10 +10,13 @@ html
           .card#content-container
             .card-body#content-body
               .col-sm-12
-                .form-group
-                    form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
+                h3 #{user.name}
+                p Enter a score between 1-5 for each of your classes below. 
+                  | See the #[a(href='/rubric') RAP Rubric] for more details.
+                .form-group(style='display:none')
+                    form#teacher-form(action="", autocomplete="off", method="GET", name='teacher-form')
                       .input-group
-                        input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
+                        input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', value=user.name)
                         span.input-group-btn
                           button.btn.btn-primary(type='submit') Go!
               .col-sm-12#classes
