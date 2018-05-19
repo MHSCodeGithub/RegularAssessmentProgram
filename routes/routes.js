@@ -8,6 +8,40 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
+// Check if logged in
+const authCheck = (req, res, next) => {
+  if(!req.session.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+}
+
+// Basic home route
+router.get('/', authCheck, (req, res) => {
+    res.render('home', {user: req.session.user});
+});
+
+// Basic home route
+router.get('/queryTeacher', authCheck, (req, res) => {
+  if(req.query.name != null) {
+    console.log(req.query.name);
+    res.render('home', {user: req.session.user, queryName: req.query.name});
+  } else {
+    res.render('home', {user: req.session.user});
+  }
+});
+
+// Basic admin route
+router.get('/importEdval', authCheck, (req, res) => {
+  res.render('importEdval', {user: req.session.user});
+});
+
+// Rubric
+router.get('/rubric', (req, res) => {
+  res.render('rubric', {user: req.session.user});
+});
+
 // Render login screen
 router.get('/login', (req,res) => {
   if(req.session.user != null) {
@@ -106,7 +140,7 @@ router.get('/teacher', (req, res) => {
 
 });
 
-// Updates a single teacher's username, returns true if successful
+// Updates a single teacher's username and access, returns true if successful
 router.get('/updateTeacher', (req, res) => {
 
   console.log(req.query.name);
@@ -145,7 +179,7 @@ router.get('/updateTeacher', (req, res) => {
 
 // Teacher dashboard page
 router.get('/editTeachers', (req, res) => {
-  res.render('teachers', {user: req.session.user, message: req.session.message});
+  res.render('editTeachers', {user: req.session.user, message: req.session.message});
 });
 
 // Re-calculate averages for each student
@@ -174,7 +208,7 @@ router.get('/updateAverages', (req, res) => {
   res.render('home', {user: req.session.user});
 });
 
-// refresh teacher list
+// refresh teacher list based on student database
 router.get('/refreshTeachers', (req, res) => {
   // Find all students
   Student.find({}).then(async function(users) {

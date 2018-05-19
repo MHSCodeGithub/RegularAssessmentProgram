@@ -5,18 +5,19 @@ nav.navbar.navbar-expand-lg.navbar-dark.justify-content-between
       a.nav-link(href='/rubric') Rubric
     if user
       li.nav-item
-        a.nav-link(href='/') Insights
+        a.nav-link(href='/insights') Insights
       li.nav-item
         a.nav-link(href='/') Enter Scores
       li.nav-item
-        a.nav-link(href='/') Check Scores
-      li.nav-item.dropdown
-        a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Admin
-        .dropdown-menu(aria-labelledby=navbarDropdown)
-          a.dropdown-item(href='#') Dashboard
-          a.dropdown-item(href='/editTeachers') Edit Teachers
-          a.dropdown-item(href='refreshTeachers') Refresh Teachers
-          a.dropdown-item(href='/admin') Import Data
-          a.dropdown-item(href='/updateAverages') Update Averages
+        a.nav-link(href='/checkScores') Check Scores
+      if user.access > 2
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Admin
+          .dropdown-menu(aria-labelledby=navbarDropdown)
+            a.dropdown-item(href='#') Dashboard
+            a.dropdown-item(href='/editTeachers') Edit Teachers
+            a.dropdown-item(href='/refreshTeachers') Refresh Teachers
+            a.dropdown-item(href='/importEdval') Import Edval Data
+            a.dropdown-item(href='/updateAverages') Update Averages
       li.nav-item
         a.nav-link(href='/logout') Logout

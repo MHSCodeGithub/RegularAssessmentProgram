@@ -61,28 +61,4 @@ mongoose.connection.once('open',function() {
 // Set up routes
 app.use('/', routes);
 
-// Check if logged in
-const authCheck = (req, res, next) => {
-  if(!req.session.user) {
-    res.redirect('/login');
-  } else {
-    next();
-  }
-}
-
-// Basic home route
-app.get('/', authCheck, (req, res) => {
-  res.render('home', {user: req.session.user});
-});
-
-// Basic admin route
-app.get('/admin', authCheck, (req, res) => {
-  res.render('admin', {user: req.session.user});
-});
-
-// Rubric
-app.get('/rubric', (req, res) => {
-  res.render('rubric', {user: req.session.user});
-});
-
 app.listen(3000, () => console.log('RAP listening on port 3000!'));

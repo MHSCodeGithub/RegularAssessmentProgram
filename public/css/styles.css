@@ -155,6 +155,11 @@ img {
   max-width: 100%;
 }
 
+.save-button {
+  width: 85px;
+  margin-right: 5px;
+}
+
 /* ---- LOGIN ---- */
 
 .login {
