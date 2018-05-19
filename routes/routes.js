@@ -152,6 +152,7 @@ router.get('/updateTeacher', (req, res) => {
   var teacher = req.query.name;
   var username = req.query.username;
   var access = req.query.access;
+  var faculty = req.query.faculty;
 
   // Loop through every student
   Teacher.findOne({ name: teacher }, function (err, user) {
@@ -164,6 +165,7 @@ router.get('/updateTeacher', (req, res) => {
     if(user) {
       user.username = username;
       user.access = access;
+      user.faculty = faculty;
       user.save().then((stu) => {
         console.log("Details updated for " + user.name);
         res.send(JSON.stringify({"result":true}));
@@ -256,7 +258,7 @@ router.get('/getTeachers', (req, res) => {
   Teacher.find({}).then(function(users) {
     let teachers = [];
     users.forEach(function(u) {
-      teachers.push({name: u.name, username: u.username, access: u.access});
+      teachers.push({name: u.name, username: u.username, access: u.access, faculty: u.faculty});
     });
     //console.log(teachers);
     res.send(JSON.stringify(teachers));

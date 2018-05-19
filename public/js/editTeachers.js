@@ -6,6 +6,7 @@ $.getJSON("/getTeachers", function(teacher) {
         "<tr>" +
           "<th scope='col'>Name:</th>" +
           "<th scope='col'>DoE Username:</th>" +
+          "<th scope='col'>Faculty:</th>" +
           "<th scope='col'>Access:</th>" +
           "<th scope='col' style='width: 145px;'>Save / Delete:</th>" +
         "</tr>" +
@@ -14,17 +15,48 @@ $.getJSON("/getTeachers", function(teacher) {
     "</table>"
   );
   $.each(teacher, function(key,val) {
+
     var convertedName = val.name.replace(/\s+/g, '-').toLowerCase();
+
+    // Detect access level for 'select' access input
     let access1,access2,access3;
     if(val.access == 1) { access1 = " selected " } else { access1 = " " };
     if(val.access == 2) { access2 = " selected " } else { access2 = " " };
     if(val.access == 3) { access3 = " selected " } else { access3 = " " };
+
+    // Detect faculty for 'select' faculty input
+    let faculty1,faculty2,faculty3,faculty4,faculty5,faculty6,faculty7,faculty8,faculty9;
+    if(val.faculty == null) { faculty1 = " selected " } else { faculty1 = " " };
+    if(val.faculty == "Other") { faculty1 = " selected " } else { faculty1 = " " };
+    if(val.faculty == "English") { faculty2 = " selected " } else { faculty2 = " " };
+    if(val.faculty == "Mathematics") { faculty3 = " selected " } else { faculty3 = " " };
+    if(val.faculty == "Science") { faculty4 = " selected " } else { faculty4 = " " };
+    if(val.faculty == "HSIE") { faculty5 = " selected " } else { faculty5 = " " };
+    if(val.faculty == "PDHPE") { faculty6 = " selected " } else { faculty6 = " " };
+    if(val.faculty == "TAS") { faculty7 = " selected " } else { faculty7 = " " };
+    if(val.faculty == "CAPA") { faculty8 = " selected " } else { faculty8 = " " };
+    if(val.faculty == "Special Ed") { faculty9 = " selected " } else { faculty9 = " " };
+
+    // Build table of teachers and their details
     $('#teacher-table').append(
       "<tr id='" + convertedName + "-row'>" +
         "<td><a href='/queryTeacher?name=" + val.name + "'>" + val.name + "</a></td>" +
         "<td>" +
           "<input id='" + convertedName + "' class='form-control' value='" + val.username + "' " +
             "onkeydown='changed(\"" + convertedName + "\");' oninput='changed(\"" + convertedName + "\");'>" +
+        "</td>" +
+        "<td>" +
+          "<select class='form-control' id='" + convertedName + "-faculty' onchange='changed(\"" + convertedName + "\");'>" +
+            "<option value='Other'" + faculty1 + ">Other</option>" +
+            "<option value='English'" + faculty2 + ">English</option>" +
+            "<option value='Mathematics'" + faculty3 + ">Mathematics</option>" +
+            "<option value='Science'" + faculty4 + ">Science</option>" +
+            "<option value='HSIE'" + faculty5 + ">HSIE</option>" +
+            "<option value='PDHPE'" + faculty6 + ">PDHPE</option>" +
+            "<option value='TAS'" + faculty7 + ">TAS</option>" +
+            "<option value='CAPA'" + faculty8 + ">CAPA</option>" +
+            "<option value='Special Ed'" + faculty9 + ">Special Ed</option>" +
+          "</select>" +
         "</td>" +
         "<td>" +
           "<select class='form-control' id='" + convertedName + "-access' onchange='changed(\"" + convertedName + "\");'>" +
@@ -40,14 +72,17 @@ $.getJSON("/getTeachers", function(teacher) {
         "</td>" +
       "</tr>"
     );
+
   });
 });
 
 function updateTeacher(teacherName, convertedName) {
   var username = $("#" + convertedName).val();
   var access = $("#" + convertedName +"-access").val();
+  var faculty = $("#" + convertedName +"-faculty").val();
   //console.log(username);
-  $.getJSON("/updateTeacher?name="+teacherName+"&username="+username+"&access="+access, function(string) {
+  $.getJSON("/updateTeacher?name="+teacherName+"&username="+username+"&access="
+    +access+"&faculty="+faculty, function(string) {
     if(string.result) {
       console.log("Result: " + string.result);
       $('#' + convertedName + '-save').animate({
