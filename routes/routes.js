@@ -19,16 +19,20 @@ const authCheck = (req, res, next) => {
 
 // Basic home route
 router.get('/', authCheck, (req, res) => {
-    res.render('home', {user: req.session.user});
+  if(req.session.user.access == 0) {
+    res.render('studentHome', {user: req.session.user});
+  } else {
+    res.render('teacherHome', {user: req.session.user});
+  }
 });
 
 // Basic home route
 router.get('/queryTeacher', authCheck, (req, res) => {
   if(req.query.name != null) {
     console.log(req.query.name);
-    res.render('home', {user: req.session.user, queryName: req.query.name});
+    res.render('teacherHome', {user: req.session.user, queryName: req.query.name});
   } else {
-    res.render('home', {user: req.session.user});
+    res.render('teacherHome', {user: req.session.user});
   }
 });
 
@@ -97,7 +101,7 @@ router.get('/teacher', (req, res) => {
 
   // Redirect invalid requests to this route
   if(req.query.name == null) {
-    res.render('home', {user: req.session.user});
+    res.render('teacherHome', {user: req.session.user});
     return null;
   }
   var teacher = req.query.name;
@@ -207,7 +211,7 @@ router.get('/updateAverages', (req, res) => {
         });
     });
   });
-  res.render('home', {user: req.session.user});
+  res.render('teacherHome', {user: req.session.user});
 });
 
 // refresh teacher list based on student database
