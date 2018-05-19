@@ -1,0 +1,49 @@
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 Import From EMU
+                p Export student usernames in CSV format from EMU to import into the RAP system below. Without this students will be unable to login.
+                .card#classes-card
+                  .card-header#classes-header
+                    ul#subject-tabs.nav.nav-pills.nav-fill(role='tablist')
+                      li.nav-item
+                        a.nav-link.active#tab-upload(data-toggle='pill', href='#tab-container-1', role='tab', aria-controls='tab-container-1', aria-selected='true') Upload
+                      li.nav-item
+                        a.nav-link#tab-instructions(data-toggle='pill', href='#tab-container-2', role='tab', aria-controls='tab-container-2', aria-selected='true') Instructions
+                  .card-body#classes-body
+                    .tab-content#tab-container
+                      .tab-pane.fade.show.active#tab-container-1(role='tabpanel', aria-labelledby='tab-upload')
+                        .row
+                          .col-sm-12
+                            form#upload-form(action="/importEMU", autocomplete="off", method="POST", encType="multipart/form-data")
+                              .row
+                                .col-md-8.form-group
+                                  label(for='fileUpload') CSV File:
+                                  input.browse-file.form-control-file.form-control-lg(type='file', id='fileUpload', name='fileUpload', placeholder="Browse File", required)                                
+                                .col-md-4.form-group
+                                  div(style='margin-top: 32px;')
+                                    button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Upload
+                              .row
+                                .col-sm-12
+                                  if locals.error_msg != null && locals.error_msg.length > 0
+                                    div.alert.alert-danger.text-center(role="alert") #{locals.error_msg}
+                                  if locals.success_msg != null && locals.success_msg.length > 0
+                                    div.alert.alert-success.text-center(role="alert") #{locals.success_msg}
+                      .tab-pane.fade#tab-container-2(role='tabpanel', aria-labelledby='tab-instructions')
+                        .row
+                          .col
+                            p 1. Go to File > Export data > Students > Class lists
+                            img.border.border-primary(src='img/import/export_class_lists_1.png')
+                            p
+                            p 2. Make sure the following options are selected and click Ok
+                            img.border.border-primary(src='img/import/export_class_lists_2.png')
+                            p
+                            p 3. Save the CSV file and upload it into the RAP program
+    include partials/footer.pug

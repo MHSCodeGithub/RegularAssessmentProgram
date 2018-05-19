@@ -32,7 +32,7 @@ router.get('/queryTeacher', authCheck, (req, res) => {
   }
 });
 
-// Basic admin route
+// Render Import From Edval Screen
 router.get('/importEdval', authCheck, (req, res) => {
   res.render('importEdval', {user: req.session.user});
 });
@@ -329,6 +329,7 @@ router.post('/fillRadios', (req, res) => {
   res.end();
 });
 
+// Import data from Edval to setup students with classes/teachers
 router.post('/upload', function(req, res) {
 
   // Read in the POST data
@@ -456,6 +457,79 @@ router.post('/upload', function(req, res) {
 
 });
 
+// Render Import From EMU Screen
+router.get('/importEMU', authCheck, (req, res) => {
+  res.render('importEMU', {user: req.session.user});
+});
+
+// Import data from EMU to update student usernames
+router.post('/importEMU', function(req, res) {
+
+  // Read in the POST data
+  let fileUpload = req.files.fileUpload;
+
+  // Move the file to a local folder on the server
+  fileUpload.mv('./uploads/importedEMU.csv', function(err) {
+    if (err) { return res.status(500).send(err); }
+  });
+
+  // Set CSV file path
+  var csvFilePath = "./uploads/importedEMU.csv";
+
+  // Imports CSV and corrects structure for RAP usage
+  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+
+    // Async loop to play nice with MongoDB
+    async.eachSeries(jsonArrayObj, function(student, callback) {
+
+      // Ignore entire row if it doesn't contain the data we need
+      if(student["studentNo"] == null || student["DEC User ID"] == null) {
+        callback();
+      } else {
+
+        // Set variables
+        let id = student["studentNo"];
+        let username = student["DEC User ID"];
+
+        // Searches for current student in DB, adds them if not found
+        Student.findOne({ id: id }, function (err, user) {
+          if (err) {
+            // If there is an error with the query
+            return handleError(err);
+            callback();
+          }
+          if(user) {
+            // If student ID number is found
+            user.username = username;
+            user.access = 0;
+            user.save().then((stu) => {
+              console.log("Username '" + stu.username + "' updated for " + stu.name);
+            });
+            callback();
+          } else {
+            // If student ID number is NOT found
+
+            callback();
+          }
+        });
+      }
+    }, function(err) {
+      if( err ) {
+        console.log('An error occurred: ' + err); return false;
+        req.flash('error_msg', 'Error updating student usernames');
+        res.redirect('/importEMU');
+        return null;
+      }
+      else {
+        console.log('All students have been processed successfully');
+        req.flash('success_msg', 'All student usernames been updated successfully');
+        res.redirect('/importEMU');
+        return null;
+      }
+    });
+  });
+});
+
 // Useful for updating teacher email addresses
 router.post('/uploadTeachers', function(req, res) {
 
@@ -505,7 +579,7 @@ router.post('/uploadTeachers', function(req, res) {
       } else {
         console.log('All teachers have been processed successfully');
         req.flash('success_msg', 'All teachers have been processed successfully');
-        res.redirect('editTeachers');
+        res.redirect('/editTeachers');
         return null;
       }
     });
