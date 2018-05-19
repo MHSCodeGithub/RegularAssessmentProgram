@@ -258,7 +258,8 @@ router.get('/getTeachers', (req, res) => {
   Teacher.find({}).then(function(users) {
     let teachers = [];
     users.forEach(function(u) {
-      teachers.push({name: u.name, username: u.username, access: u.access, faculty: u.faculty});
+      teachers.push({name: u.name, username: u.username,
+        access: u.access, faculty: u.faculty});
     });
     //console.log(teachers);
     res.send(JSON.stringify(teachers));

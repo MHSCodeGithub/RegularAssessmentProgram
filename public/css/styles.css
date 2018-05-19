@@ -8,6 +8,11 @@ body {
   background: #42A5F5;
   font-family: 'Lato', sans-serif;
 }
+
+.container-fluid {
+  min-width: 535px;
+}
+
 .footer {
   position: absolute;
   bottom: 0px;
@@ -32,6 +37,25 @@ body {
 .navbar-brand {
   font-weight: bold;
   font-size: 1.2em;
+}
+
+.nav-link {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9em;
+}
+
+.nav-link:hover {
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 910px) {
+  .navbar-brand {
+    font-size: 1.0em;
+  }
+  .nav-link {
+    font-size: 0.7em;
+  }
 }
 
 #content-container {
@@ -126,16 +150,6 @@ label {
   color: white;
 }
 
-.nav-link {
-  color: rgba(255,255,255,0.6);
-  font-size: 0.9em;
-}
-
-.nav-link:hover {
-  color: rgba(255,255,255,0.8);
-  text-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-}
-
 #classes-header {
   padding: 0;
 }
@@ -158,6 +172,10 @@ img {
 .save-button {
   width: 85px;
   margin-right: 5px;
+}
+
+.rap-table {
+  font-size: 0.5em;
 }
 
 /* ---- LOGIN ---- */

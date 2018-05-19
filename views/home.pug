@@ -7,7 +7,7 @@ doctype html
 html
   include partials/header.pug
   body(onload="generateScores();")
-    .container#main
+    .container-fluid#main
       include partials/nav.pug
       .row
         .col-sm-12
@@ -15,7 +15,8 @@ html
             .card-body#content-body
               .col-sm-12
                 h3 #{name}
-                p Enter a score between 1-5 for each of your classes below.
+                p Enter a score between 1-5 for each of your classes below. 
+                  | Leave the score blank or remove the student from the class if they do not qualify for a score (e.g. left school, have not attended your class).
                   | See the #[a(href='/rubric') RAP Rubric] for more details.
                 .form-group(style='display:none')
                     form#teacher-form(action="", autocomplete="off", method="GET", name='teacher-form')

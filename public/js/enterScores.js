@@ -5,10 +5,8 @@ $.getJSON("/autocomplete", function(teachers) {
   });
 });
 
-
 // Click handler for radio buttons
 function handleClick(student, classCode, score) {
-  //$.get("/save?student="+student+"&classCode="+classCode+"&score="+score);
   $.post( "/save", { student: student, classCode: classCode, score: score });
 }
 
