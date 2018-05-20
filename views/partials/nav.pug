@@ -18,13 +18,14 @@ nav.navbar.navbar-expand-md.navbar-dark.justify-content-between
             li.nav-item.dropdown
               a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Admin
               .dropdown-menu(aria-labelledby=navbarDropdown)
-                a.dropdown-item(href='#') Dashboard
+                a.dropdown-item(href='/dashboard') Dashboard
                 a.dropdown-item(href='/editTeachers') Edit Teachers
                 a.dropdown-item(href='/checkTeacher') Check Teacher
                 a.dropdown-item(href='/refreshTeachers') Refresh Teachers
                 a.dropdown-item(href='/importEdval') Import Edval Data
                 a.dropdown-item(href='/importEMU') Import EMU Data
                 a.dropdown-item(href='/updateAverages') Update Averages
+                a.dropdown-item(href='/resetScores') Reset Scores
         else
           li.nav-item
             a.nav-link(href='/') View Scores

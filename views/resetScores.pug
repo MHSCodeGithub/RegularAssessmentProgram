@@ -1,0 +1,42 @@
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 Reset Scores
+                p Choose a RAP period and press OK to reset the scores back to 0.
+                form#reset-form(action="/resetScores", autocomplete="off", method="POST", encType="multipart/form-data")
+                  .row
+                    .col-md-3.form-group
+                      label(for='year') Year:
+                      select.form-control.form-control-lg(id='year', name='year')
+                        option(selected) 2018
+                        option 2019
+                        option 2020
+                    .col-md-3.form-group
+                      label(for='term') Term:
+                      select.form-control.form-control-lg(id='term', name='term')
+                        option 1
+                        option(selected) 2
+                        option 3
+                        option 4
+                    .col-md-3.form-group
+                      label(for='week') Week:
+                      select.form-control.form-control-lg(id='week', name='week')
+                        option(selected) 5
+                        option 9
+                    .col-md-3.form-group
+                      div(style='margin-top: 32px;')
+                      button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') OK
+                  .row
+                    .col-sm-12
+                      if locals.error_msg != null && locals.error_msg.length > 0
+                        div.alert.alert-danger.text-center(role="alert") #{locals.error_msg}
+                      if locals.success_msg != null && locals.success_msg.length > 0
+                        div.alert.alert-success.text-center(role="alert") #{locals.success_msg}                      
+    include partials/footer.pug

@@ -113,7 +113,7 @@
 					style = this,
 					property,
 					fontSize = getPixelSize(element, currentStyle, 'fontSize', null);
-				
+
 				for (property in currentStyle) {
 					if (Object.prototype.hasOwnProperty.call(currentStyle, property)) {
 						if (/width|height|margin.|padding.|border.+W/.test(property) && style[property] !== 'auto') {
@@ -173,7 +173,7 @@
 				ctrlDown = false;
 			}
 		});
-	
+
 	function accentReplace (s) {
 		if (!s) { return ''; }
 		var ret = '',i;
@@ -182,11 +182,11 @@
 		}
 		return ret;
 	}
-	
+
 	function escapeRegExp (str) {
 		return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 	}
-	
+
 	function getCaretPosition(input) {
 		if (!input) {
 			return;
@@ -254,10 +254,10 @@
 	function __get( property,source ){
 		if(!isset(source))
 			source = 0;
-		
+
 		if( $.isArray(this.source) && isset(this.source[source]) && isset(this.source[source][property]))
 			return this.source[source][property];
-			
+
 		if( isset(this[property]) ){
 			if( $.isArray(this[property]) ){
 				if( isset(this[property][source]) )
@@ -268,7 +268,7 @@
 			}
 			return this[property];
 		}
-		
+
 		return null;
 	};
 
@@ -283,11 +283,11 @@
 			cache :false,
 			dataType : 'json'
 		 },sourceObject.ajax))
-		 
+
 		 .done(function( data ){
 			done&&done.apply(this,$.makeArray(arguments));
 		 })
-		 
+
 		 .fail(function( jqXHR, textStatus ){
 			if( debug )
 				console.log("Request failed: " + textStatus);
@@ -297,13 +297,13 @@
 
 	function findRight( data,query ){
 		var right = false,source;
-		
+
 		for (source = 0;source < data.length;source += 1) {
 			if( right = __safe.call(this,"findRight",source,[data[source],query,source]) ){
 				return {right:right,source:source};
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -311,7 +311,7 @@
 		var source;
 		preparseData
 			.call( this,data,query );
-		
+
 		for (source = 0;source < data.length;source += 1) {
 			data[source] = __safe.call(this,
 				'filter',
@@ -325,7 +325,7 @@
 
 	function collectData( query,datasource,callback ){
 		var options = this,source;
-		
+
 		if( $.isFunction(options.source) ){
 				options.source.apply(options,[query,function(items){
 					datasource = [items];
@@ -341,7 +341,7 @@
 							if (!datasource[source]) {
 								datasource[source] = [];
 							}
-								
+
 							if (items && $.isArray(items)) {
 								switch (options.appendMethod) {
 									case 'replace':
@@ -351,7 +351,7 @@
 										datasource[source] = datasource[source].concat(items);
 								}
 							}
-								
+
 							safe_call.call(options,callback,[query]);
 						}, datasource,source]);
 					}(source));
@@ -399,34 +399,34 @@
 
 	function renderData( data,query ){
 		var  source, i, $div, $divs = [];
-		
+
 		for (source = 0;source < data.length;source += 1) {
 			for (i = 0;i < data[source].length;i += 1) {
 				if( $divs.length>=this.limit )
 					break;
-					
+
 				$div = $(__safe.call(this,
 					'render',source,
 					[data[source][i],source,i,query],
 					''
 				));
-				
+
 				$div.data('source',source);
 				$div.data('pid',i);
 				$div.data('item',data[source][i]);
-				
+
 				$divs.push($div);
 			}
 		}
-		
+
 		return $divs;
 	};
 
 	function getItem( $div,dataset ){
-		if( isset($div.data('source')) && 
-			isset($div.data('pid')) && 
-			isset(dataset[$div.data('source')]) && 
-			isset(dataset[$div.data('source')][$div.data('pid')]) 
+		if( isset($div.data('source')) &&
+			isset($div.data('pid')) &&
+			isset(dataset[$div.data('source')]) &&
+			isset(dataset[$div.data('source')][$div.data('pid')])
 		){
 			return dataset[$div.data('source')][$div.data('pid')];
 		}
@@ -435,7 +435,7 @@
 
 	function getValue( $div,dataset ){
 		var item = getItem($div,dataset);
-		
+
 		if( item ){
 			return __safe.call(this,
 				'getValue',$div.data('source'),
@@ -469,10 +469,10 @@
 		closeOnBlur: true,
 
 		autoselect: false,
-		
+
 		accents: true,
 		replaceAccentsForRemote: true,
-		
+
 		limit: 20,
 		visibleLimit: 20,
 		visibleHeight: 0,
@@ -483,7 +483,7 @@
 		get: function (property, source) {
 			return __get.call(this,property,source);
 		},
-		
+
 		replace: [
 			function (url, query) {
 				if (this.replaceAccentsForRemote) {
@@ -492,11 +492,11 @@
 				return url.replace('%QUERY%',encodeURIComponent(query));
 			}
 		],
-		
+
 		equal:function( value,query ){
 			return query.toLowerCase()==value.substr(0,query.length).toLowerCase();
 		},
-		
+
 		findRight:[
 			function(items,query,source){
 				var results = [],value = '',i;
@@ -506,12 +506,12 @@
 						if (__safe.call(this, 'equal', source, [value,query,source], false)) {
 							return items[i];
 						}
-					}				
+					}
 				}
 				return false;
 			}
 		],
-		
+
 		valid:[
 			function (value, query) {
 				if (this.accents) {
@@ -519,41 +519,41 @@
 					query = accentReplace(query);
 				}
 				return value.toLowerCase().indexOf(query.toLowerCase())!=-1;
-				
+
 			}
 		],
-		
+
 		filter:[
 			function (items, query, source) {
 				var results = [], value = '',i;
-				if (items) {					
+				if (items) {
 					for (i = 0;i < items.length;i += 1) {
 						value = isset(items[i][this.get('valueKey', source)]) ? items[i][this.get('valueKey', source)] : items[i].toString();
 						if (__safe.call(this, 'valid', source, [value, query])) {
-							results.push(items[i]); 
+							results.push(items[i]);
 						}
 					}
 				}
 				return results;
 			}
 		],
-		
+
 		preparse:function(items){
 			return items;
 		},
-		
+
 		getValue: [
 			function (item, source) {
 				return isset(item[this.get('valueKey',source)])?item[this.get('valueKey',source)]:item.toString();
 			}
 		],
-		
+
 		getTitle: [
 			function (item, source) {
 				return isset(item[this.get('titleKey',source)])?item[this.get('titleKey',source)]:item.toString();
 			}
 		],
-		
+
 		render: [
 			function (item, source, pid, query) {
 				var value = __safe.call(this, "getValue", source, [item, source], defaultSetting.getValue[0].call(this, item, source)),
@@ -565,14 +565,14 @@
 					highlighted = '',
 					c, h, i,
 					spos = 0;
-					
+
 				if (this.highlight) {
 					if (!this.accents) {
 						title = title.replace(new RegExp('('+escapeRegExp(query)+')','i'),'<b>$1</b>');
 					}else{
 						_title = accentReplace(title).toLowerCase().replace(/[<>]+/g, ''),
 						_query = accentReplace(query).toLowerCase().replace(/[<>]+/g, '');
-						
+
 						hilite_hints = _title.replace(new RegExp(escapeRegExp(_query), 'g'), '<'+_query+'>');
 						for (i=0;i < hilite_hints.length;i += 1) {
 							c = title.charAt(spos);
@@ -589,13 +589,13 @@
 						title = highlighted;
 					}
 				}
-					
+
 				return '<div '+(value==query?'class="active"':'')+' data-value="'+encodeURIComponent(value)+'">'
 							+title+
 						'</div>';
 			}
 		],
-		appendMethod: 'concat', // supported merge and replace 
+		appendMethod: 'concat', // supported merge and replace
 		source:[],
 		afterSelected: function() {
         }
@@ -603,7 +603,7 @@
 	function init( that,options ){
 		if( $(that).hasClass('xdsoft_input') )
 				return;
-		
+
 		var $box = $('<div class="xdsoft_autocomplete"></div>'),
 			$dropdown = $('<div class="xdsoft_autocomplete_dropdown"></div>'),
 			$hint = $('<input readonly class="xdsoft_autocomplete_hint"/>'),
@@ -617,10 +617,10 @@
 			currentSelect = '',
 			active = null,
 			pos = 0;
-		
+
 		//it can be used to access settings
 		$input.data('autocomplete_options', options);
-		
+
 		$dropdown
 			.on('mousedown', function(e) {
 				e.preventDefault();
@@ -631,32 +631,32 @@
 				if (!_act.length) {
 					return;
 				}
-				
+
 				var top = _act.position().top,
 					actHght = _act.outerHeight(true),
 					scrlTop = $dropdown.scrollTop(),
 					hght = $dropdown.height();
-					
+
 				if (top <0) {
 					$dropdown.scrollTop(scrlTop-Math.abs(top));
 				} else if (top+actHght>hght) {
 					$dropdown.scrollTop(scrlTop+top+actHght-hght);
 				}
 			});
-		
+
 		$box
 			.css({
 				'display':$input.css('display'),
 				'width':$input.css('width')
 			});
-		
+
 		if( options.style )
 			$box.css(options.style);
-			
+
 		$input
 			.addClass('xdsoft_input')
 			.attr('autocomplete','off');
-		
+
 		var xDown = null;
 		var yDown = null;
 		var isSwipe = false;
@@ -728,7 +728,7 @@
 				if (query != currentValue) {
 					return;
 				}
-				var right;	
+				var right;
 				processData.call(options, dataset,query);
 
 				$input.trigger('updateContent.xdsoft');
@@ -747,18 +747,18 @@
 
 		function manageKey (event) {
 			var key = event.keyCode, right;
-			
+
 			switch( key ){
 				case AKEY: case CKEY: case VKEY: case ZKEY: case YKEY:
 					if (event.shiftKey || event.ctrlKey) {
 						return true;
 					}
 				break;
-				case SHIFTKEY:	
+				case SHIFTKEY:
 				case CTRLKEY:
 					return true;
 				break;
-				case ARROWRIGHT:	
+				case ARROWRIGHT:
 				case ARROWLEFT:
 					if (ctrlDown || shiftDown || event.shiftKey || event.ctrlKey) {
 						return true;
@@ -805,11 +805,11 @@
 						event.preventDefault();
 						return false;
 					}
-					
+
 					active = $dropdown.find('div.active');
-					
+
 					var next = key==ARROWDOWN?'next':'prev', timepick = true;
-					
+
 					if( active.length ){
 						active.removeClass('active');
 						if( active[next]().length ){
@@ -821,49 +821,49 @@
 					}else{
 						$dropdown.children().eq(key==ARROWDOWN?0:-1).addClass('active');
 					}
-					
+
 					if( timepick ){
 						$input.trigger('timepick.xdsoft');
 					}
-					
+
 					$dropdown
 						.trigger('updatescroll.xdsoft');
-					
+
 					event.preventDefault();
-					return false;	
+					return false;
 			}
 			return;
 		}
-		
+
 		$input
 			.data('xdsoft_autocomplete',dataset)
 			.after($box)
 			.on('pick.xdsoft', function( event,_value ){
 
 				$input.trigger('timepick.xdsoft',_value);
-				
+
 				currentSelect = currentValue = $input.val();
-				
+
 				$input.trigger('close.xdsoft');
-				
+
 				//currentInput = false;
-				
+
 				active = $dropdown.find('div.active').eq(0);
-							
+
 				if( !active.length )
 					active = $dropdown.children().first();
-					
+
 				$input.trigger('selected.xdsoft',[getItem(active,dataset)]);
-				
+
 				if (options.afterSelected)
 					options.afterSelected();
 			})
 			.on('timepick.xdsoft', function( event,_value ){
 				active = $dropdown.find('div.active');
-							
+
 				if( !active.length )
 					active = $dropdown.children().first();
-				
+
 				if( active.length ){
 					if( !isset(_value) ){
 						$input.val(getValue.call(options,active,dataset));
@@ -877,39 +877,39 @@
 			})
 			.on('keydown.xdsoft input.xdsoft cut.xdsoft paste.xdsoft', function( event ){
 				var ret = manageKey(event);
-				
+
 				if (ret === false || ret === true) {
 					return ret;
 				}
-				
+
 				setTimeout(function(){
 					manageData();
 				},1);
-				
+
 				manageData();
 			})
 			.on('change.xdsoft', function( event ){
 				currentValue = $input.val();
 			});
-		
+
 		currentValue = $input.val();
-		
+
 		collectData.call(options, $input.val(),dataset,function( query ){
 			processData.call(options,dataset,query);
 		});
-		
+
 		if( options.openOnFocus ){
 			$input.on('focusin.xdsoft',function(){
 				$input.trigger('open.xdsoft');
 				$input.trigger('updateContent.xdsoft');
 			});
 		}
-		
+
 		if( options.closeOnBlur )
 			$input.on('focusout.xdsoft',function(){
 				$input.trigger('close.xdsoft');
 			});
-			
+
 		$box
 			.append($input)
 			.append($dropdown);
@@ -917,7 +917,7 @@
 
 		var olderBackground = false,
 			timerUpdate = 0;
-		
+
 		$input
 			.on('updateHelperPosition.xdsoft',function(){
 				clearTimeout(timerUpdate);
@@ -933,12 +933,12 @@
 						marginRight:$input.css('marginRight'),
 						width:options.dropdownWidth=='100%'?$input[0].offsetWidth:options.dropdownWidth
 					},options.dropdownStyle));
-					
+
 					if (options.showHint) {
 						var style = getComputedStyle($input[0], "");
-						
+
 						$hint[0].style.cssText = style.cssText;
-						
+
 						$hint.css({
 							'box-sizing':style.boxSizing,
 							borderStyle:'solid',
@@ -974,11 +974,11 @@
 							'-webkit-box-shadow':'none',
 							'box-shadow':'none'
 						});
-						
+
 						$input.css('font-size',$input.css('fontSize'))// fix bug with em font size
-						
+
 						$hint.innerHeight($input.innerHeight());
-						
+
 						$hint.css($.extend(true,{
 							position:'absolute',
 							zIndex:'1',
@@ -988,14 +988,14 @@
 							top:$input.position().top,
 							background:$input.css('background')
 						},options.hintStyle));
-						
-						
+
+
 						if( olderBackground!==false ){
 							$hint.css('background',olderBackground);
 						}else{
 							olderBackground = $input.css('background');
 						}
-						
+
 						try{
 							$input[0].style.setProperty('background', 'transparent', 'important');
 						} catch(e) {
@@ -1007,7 +1007,7 @@
 					}
 				}, options.timeoutUpdate||1);
 			});
-		
+
 		if ($input.is(':visible')) {
 			$input
 				.trigger('updateHelperPosition.xdsoft');
@@ -1020,16 +1020,16 @@
 				}
 			},100);
 		}
-		
+
 		$(window).on('resize',function () {
 			$box.css({
-				'width':'auto'
+				'width':'100%'
 			});
 			$input
 				.trigger('updateHelperPosition.xdsoft');
 		})
-		
-		$input	
+
+		$input
 			.on('close.xdsoft',function(){
 				if (!iOpen) {
 					return;
@@ -1039,7 +1039,7 @@
 					.hide();
 
 				$hint
-					.val('');	
+					.val('');
 
 				if (!options.autoselect) {
 					$input.val(currentValue);
@@ -1049,11 +1049,11 @@
 
 				//currentInput = false;
 			})
-			
+
 			.on('updateContent.xdsoft',function(){
 				var out = renderData.call(options,dataset,$input.val()),
 					hght = 10;
-				
+
 				if (out.length) {
 					$input.trigger('open.xdsoft');
 				} else {
@@ -1070,26 +1070,26 @@
 
 				$dropdown
 					.html(out);
-					
+
 				if (options.visibleHeight){
 					hght = options.visibleHeight;
 				} else {
 					hght = options.visibleLimit * ((out[0] ? out[0].outerHeight(true) : 0) || options.defaultHeightItem) + 5;
 				}
-				
+
 				$dropdown
 					.css('maxHeight', hght+'px')
 			})
-			
+
 			.on('open.xdsoft',function(){
 				if( iOpen )
 					return;
-				
+
 				$dropdown
 					.show();
 
 				iOpen = true;
-					
+
 				//currentInput = $input;
 			})
 			.on('destroy.xdsoft',function(){
@@ -1104,13 +1104,13 @@
 					.off('.xdsoft')
 			});
 	};
-	
+
 	publics = {
 		destroy: function () {
 			return this.trigger('destroy.xdsoft');
 		},
 		update: function () {
-			return this.trigger('updateHelperPosition.xdsoft');	
+			return this.trigger('updateHelperPosition.xdsoft');
 		},
 		options: function (_options) {
 			if (this.data('autocomplete_options') && $.isPlainObject(_options)) {
@@ -1120,7 +1120,7 @@
 		},
 		setSource: function (_newsource, id) {
 			if(this.data('autocomplete_options') && ($.isPlainObject(_newsource) || $.isFunction(_newsource) || $.isArray(_newsource))) {
-				var options = this.data('autocomplete_options'), 
+				var options = this.data('autocomplete_options'),
 					dataset = this.data('xdsoft_autocomplete'),
 					source 	= options.source;
 				if (id!==undefined && !isNaN(id)) {
@@ -1136,7 +1136,7 @@
 						$.extend(true, source, _newsource);
 					}
 				}
-				
+
 				collectData.call(options, this.val(), dataset,function( query ){
 					processData.call(options,dataset,query);
 				});
@@ -1153,9 +1153,9 @@
 				}
 			}
 			return null;
-		} 
+		}
 	};
-	
+
 	$.fn.autocomplete = function(_options, _second, _third){
 		if ($.type(_options) === 'string' && publics[_options]) {
 			return publics[_options].call(this, _second, _third);

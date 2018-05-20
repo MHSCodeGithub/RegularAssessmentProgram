@@ -1,0 +1,23 @@
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 Update Averages
+                p Press OK to recalculate and store the averages for all RAP Periods
+                form#upload-form(action="/updateAverages", autocomplete="off", method="POST", encType="multipart/form-data")
+                  .row
+                    .col-md-12.form-group
+                      button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Update Averages
+                  .row
+                    .col-sm-12
+                      if locals.error_msg != null && locals.error_msg.length > 0
+                        div.alert.alert-danger.text-center(role="alert") #{locals.error_msg}
+                      if locals.success_msg != null && locals.success_msg.length > 0
+                        div.alert.alert-success.text-center(role="alert") #{locals.success_msg}                      
+    include partials/footer.pug

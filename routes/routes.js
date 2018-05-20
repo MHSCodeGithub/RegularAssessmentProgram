@@ -26,7 +26,25 @@ router.get('/', authCheck, (req, res) => {
   }
 });
 
-// Query a specific teacher
+// Admin dashboard
+router.get('/dashboard', authCheck, (req, res) => {
+  if(req.session.user.access < 2) {
+    res.render('/', {user: req.session.user});
+  } else {
+    res.render('dashboard', {user: req.session.user});
+  }
+});
+
+// Insights
+router.get('/insights', authCheck, (req, res) => {
+  if(req.session.user.access == 0) {
+    res.render('studentHome', {user: req.session.user});
+  } else {
+    res.render('insights', {user: req.session.user});
+  }
+});
+
+// Query a specific teacher via URL
 router.get('/queryTeacher', authCheck, (req, res) => {
   if(req.query.name != null) {
     console.log(req.query.name);
@@ -34,6 +52,11 @@ router.get('/queryTeacher', authCheck, (req, res) => {
   } else {
     res.render('teacherHome', {user: req.session.user});
   }
+});
+
+// Search for teacher on Check Teacher page
+router.get('/checkTeacher', authCheck, (req, res) => {
+  res.render('checkTeacher', {user: req.session.user});
 });
 
 // Query a specific student
@@ -215,29 +238,80 @@ router.get('/editTeachers', (req, res) => {
 });
 
 // Re-calculate averages for each student
-router.get('/updateAverages', (req, res) => {
+router.get('/resetScores', authCheck, (req, res) => {
+  res.render('resetScores', {user: req.session.user});
+});
+
+// Re-calculate averages for each student
+router.post('/resetScores', (req, res) => {
+  let year = req.body.year;
+	let term = req.body.term;
+  let week = req.body.week;
   Student.find({}).then(function(users) {
-    users.forEach(function(u) {
-        Student.findOne({name: u.name}, function(err, stu){
-          if(err){ console.log("Something went wrong when searching the data!"); }
-          stu.rap.forEach(function(r) {
-            let total = 0;
-            let count = 0;
+    var itemsProcessed = 0;
+    users.forEach(function(u, index, array) {
+      Student.findOne({name: u.name}, function(err, stu){
+        if(err){ console.log("Something went wrong when searching the data!"); }
+        stu.rap.forEach(function(r) {
+          if(r.year == year && r.term == term && r.week == week) {
+            r.average = 0;
             r.scores.forEach(function(s) {
-              if(s.value > 0) {
-                total += s.value;
-                count++;
-              }
+              s.value = 0;
             });
-            r.average = Number(total/count).toFixed(2);
-          });
-          stu.save().then((newUser) => {
-            console.log('Updated averages for ' + stu.name);
-          });
+          }
         });
+        stu.save().then((newUser) => {
+          itemsProcessed++;
+          console.log(itemsProcessed + " / " + array.length + " - Reset score for " + stu.name);
+          if(itemsProcessed == array.length) {
+            console.log('All student RAP scores reset to 0');
+            req.flash('success_msg', 'All student RAP scores reset to 0');
+            res.redirect('/resetScores');
+            return null;
+          }
+        });
+      });
     });
   });
-  res.render('teacherHome', {user: req.session.user});
+});
+
+// Re-calculate averages for each student
+router.get('/updateAverages', authCheck, (req, res) => {
+  res.render('updateAverages', {user: req.session.user});
+});
+
+// Re-calculate averages for each student
+router.post('/updateAverages', (req, res) => {
+  Student.find({}).then(function(users) {
+    var itemsProcessed = 0;
+    users.forEach(function(u, index, array) {
+      Student.findOne({name: u.name}, function(err, stu){
+        if(err){ console.log("Something went wrong when searching the data!"); }
+        stu.rap.forEach(function(r) {
+          let total = 0;
+          let count = 0;
+          r.scores.forEach(function(s) {
+            if(s.value > 0) {
+              total += s.value;
+              count++;
+            }
+          });
+          r.average = Number(total/count).toFixed(2);
+        });
+        stu.save().then((newUser) => {
+          console.log('Updated averages for ' + stu.name);
+          itemsProcessed++;
+          console.log(itemsProcessed + " / " + array.length);
+          if(itemsProcessed == array.length) {
+            console.log('All student average RAP scores recalculated successfully');
+            req.flash('success_msg', 'All student average RAP scores recalculated successfully');
+            res.redirect('/updateAverages');
+            return null;
+          }
+        });
+      });
+    });
+  });
 });
 
 // refresh teacher list based on student database
