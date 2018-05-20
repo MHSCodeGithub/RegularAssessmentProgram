@@ -1,5 +1,4 @@
 // Various app settings
-
 module.exports = {
   rapPeriod: {
     year: 2018,
