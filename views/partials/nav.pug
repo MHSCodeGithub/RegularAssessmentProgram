@@ -20,9 +20,13 @@ nav.navbar.navbar-expand-md.navbar-dark.justify-content-between
               .dropdown-menu(aria-labelledby=navbarDropdown)
                 a.dropdown-item(href='#') Dashboard
                 a.dropdown-item(href='/editTeachers') Edit Teachers
+                a.dropdown-item(href='/checkTeacher') Check Teacher
                 a.dropdown-item(href='/refreshTeachers') Refresh Teachers
                 a.dropdown-item(href='/importEdval') Import Edval Data
                 a.dropdown-item(href='/importEMU') Import EMU Data
                 a.dropdown-item(href='/updateAverages') Update Averages
+        else
+          li.nav-item
+            a.nav-link(href='/') View Scores
         li.nav-item
           a.nav-link(href='/logout') Logout

@@ -1,0 +1,21 @@
+- var name = user.name
+- var page = "studentHome"
+doctype html
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                .form-group
+                    form#student-form(action="/student", autocomplete="off", method="GET" )
+                      .input-group
+                        input.form-control.form-control-lg(type='text', id='studentName', name='studentName', placeholder="Student Name")
+                        span.input-group-btn
+                          button.btn.btn-primary(type='submit') Go!
+              .col-sm-12#scores
+    include partials/footer.pug

@@ -217,3 +217,19 @@ img {
   padding-bottom: 15px;
   font-size: 1.1em;
 }
+
+/* ---- STUDENT HOME ---- */
+.scores-container {
+  margin: 0;
+  padding: 0;
+}
+
+.scores-table {
+  margin: 0;
+  padding: 0;
+}
+
+.score-column {
+  width: 140px;
+  text-align: center;
+}

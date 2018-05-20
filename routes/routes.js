@@ -26,13 +26,23 @@ router.get('/', authCheck, (req, res) => {
   }
 });
 
-// Basic home route
+// Query a specific teacher
 router.get('/queryTeacher', authCheck, (req, res) => {
   if(req.query.name != null) {
     console.log(req.query.name);
     res.render('teacherHome', {user: req.session.user, queryName: req.query.name});
   } else {
     res.render('teacherHome', {user: req.session.user});
+  }
+});
+
+// Query a specific student
+router.get('/checkScores', authCheck, (req, res) => {
+  if(req.query.studentName != null && req.query.access > 0) {
+    console.log(req.query.name);
+    res.render('checkScores', {user: req.session.user, queryName: req.query.name});
+  } else {
+    res.render('checkScores', {user: req.session.user});
   }
 });
 
@@ -270,6 +280,18 @@ router.get('/autocomplete', (req, res) => {
     });
     //console.log(teachers);
     res.send(JSON.stringify(teachers));
+  });
+});
+
+// Returns a list of Students for the autocomplete
+router.get('/autocompleteStudents', (req, res) => {
+  Student.find({}).then(function(users) {
+    let students = [];
+    users.forEach(function(u) {
+      students.push(u.name);
+    });
+    //console.log(teachers);
+    res.send(JSON.stringify(students));
   });
 });
 
