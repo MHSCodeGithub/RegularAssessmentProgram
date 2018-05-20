@@ -144,6 +144,22 @@ router.get('/teacher', (req, res) => {
 
 });
 
+// Returns all details about a specific student
+router.get('/student', (req, res) => {
+
+  // Redirect invalid requests to this route
+  if(req.query.name == null) {
+    res.render('studentHome', {user: req.session.user});
+    return null;
+  }
+  var student = req.query.name;
+
+  Student.findOne({name: req.query.name}).then(function(stu) {
+    res.send(JSON.stringify(stu));
+  });
+
+});
+
 // Updates a single teacher's username and access, returns true if successful
 router.get('/updateTeacher', (req, res) => {
 

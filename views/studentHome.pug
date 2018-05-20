@@ -1,8 +1,9 @@
 - var name = user.name
+- var page = "studentHome"
 doctype html
 html
   include partials/header.pug
-  body(onload="generateScores();")
+  body
     .container-fluid#main
       include partials/nav.pug
       .row
@@ -10,7 +11,8 @@ html
           .card#content-container
             .card-body#content-body
               .col-sm-12
-                h3 #{name}
+                h3#studentName #{name}
                 p Below you can see your most recent and historical RAP scores. See the #[a(href='/rubric') RAP Rubric] for more details about how the scores are calculated.
                 .col-sm-12#scores
+                  #accordion(role='tablist')                                      
     include partials/footer.pug
