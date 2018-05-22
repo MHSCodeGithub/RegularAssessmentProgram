@@ -100,26 +100,37 @@ function generateScores() {
           "<tr>" +
             "<td>" + student.name + "</td>" +
             "<td class='scoreColumn'>" +
+
               // Radio Button 1
               "<input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' id='1" + "_" +
               i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 1);'>" +
-              "<label for='1" + "_" + i + "_" + y.code + "' class='scoreRadio'>1</label>" +
+              "<label for='1" + "_" + i + "_" + y.code + "' class='scoreRadio' " +
+              "data-toggle='tooltip' data-placement='bottom' title='Unsatisfactory Performance'>1</label>" +
+
               // Radio Button 2
               "<input class='form-check-input' " + checked2 + " type='radio' name='" + student.name + "' id='2" + "_" +
               i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 2);'>" +
-              "<label for='2" + "_" + i + "_" + y.code + "' class='scoreRadio'>2</label>" +
+              "<label for='2" + "_" + i + "_" + y.code + "' class='scoreRadio' " +
+              "data-toggle='tooltip' data-placement='bottom' title='Of Concern'>2</label>" +
+
               // Radio Button 3
               "<input class='form-check-input' " + checked3 + " type='radio' name='" + student.name + "' id='3" + "_" +
               i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 3);'>" +
-              "<label for='3" + "_" + i + "_" + y.code + "' class='scoreRadio'>3</label>" +
+              "<label for='3" + "_" + i + "_" + y.code + "' class='scoreRadio' " +
+              "data-toggle='tooltip' data-placement='bottom' title='Good'>3</label>" +
+
               // Radio Button 4
               "<input class='form-check-input' " + checked4 + " type='radio' name='" + student.name + "' id='4" + "_" +
               i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 4);'>" +
-              "<label for='4" + "_" + i + "_" + y.code + "' class='scoreRadio'>4</label>" +
+              "<label for='4" + "_" + i + "_" + y.code + "' class='scoreRadio' " +
+              "data-toggle='tooltip' data-placement='bottom' title='Excellent'>4</label>" +
+
               // Radio Button 5
               "<input class='form-check-input' " + checked5 + " type='radio' name='" + student.name + "' id='5" + "_" +
               i + "_" + y.code + "' value='" + y.code + "' onClick='handleClick(\""+student.name+"\", \""+y.code+"\", 5);'>" +
-              "<label for='5" + "_" + i + "_" + y.code + "' class='scoreRadio'>5</label>" +
+              "<label for='5" + "_" + i + "_" + y.code + "' class='scoreRadio' " +
+              "data-toggle='tooltip' data-placement='bottom' title='Outstanding'>5</label>" +
+
             "</td>" +
           "</tr>");
 
