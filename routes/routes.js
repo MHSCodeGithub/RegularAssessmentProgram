@@ -61,8 +61,8 @@ router.get('/checkTeacher', authCheck, (req, res) => {
 
 // Query a specific student
 router.get('/checkScores', authCheck, (req, res) => {
-  if(req.query.studentName != null && req.query.access > 0) {
-    console.log(req.query.name);
+  if(req.query.name != null && req.session.user.access > 0) {
+    console.log(req.session.user.name + " looked up scores for " + req.query.name);
     res.render('checkScores', {user: req.session.user, queryName: req.query.name});
   } else {
     res.render('checkScores', {user: req.session.user});

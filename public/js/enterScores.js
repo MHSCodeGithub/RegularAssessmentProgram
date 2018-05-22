@@ -1,10 +1,3 @@
-// Autocomplete for Teacher text box
-$.getJSON("/autocomplete", function(teachers) {
-  $("#teacherName").autocomplete({
-    source:[teachers]
-  });
-});
-
 // Click handler for radio buttons
 function handleClick(student, classCode, score) {
   $.post( "/save", { student: student, classCode: classCode, score: score });
@@ -26,9 +19,8 @@ function fillRadios(num, classCode) {
 }
 
 
-function generateScores() {
+function generateScores(name) {
 
-  var name = $('#teacherName').val();
   $.getJSON("/teacher?name="+name, function(string) {
 
     // destroy any class lists that are already there
@@ -77,7 +69,8 @@ function generateScores() {
       $('#tab-container-' + x).append(
         "<div class='row' id='add-student'>" +
           "<div class='col-sm-9'>" +
-            "<input type='text' class='form-control studentNames' placeholder='Missing Student Name'>" +
+            "<input type='text' class='form-control studentNames' placeholder='Missing Student Name' " +
+            "data-toggle='tooltip' data-placement='bottom' title='If a student is missing from " + y.code + " add them here'>" +
           "</div>" +
           "<div class='col-sm-3'>" +
             "<button class='btn btn-primary' style='width: 100%;'>Add Missing Student to " + y.code + "</button>" +
@@ -160,7 +153,7 @@ function generateScores() {
       });
     });
 
-    // Actiovate tooltips
+    // Activate tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
     // Fill all student name inputs with autocomplete data
@@ -172,13 +165,32 @@ function generateScores() {
 
   });
 
-  // Prevent form submission
-  event.preventDefault();
+
 }
 
 $(document).ready(function() {
-  // AJAX request for Teacher's classes
-  $("#teacher-form" ).submit(function( event ) {
-    generateScores();
-  });
+
+});
+
+$(document).ready(function() {
+  // If we are on the student search page
+  if ($('#teacher-form').length) {
+    // Autocomplete for Teacher text box
+    $.getJSON("/autocomplete", function(teachers) {
+      $("#teacherName").autocomplete({
+        source:[teachers]
+      });
+    });
+    // AJAX request for Teacher's classes
+    $("#teacher-form" ).submit(function( event ) {
+      var name = $('#teacherName').val();
+      generateScores(name);
+      event.preventDefault();
+    });
+  // Otherwise we are on the student home page
+  } else {
+    // Grab name and generate scores
+    var name = $('#teacherName').html();
+    generateScores(name);
+  }
 });
