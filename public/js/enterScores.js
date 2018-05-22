@@ -37,15 +37,31 @@ function generateScores(name) {
 
       // Dynamically creates the tabs for each subject
       if(key == 0) {
-        $('#subject-tabs').append("<li class='nav-item'>" +
-            "<a class='nav-link active' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
-            key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>");
+        $('#subject-tabs').append(
+          "<li class='nav-item'>" +
+              "<a class='nav-link active' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
+              key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
+            "</li>"
+          );
       } else {
-        $('#subject-tabs').append("<li class='nav-item'>" +
+        $('#subject-tabs').append(
+          "<li class='nav-item'>" +
             "<a class='nav-link' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
-            key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>");
+            key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
+          "</li>"
+        );
       }
     });
+
+    $('#subject-tabs').append(
+      "<li class='nav-item ml-auto' style='flex: 0 0 60px;' " +
+        "data-toggle='tooltip' data-placement='bottom' title='Add a Missing Class'>" +
+        "<a class='nav-link' id='tab-add' data-toggle='pill' href='#tab-container-add' role='tab' " +
+          "aria-controls='tab-container-add' aria-selected='true'>" +
+           "<i class='fa fa-plus' aria-hidden='true'></i>" +
+          "</a>" +
+      "</li>"
+    );
 
     // Create tab content container
     $('#classes-body').append("<div class='tab-content' id='tab-container'></div>");
@@ -153,6 +169,20 @@ function generateScores(name) {
       });
     });
 
+    $('#tab-container').append(
+      "<div class='tab-pane fade' id='tab-container-add' role='tabpanel' aria-labelledby='tab-add'>" +
+        "<div class='row' id='add-class'>" +
+          "<div class='col-sm-9'>" +
+            "<input type='text' class='form-control classCodes' placeholder='Missing Class Code' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Search for the missing class'>" +
+          "</div>" +
+          "<div class='col-sm-3'>" +
+            "<button class='btn btn-primary' style='width: 100%;'>Add Missing Class</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>"
+    );
+
     // Activate tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -163,14 +193,16 @@ function generateScores(name) {
       });
     });
 
+    // Fill the 'Add Class' input with class codes
+    $.getJSON("/autocompleteClasses", function(classes) {
+      $(".classCodes").autocomplete({
+        source:[classes]
+      });
+    });
+
   });
 
-
 }
-
-$(document).ready(function() {
-
-});
 
 $(document).ready(function() {
   // If we are on the student search page
