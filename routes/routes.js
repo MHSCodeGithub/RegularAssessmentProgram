@@ -2,11 +2,18 @@ const router = require('express').Router();
 const fileUpload = require('express-fileupload');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
-const settings = require('../config/settings');
+const RapPeriods = require('../models/rapPeriods');
 const FormData = require('form-data');
 const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
+
+// Returns the current RAP Period
+function getCurrentPeriod() {
+  RapPeriods.findOne({ current: true }, function (err, period) {
+      return period;
+  });
+}
 
 // Check if logged in
 const authCheck = (req, res, next) => {
@@ -42,6 +49,49 @@ router.get('/insights', authCheck, (req, res) => {
   } else {
     res.render('insights', {user: req.session.user});
   }
+});
+
+// Sets the current RAP Period
+router.post('/setCurrentPeriod', (req, res) => {
+
+  // Set parameters
+  let year = req.body.year;
+  let term = req.body.term;
+  let week = req.body.week;
+
+  RapPeriods.find({}).then(function(periods) {
+    let found = false;
+    periods.forEach(function(p) {
+      if(p.year == year && p.term == term && p.week == week) {
+        found = true;
+        p.current = true;
+        p.save().then((period) => {
+          console.log("Current RAP Period is updated: " + p.year + ", " + p.term + ", " + p.week);
+        });
+      } else {
+        p.current = false;
+        p.save().then((period) => {
+          //console.log("Not current: " + p.year + ", " + p.term + ", " + p.week);
+        });
+      }
+    });
+    if(!found) {
+      let rp = new RapPeriods({
+        year: year,
+        term: term,
+        week: week,
+        current: true,
+        active: false
+      });
+      rp.save().then((period) => {
+        console.log("New RAP period created: " + period.year + ", " + period.term + ", " + period.week);
+      });
+    }
+  });
+
+  req.flash('success_msg', 'RAP Period updated successfully');
+  res.redirect('/dashboard');
+
 });
 
 // Query a specific teacher via URL
@@ -97,7 +147,25 @@ router.post('/login', (req, res) => {
   form.append('password', password);
   form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
     if(response.headers.location != "/portal/dashboard") {
-      console.log("Not logged in");
+      // try again with different portal for staff
+      var form2 = new FormData();
+      form2.append('sentral-username', username);
+      form2.append('sentral-password', password);
+      form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
+        if(response2.statusCode == 200) {
+          console.log("Not able to log in via Sentral Staff Portal");
+        } else {
+          console.log("Logged in through Sentral Staff Portal");
+          console.log("Checking to see if the user is a staff member...");
+          Teacher.findOne({ username: username }, function (err, user) {
+            if(user) {
+              req.session.user = user;
+              res.redirect('/');
+            }
+          });
+        }
+      });
+      console.log("Not able to log in via Sentral Student Portal");
       res.render('login', {error: "Invalid username or password"});
     } else {
       // See if user is a teacher
@@ -410,27 +478,27 @@ router.post('/save', (req, res) => {
   var classCode = req.body.classCode;
   var score = req.body.score;
 
-  Student.findOne({ name: student }, function (err, user) {
-    if (err) { console.log(err); }
-    if (user) {
-      //console.log("student="+student+"&classCode="+classCode+"&score="+score);
-      user.rap.forEach(function(r) {
-        //console.log(r);
-        if(r.year == settings.rapPeriod.year
-          && r.term == settings.rapPeriod.term
-          && r.week == settings.rapPeriod.week) {
-          r.scores.forEach(function(s) {
-            if(s.code == classCode) {
-              s.value = score;
-              user.save().then((newUser) => {
-                console.log('Updated score to ' + score + ' for ' + student);
-                res.end();
-              });
-            }
-          });
-        }
-      });
-    }
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.findOne({ name: student }, function (err, user) {
+      if (err) { console.log(err); }
+      if (user) {
+        user.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+            && r.term == currentPeriod.term
+            && r.week == currentPeriod.week) {
+            r.scores.forEach(function(s) {
+              if(s.code == classCode) {
+                s.value = score;
+                user.save().then((newUser) => {
+                  console.log('Updated score to ' + score + ' for ' + student);
+                  res.end();
+                });
+              }
+            });
+          }
+        });
+      }
+    });
   });
 });
 
@@ -443,20 +511,27 @@ router.post('/fillRadios', (req, res) => {
   let students = req.body.students;
   console.log("Updating scores for " + classCode + " to " + score);
 
-  // Loop through every student from class list
-  Student.find({"$or":students}).then(function(users) {
-    //console.log(users);
-    users.forEach(function(u) {
-      // then loop through RAP period for each student
-      u.rap.forEach(function(r) {
-        // then through the individual subject scores for each student
-        r.scores.forEach(function(s) {
-          // if the class code matches the code sent
-          if(s.code == classCode) {
-            s.value = score;
-            u.save().then((stu) => {
-              console.log("Score updated for " + u.name);
-              // Score saved!
+  // Match the rap period to the current period
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    // Loop through every student from class list
+    Student.find({"$or":students}).then(function(users) {
+      //console.log(users);
+      users.forEach(function(u) {
+        // then loop through each RAP period to find the current one
+        u.rap.forEach(function(r) {
+          if(currentPeriod.year == r.year
+            && currentPeriod.term == r.term
+            && currentPeriod.week == r.week) {
+            // then through the individual subject scores for each student
+            r.scores.forEach(function(s) {
+              // if the class code matches the code sent
+              if(s.code == classCode) {
+                s.value = score;
+                u.save().then((stu) => {
+                  console.log("Score updated for " + u.name);
+                  // Score saved!
+                });
+              }
             });
           }
         });

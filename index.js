@@ -4,6 +4,7 @@ const routes = require('./routes/routes');
 const keys = require('./config/keys');
 const Student = require('./models/student');
 const Teacher = require('./models/teacher');
+const RapPeriods = require('./models/rapPeriods');
 const fileUpload = require('express-fileupload');
 const flash = require('connect-flash');
 const cookieSession = require('cookie-session');

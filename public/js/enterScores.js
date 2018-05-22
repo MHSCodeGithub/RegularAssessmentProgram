@@ -18,7 +18,7 @@ function fillRadios(num, classCode) {
   $.post( "/fillRadios", { classCode: classCode, score: num, students: stuNames });
 }
 
-
+// Generate the HTML for student scores for each class
 function generateScores(name) {
 
   $.getJSON("/teacher?name="+name, function(string) {
@@ -202,6 +202,11 @@ function generateScores(name) {
 
   });
 
+}
+
+// Add a missing students
+function addStudent(name, code) {
+  
 }
 
 $(document).ready(function() {
