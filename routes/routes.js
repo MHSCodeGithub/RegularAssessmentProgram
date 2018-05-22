@@ -182,7 +182,7 @@ router.get('/student', (req, res) => {
 
   // Redirect invalid requests to this route
   if(req.query.name == null) {
-    res.render('studentHome', {user: req.session.user});
+    res.redirect('/');
     return null;
   }
   var student = req.query.name;
@@ -237,12 +237,12 @@ router.get('/editTeachers', (req, res) => {
   res.render('editTeachers', {user: req.session.user, message: req.session.message});
 });
 
-// Re-calculate averages for each student
+// Reset scores to 0 for each student
 router.get('/resetScores', authCheck, (req, res) => {
   res.render('resetScores', {user: req.session.user});
 });
 
-// Re-calculate averages for each student
+// Reset scores to 0 for each student
 router.post('/resetScores', (req, res) => {
   let year = req.body.year;
 	let term = req.body.term;
@@ -296,7 +296,11 @@ router.post('/updateAverages', (req, res) => {
               count++;
             }
           });
-          r.average = Number(total/count).toFixed(2);
+          if(total == 0 ) {
+            r.average = 0;
+          } else {
+            r.average = Number(total/count).toFixed(2);
+          }
         });
         stu.save().then((newUser) => {
           console.log('Updated averages for ' + stu.name);

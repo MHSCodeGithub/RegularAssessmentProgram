@@ -73,17 +73,40 @@ function generateScores() {
         "' role='tabpanel' aria-labelledby='tab" + x + "_" + y.code + "'></div>");
       }
 
+      // Search box and button to add students missing from class
+      $('#tab-container-' + x).append(
+        "<div class='row' id='add-student'>" +
+          "<div class='col-sm-9'>" +
+            "<input type='text' class='form-control studentNames' placeholder='Missing Student Name'>" +
+          "</div>" +
+          "<div class='col-sm-3'>" +
+            "<button class='btn btn-primary' style='width: 100%;'>Add Missing Student to " + y.code + "</button>" +
+          "</div>" +
+        "</div>"
+      );
+
       // Dynamically creates the headings for each column
-      $('#tab-container-' + x).append("<form><table class='table table-striped'><thead><tr>" +
-          "<th scope='col'>Name:</th>" +
-          "<th scope='col' class='scoreColumn'>" +
-            "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
-            "<a href='#' onClick='fillRadios(2, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
-            "<a href='#' onClick='fillRadios(3, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
-            "<a href='#' onClick='fillRadios(4, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
-            "<a href='#' onClick='fillRadios(5, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
-          "</th>" +
-        "</tr></thead><tbody id='subjects-body-" + x + "'></tbody></table></form>");
+      $('#tab-container-' + x).append(
+        "<div class='row'>" +
+          "<div class='col-sm-12'>" +
+            "<table class='table table-striped'>" +
+              "<thead>" +
+                "<tr>" +
+                  "<th scope='col'>Name:</th>" +
+                  "<th scope='col' class='scoreColumn'>" +
+                    "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
+                    "<a href='#' onClick='fillRadios(2, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
+                    "<a href='#' onClick='fillRadios(3, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
+                    "<a href='#' onClick='fillRadios(4, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
+                    "<a href='#' onClick='fillRadios(5, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
+                  "</th>" +
+                "</tr>" +
+              "</thead>" +
+              "<tbody id='subjects-body-" + x + "'></tbody>" +
+            "</table>" +
+          "</div>" +
+        "</div>"
+      );
 
       $.each(y.students, function(i, student) {
 
@@ -137,7 +160,15 @@ function generateScores() {
       });
     });
 
+    // Actiovate tooltips
     $('[data-toggle="tooltip"]').tooltip();
+
+    // Fill all student name inputs with autocomplete data
+    $.getJSON("/autocompleteStudents", function(students) {
+      $(".studentNames").autocomplete({
+        source:[students]
+      });
+    });
 
   });
 
@@ -146,11 +177,8 @@ function generateScores() {
 }
 
 $(document).ready(function() {
-
   // AJAX request for Teacher's classes
   $("#teacher-form" ).submit(function( event ) {
     generateScores();
   });
-
-
 });
