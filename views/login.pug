@@ -11,6 +11,7 @@ html
                 .row.justify-content-center.align-items-center
                   .col-8.login
                     h3.loginTitle Log in with your DoE account
+                    p.login-instructions.text-center Don't use any suffix. e.g. <em>jane.citizen1</em> is an example of a valid username.
                     .row
                       .col-sm-12
                         form.form-group#login-form(action="/login/", autocomplete="off", method="POST")
@@ -29,4 +30,14 @@ html
                       .col-sm-12
                         if error != null && error != ""
                           div.alert.alert-danger.text-center(role="alert") #{error}
+                          .row.justify-content-center
+                            .col-sm-12
+                              p.text-center.tech-support Issues logging in? Contact <a href="mailto:david.steedman2@det.nsw.edu.au">David Steedman</a>
+                    .row.justify-content-center
+                      .col-sm-3
+                        a(href='https://www.google.com/chrome/')
+                          img.browsers(src='../img/browser-logos.png')
+                    .row.justify-content-center
+                      .col-sm-6
+                        p.text-center Internet Explorer not supported                    
     include partials/footer.pug

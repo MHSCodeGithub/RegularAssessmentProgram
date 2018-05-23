@@ -147,13 +147,14 @@ router.post('/login', (req, res) => {
   form.append('password', password);
   form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
     if(response.headers.location != "/portal/dashboard") {
+      console.log(username + " was not able to log in via Sentral Student Portal");
       // try again with different portal for staff
       var form2 = new FormData();
       form2.append('sentral-username', username);
       form2.append('sentral-password', password);
       form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
         if(response2.statusCode == 200) {
-          console.log("Not able to log in via Sentral Staff Portal");
+          console.log(username + " was not able to log in via Sentral Staff Portal");
         } else {
           console.log("Logged in through Sentral Staff Portal");
           console.log("Checking to see if the user is a staff member...");
@@ -165,14 +166,13 @@ router.post('/login', (req, res) => {
           });
         }
       });
-      console.log("Not able to log in via Sentral Student Portal");
       res.render('login', {error: "Invalid username or password"});
     } else {
       // See if user is a teacher
-      console.log("Checking to see if the user is a staff member...");
       Teacher.findOne({ username: username }, function (err, user) {
         if(user) {
           req.session.user = user;
+          console.log(user.name + " logged in");
           res.redirect('/');
         } else {
           // See if user is a student
@@ -180,6 +180,7 @@ router.post('/login', (req, res) => {
           Student.findOne({ username: username }, function (err, user) {
             if(user) {
               req.session.user = user;
+              console.log(user.name + " logged in");
               res.redirect('/');
             } else {
               res.render('login', {error: "Invalid username or password"});

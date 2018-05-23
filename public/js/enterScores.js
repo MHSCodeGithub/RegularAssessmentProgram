@@ -84,12 +84,12 @@ function generateScores(name) {
       // Search box and button to add students missing from class
       $('#tab-container-' + x).append(
         "<div class='row' id='add-student'>" +
-          "<div class='col-sm-9'>" +
+          "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
             "<input type='text' class='form-control studentNames' placeholder='Missing Student Name' " +
             "data-toggle='tooltip' data-placement='bottom' title='If a student is missing from " + y.code + " add them here'>" +
           "</div>" +
-          "<div class='col-sm-3'>" +
-            "<button class='btn btn-primary' style='width: 100%;'>Add Missing Student to " + y.code + "</button>" +
+          "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
+            "<button class='btn btn-primary' style='width: 100%;'>Add Student to " + y.code + "</button>" +
           "</div>" +
         "</div>"
       );
@@ -130,7 +130,7 @@ function generateScores(name) {
         // Dynamically creates the radio buttons
         $('#subjects-body-' + x).append(
           "<tr>" +
-            "<td>" + student.name + "</td>" +
+            "<td class='student-label'>" + student.name + "</td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
@@ -172,11 +172,11 @@ function generateScores(name) {
     $('#tab-container').append(
       "<div class='tab-pane fade' id='tab-container-add' role='tabpanel' aria-labelledby='tab-add'>" +
         "<div class='row' id='add-class'>" +
-          "<div class='col-sm-9'>" +
+          "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
             "<input type='text' class='form-control classCodes' placeholder='Missing Class Code' " +
             "data-toggle='tooltip' data-placement='bottom' title='Search for the missing class'>" +
           "</div>" +
-          "<div class='col-sm-3'>" +
+          "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
             "<button class='btn btn-primary' style='width: 100%;'>Add Missing Class</button>" +
           "</div>" +
         "</div>" +
@@ -206,7 +206,7 @@ function generateScores(name) {
 
 // Add a missing students
 function addStudent(name, code) {
-  
+
 }
 
 $(document).ready(function() {
