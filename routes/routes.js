@@ -8,6 +8,10 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
+// Todo: escape single quotes in names
+// replace(/'/g, "\\'")
+// Capital letters for letters after apostrophes
+
 // Returns the current RAP Period
 function getCurrentPeriod() {
   RapPeriods.findOne({ current: true }, function (err, period) {
@@ -31,6 +35,20 @@ router.get('/', authCheck, (req, res) => {
   } else {
     res.render('teacherHome', {user: req.session.user});
   }
+});
+
+// Fix apostrophes
+router.get('/namefix', authCheck, (req, res) => {
+  Student.find({}).then(function(users) {
+    users.forEach(function(user, index, array) {
+      if(user.name.indexOf("`") > -1)
+      {
+        user.name = user.name.replace(/`/g, '\'');
+        user.save();
+        console.log("Updated " + user.name);
+      }
+    });
+  });
 });
 
 // Admin dashboard
@@ -260,6 +278,83 @@ router.get('/student', (req, res) => {
     res.send(JSON.stringify(stu));
   });
 
+});
+
+// Adds a missing student to a class
+router.post('/addStudent', (req, res) => {
+
+  console.log("Adding student...");
+  var student = req.body.student;
+  var classCode = req.body.classCode;
+  var teacher = req.body.teacher;
+  let subject = req.body.subject;
+
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.findOne({ name: student }, function (err, user) {
+      if (err) { console.log(err); }
+      if (user) {
+        user.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            let found = false;
+            r.scores.forEach(function(s) {
+              if(s.code == classCode) {
+                found = true;
+              }
+            });
+            if(found) {
+              console.log(student + " already member of " + classCode);
+              res.send(JSON.stringify(false));
+            } else {
+              r.scores.push({subject: subject, code: classCode, teacher: teacher});
+              user.save().then((stu) => {
+                console.log("Added " + student + " to " + classCode);
+                res.send(JSON.stringify(true));
+              });
+            }
+          }
+        });
+      }
+    });
+  });
+});
+
+// Adds a missing student to a class
+router.post('/deleteStudent', (req, res) => {
+
+  var student = req.body.student;
+  var classCode = req.body.classCode;
+  console.log("Attempting to delete " + student);
+
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.findOne({ name: student }, function (err, user) {
+      if (err) { console.log(err); }
+      if (user) {
+        user.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            let found = false;
+            r.scores.forEach(function(s) {
+              if(s.code == classCode) {
+                found = true;
+                r.scores.pull(s);
+                user.save().then((stu) => {
+                  console.log("Deleted " + student + " from " + classCode);
+                  res.send(JSON.stringify(true));
+                });
+              }
+            });
+            if(!found) {
+              console.log("Error Deleting Student");
+              res.send(JSON.stringify(false));
+            }
+          }
+        });
+      }
+    });
+  });
 });
 
 // Updates a single teacher's username and access, returns true if successful
@@ -582,6 +677,7 @@ router.post('/upload', function(req, res) {
         let firstname = student["First name"].charAt(0).toUpperCase() + student["First name"].slice(1).toLowerCase();
         let studentName = firstname + " " + surname;
         studentName = studentName.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); });
+        studentName = studentName.replace(/'/g, '\''); // get rid of apostrophes
 
         // Import ID Numbers, set invalid numbers to 0
         let idNum = student["Student code"];

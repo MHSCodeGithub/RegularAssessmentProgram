@@ -1,6 +1,8 @@
+var studentNumber = 0;
+
 // Click handler for radio buttons
 function handleClick(student, classCode, score) {
-  $.post( "/save", { student: student, classCode: classCode, score: score });
+  $.post( "/save", { student: unescape(student), classCode: classCode, score: score });
 }
 
 // Fill down score for particular class
@@ -38,14 +40,14 @@ function generateScores(name) {
       // Dynamically creates the tabs for each subject
       if(key == 0) {
         $('#subject-tabs').append(
-          "<li class='nav-item'>" +
+          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "'>" +
               "<a class='nav-link active' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
               key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
             "</li>"
           );
       } else {
         $('#subject-tabs').append(
-          "<li class='nav-item'>" +
+          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "'>" +
             "<a class='nav-link' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
             key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
           "</li>"
@@ -85,11 +87,13 @@ function generateScores(name) {
       $('#tab-container-' + x).append(
         "<div class='row' id='add-student'>" +
           "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
-            "<input type='text' class='form-control studentNames' placeholder='Missing Student Name' " +
+            "<input type='text' class='form-control studentNames form-control-lg' id='" + y.code + "' placeholder='Missing Student Name' " +
             "data-toggle='tooltip' data-placement='bottom' title='If a student is missing from " + y.code + " add them here'>" +
           "</div>" +
           "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
-            "<button class='btn btn-primary' style='width: 100%;'>Add Student to " + y.code + "</button>" +
+            "<button class='btn btn-primary btn-lg' style='width: 100%;' " +
+              "onclick='addStudent(\"" + y.code + "\", \"" + name + "\", \"" + y.subject +
+              "\", " + x + ")'>Add Student to " + y.code + "</button>" +
           "</div>" +
         "</div>"
       );
@@ -101,6 +105,7 @@ function generateScores(name) {
             "<table class='table table-striped'>" +
               "<thead>" +
                 "<tr>" +
+                  "<th scope='col' style='width: 20px;'></th>" +
                   "<th scope='col'>Name:</th>" +
                   "<th scope='col' class='scoreColumn'>" +
                     "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
@@ -119,6 +124,10 @@ function generateScores(name) {
 
       $.each(y.students, function(i, student) {
 
+        studentNumber++;
+        student.name = escape(student.name);
+        var convertedName = student.name.replace(/\s+/g, '-').toLowerCase();
+
         // Checks radio buttons based on student's current score
         let checked1,checked2,checked3,checked4,checked5;
         if(student.score == 1) { checked1 = "checked" } else { checked1 = " " };
@@ -129,8 +138,13 @@ function generateScores(name) {
 
         // Dynamically creates the radio buttons
         $('#subjects-body-' + x).append(
-          "<tr>" +
-            "<td class='student-label'>" + student.name + "</td>" +
+          "<tr id='" + studentNumber + "'>" +
+            "<td class='student-delete'>" +
+              "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
+              "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
+              "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\")'>X</button>" +
+            "</td>" +
+            "<td>" + unescape(student.name) + "</td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
@@ -164,7 +178,8 @@ function generateScores(name) {
               "data-toggle='tooltip' data-placement='bottom' title='Outstanding'>5</label>" +
 
             "</td>" +
-          "</tr>");
+          "</tr>"
+        );
 
       });
     });
@@ -173,11 +188,11 @@ function generateScores(name) {
       "<div class='tab-pane fade' id='tab-container-add' role='tabpanel' aria-labelledby='tab-add'>" +
         "<div class='row' id='add-class'>" +
           "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
-            "<input type='text' class='form-control classCodes' placeholder='Missing Class Code' " +
+            "<input type='text' class='form-control classCodes form-control-lg' placeholder='Missing Class Code' " +
             "data-toggle='tooltip' data-placement='bottom' title='Search for the missing class'>" +
           "</div>" +
           "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
-            "<button class='btn btn-primary' style='width: 100%;'>Add Missing Class</button>" +
+            "<button class='btn btn-primary btn-lg' style='width: 100%;'>Add Missing Class</button>" +
           "</div>" +
         "</div>" +
       "</div>"
@@ -205,11 +220,87 @@ function generateScores(name) {
 }
 
 // Add a missing students
-function addStudent(name, code) {
+function addStudent(classCode, teacher, subject, x) {
+  var student = escape($('#' + classCode).val());
+  var convertedName = student.replace(/\s+/g, '-').toLowerCase();
+  var posting = $.post( "/addStudent", { student: unescape(student), classCode: classCode, subject: subject, teacher: teacher });
 
+  posting.done(function(success) {
+    console.log(success);
+    if(success == 'true') {
+      studentNumber++;
+      console.log(studentNumber);
+      $('[data-toggle="tooltip"]').tooltip('dispose');
+      $("<tr id='" + studentNumber + "'>" +
+        "<td class='student-delete'>" +
+          "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
+          "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
+          "onclick='deleteStudent(\"" + student + "\" , \"" + classCode + "\", \"" + studentNumber + "\")'>X</button>" +
+        "</td>" +
+          "<td class='student-label'>" + unescape(student) + "</td>" +
+          "<td class='scoreColumn'>" +
+
+            // Radio Button 1
+            "<input class='form-check-input' type='radio' name='" + student + "' id='1" + "_" +
+            studentNumber + "_" + classCode + "' value='" + classCode + "' onClick='handleClick(\""+student+"\", \""+classCode+"\", 1);'>" +
+            "<label for='1" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Unsatisfactory Performance'>1</label>" +
+
+            // Radio Button 2
+            "<input class='form-check-input' type='radio' name='" + student.name + "' id='2" + "_" +
+            studentNumber + "_" + classCode + "' value='" + classCode + "' onClick='handleClick(\""+student+"\", \""+classCode+"\", 2);'>" +
+            "<label for='2" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Of Concern'>2</label>" +
+
+            // Radio Button 3
+            "<input class='form-check-input' type='radio' name='" + student.name + "' id='3" + "_" +
+            studentNumber + "_" + classCode + "' value='" + classCode + "' onClick='handleClick(\""+student+"\", \""+classCode+"\", 3);'>" +
+            "<label for='3" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Good'>3</label>" +
+
+            // Radio Button 4
+            "<input class='form-check-input' type='radio' name='" + student.name + "' id='4" + "_" +
+            studentNumber + "_" + classCode + "' value='" + classCode + "' onClick='handleClick(\""+student+"\", \""+classCode+"\", 4);'>" +
+            "<label for='4" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Excellent'>4</label>" +
+
+            // Radio Button 5
+            "<input class='form-check-input' type='radio' name='" + student.name + "' id='5" + "_" +
+            studentNumber + "_" + classCode + "' value='" + classCode + "' onClick='handleClick(\""+student+"\", \""+classCode+"\", 5);'>" +
+            "<label for='5" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' " +
+            "data-toggle='tooltip' data-placement='bottom' title='Outstanding'>5</label>" +
+
+          "</td>" +
+        "</tr>"
+      ).hide().prependTo('#subjects-body-' + x).fadeIn("slow");
+    } else {
+      alert("Student not enrolled, or student already in your class");
+    }
+    $('[data-toggle="tooltip"]').tooltip();
+  });
 }
 
-$(document).ready(function() {
+function deleteStudent(studentName, classCode, num) {
+
+  var posting = $.post( "/deleteStudent", { student: unescape(studentName), classCode: classCode });
+
+  posting.done(function(success) {
+    console.log(success);
+    if(success == 'true') {
+      console.log("Deleted: " + studentName);
+      $('[data-toggle="tooltip"]').tooltip('dispose');
+      $('#' + num).find('td').fadeOut(1000,
+        function() {
+            $(this).parents('tr:first').remove();
+        });
+      $('[data-toggle="tooltip"]').tooltip();
+    } else {
+      console.log("Could not delete student");
+    }
+  });
+}
+
+function startup() {
   // If we are on the student search page
   if ($('#teacher-form').length) {
     // Autocomplete for Teacher text box
@@ -224,10 +315,14 @@ $(document).ready(function() {
       generateScores(name);
       event.preventDefault();
     });
-  // Otherwise we are on the student home page
+  // Otherwise we are on the teacher's home page
   } else {
     // Grab name and generate scores
     var name = $('#teacherName').html();
     generateScores(name);
   }
+}
+
+$(document).ready(function() {
+  startup();
 });

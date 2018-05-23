@@ -138,6 +138,11 @@ h3 {
   margin-bottom: 15px;
 }
 
+.btn-delete {
+  padding: .2rem .5rem;
+  font-size: 0.7rem;
+  border-radius: .25rem;
+}
 
 label, button {
     cursor: pointer;
