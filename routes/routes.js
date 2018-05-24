@@ -357,6 +357,82 @@ router.post('/deleteStudent', (req, res) => {
   });
 });
 
+// Adds a missing class to a teacher
+router.post('/addClass', (req, res) => {
+
+  console.log("Adding class...");
+  var classCode = req.body.classCode;
+  var teacher = req.body.teacher;
+  console.log("teacher: " + teacher);
+
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}, function (err, users) {
+      if (err) { console.log(err); }
+      if (users) {
+        let count = 0;
+        users.forEach(function(u) {
+          u.rap.forEach(function(r) {
+            if(r.year == currentPeriod.year
+            && r.term == currentPeriod.term
+            && r.week == currentPeriod.week) {
+              let found = false;
+              let subject = "";
+              r.scores.forEach(function(s) {
+                if(s.code == classCode) {
+                  found = true;
+                  subject = s.subject;
+                }
+              });
+              if(found) {
+                r.scores.push({subject: subject, code: classCode, teacher: teacher});
+                count++;
+              }
+            }
+          });
+          u.save();
+        });
+        console.log("Added " + teacher + " to " + classCode + " for " + count + " students.");
+        res.send(JSON.stringify(true));
+      } else {
+        res.send(JSON.stringify(false));
+      }
+    });
+  });
+});
+
+// Removes a class from a teacher
+router.post('/removeClass', (req, res) => {
+  var classCode = req.body.classCode;
+  var teacher = req.body.teacher;
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}, function (err, users) {
+      if (err) { console.log(err); }
+      if (users) {
+        let count = 0;
+        users.forEach(function(u) {
+          u.rap.forEach(function(r) {
+            if(r.year == currentPeriod.year
+            && r.term == currentPeriod.term
+            && r.week == currentPeriod.week) {
+              r.scores.forEach(function(s) {
+                if(s.code == classCode && s.teacher == teacher) {
+                  r.scores.pull(s);
+                  count++;
+                }
+              });
+            }
+          });
+          u.save();
+        });
+        console.log("Removed " + teacher + " from " + classCode + " for " + count + " students.");
+        res.send(JSON.stringify(true));
+      } else {
+        res.send(JSON.stringify(false));
+      }
+    });
+  });
+});
+
 // Updates a single teacher's username and access, returns true if successful
 router.get('/updateTeacher', (req, res) => {
 

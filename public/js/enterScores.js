@@ -40,14 +40,14 @@ function generateScores(name) {
       // Dynamically creates the tabs for each subject
       if(key == 0) {
         $('#subject-tabs').append(
-          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "'>" +
+          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "' onclick='refreshTooltips();'>" +
               "<a class='nav-link active' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
               key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
             "</li>"
           );
       } else {
         $('#subject-tabs').append(
-          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "'>" +
+          "<li class='nav-item' data-toggle='tooltip' data-placement='bottom' title='" + val.subject + "' onclick='refreshTooltips();'>" +
             "<a class='nav-link' id='tab" + key + "' data-toggle='pill' href='#tab-container-" +
             key + "' role='tab' aria-controls='tab-container-" +  key + "' aria-selected='true'>" + val.code + "</a>" +
           "</li>"
@@ -86,14 +86,18 @@ function generateScores(name) {
       // Search box and button to add students missing from class
       $('#tab-container-' + x).append(
         "<div class='row' id='add-student'>" +
-          "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
+          "<div class='col-lg-8 col-md-6 col-sm-12 col-xs-12'>" +
             "<input type='text' class='form-control studentNames form-control-lg' id='" + y.code + "' placeholder='Missing Student Name' " +
             "data-toggle='tooltip' data-placement='bottom' title='If a student is missing from " + y.code + " add them here'>" +
           "</div>" +
-          "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
+          "<div class='col-lg-2 col-md-3 col-sm-6 col-xs-6'>" +
             "<button class='btn btn-primary btn-lg' style='width: 100%;' " +
               "onclick='addStudent(\"" + y.code + "\", \"" + name + "\", \"" + y.subject +
-              "\", " + x + ")'>Add Student to " + y.code + "</button>" +
+              "\", " + x + ")'>Add Student</button>" +
+          "</div>" +
+          "<div class='col-lg-2 col-md-3 col-sm-6 col-xs-6'>" +
+            "<button class='btn btn-danger btn-lg' style='width: 100%;' " +
+              "onclick='removeClass(\"" + y.code + "\")'>Remove Class</button>" +
           "</div>" +
         "</div>"
       );
@@ -188,11 +192,12 @@ function generateScores(name) {
       "<div class='tab-pane fade' id='tab-container-add' role='tabpanel' aria-labelledby='tab-add'>" +
         "<div class='row' id='add-class'>" +
           "<div class='col-lg-9 col-md-8 col-sm-6 col-xs-12'>" +
-            "<input type='text' class='form-control classCodes form-control-lg' placeholder='Missing Class Code' " +
+            "<input id='classInput' type='text' class='form-control classCodes form-control-lg' placeholder='Missing Class Code' " +
             "data-toggle='tooltip' data-placement='bottom' title='Search for the missing class'>" +
           "</div>" +
           "<div class='col-lg-3 col-md-4 col-sm-6 col-xs-12'>" +
-            "<button class='btn btn-primary btn-lg' style='width: 100%;'>Add Missing Class</button>" +
+            "<button class='btn btn-primary btn-lg' style='width: 100%;' " +
+              "onClick='addClass();'>Add Missing Class</button>" +
           "</div>" +
         "</div>" +
       "</div>"
@@ -217,6 +222,48 @@ function generateScores(name) {
 
   });
 
+}
+
+function refreshTooltips() {
+  $('[data-toggle="tooltip"]').tooltip('dispose');
+  $('[data-toggle="tooltip"]').tooltip();
+}
+
+// Add class
+function addClass() {
+  var classCode = $('#classInput').val();
+  var name;
+  if ($('#teacher-form').length) {
+    name = $('#teacherName').val();
+  } else {
+    name = $('#teacherName').html();
+  }
+  var posting = $.post( "/addClass", { classCode: classCode, teacher: name });
+
+  posting.done(function(success) {
+    console.log(success);
+    $('[data-toggle="tooltip"]').tooltip('dispose');
+    generateScores(name);
+  });
+}
+
+// Add class
+function removeClass(classCode) {
+  if (confirm('Are you sure you want to remove ' + classCode)) {
+    var name;
+    if ($('#teacher-form').length) {
+      name = $('#teacherName').val();
+    } else {
+      name = $('#teacherName').html();
+    }
+    var posting = $.post( "/removeClass", { classCode: classCode, teacher: name });
+
+    posting.done(function(success) {
+      console.log(success);
+      $('[data-toggle="tooltip"]').tooltip('dispose');
+      generateScores(name);
+    });
+  }
 }
 
 // Add a missing students
