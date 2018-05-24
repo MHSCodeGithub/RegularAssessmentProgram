@@ -334,6 +334,13 @@ img {
       font-size: 2em;
     }
 
+    .btn-delete {
+      margin-top: 15px;
+      padding: .3rem .8rem;
+      font-size: 1.7rem;
+      border-radius: .25rem;
+    }
+
  }
 
 

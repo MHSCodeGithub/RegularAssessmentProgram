@@ -8,10 +8,6 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
-// Todo: escape single quotes in names
-// replace(/'/g, "\\'")
-// Capital letters for letters after apostrophes
-
 // Returns the current RAP Period
 function getCurrentPeriod() {
   RapPeriods.findOne({ current: true }, function (err, period) {

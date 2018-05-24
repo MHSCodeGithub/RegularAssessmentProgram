@@ -148,7 +148,7 @@ function generateScores(name) {
               "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
               "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\")'>X</button>" +
             "</td>" +
-            "<td>" + unescape(student.name) + "</td>" +
+            "<td class='student-label'>" + unescape(student.name) + "</td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
@@ -372,4 +372,8 @@ function startup() {
 
 $(document).ready(function() {
   startup();
+});
+
+window.addEventListener('touchstart', function() {
+  $('[data-toggle="tooltip"]').tooltip('dispose');
 });
