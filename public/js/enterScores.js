@@ -11,7 +11,7 @@ function fillRadios(num, classCode) {
   let matches = document.querySelectorAll(".form-check-input");
   $.each(matches, function(i, stu) {
     if(stu.value == classCode && stu.id.slice(0,1) == num) {
-      stuNames.push({name: stu.name});
+      stuNames.push({name: unescape(stu.name)});
       if (typeof document.getElementById(stu.id) != 'undefined') {
         document.getElementById(stu.id).checked = true;
       }
@@ -224,6 +224,7 @@ function generateScores(name) {
 
 }
 
+// Remove and re-add tooltips
 function refreshTooltips() {
   $('[data-toggle="tooltip"]').tooltip('dispose');
   $('[data-toggle="tooltip"]').tooltip();
@@ -247,7 +248,7 @@ function addClass() {
   });
 }
 
-// Add class
+// Remove class
 function removeClass(classCode) {
   if (confirm('Are you sure you want to remove ' + classCode)) {
     var name;
@@ -327,6 +328,7 @@ function addStudent(classCode, teacher, subject, x) {
   });
 }
 
+// Delete student from class
 function deleteStudent(studentName, classCode, num) {
 
   var posting = $.post( "/deleteStudent", { student: unescape(studentName), classCode: classCode });
@@ -347,6 +349,7 @@ function deleteStudent(studentName, classCode, num) {
   });
 }
 
+// Functions to run on startup
 function startup() {
   // If we are on the student search page
   if ($('#teacher-form').length) {
@@ -370,10 +373,12 @@ function startup() {
   }
 }
 
+// Runs when document loaded
 $(document).ready(function() {
   startup();
 });
 
+// Get rid of tooltips for mobile users
 window.addEventListener('touchstart', function() {
   $('[data-toggle="tooltip"]').tooltip('dispose');
 });

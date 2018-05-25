@@ -675,8 +675,11 @@ router.post('/fillRadios', (req, res) => {
 
   // Set parameters
   let classCode = req.body.classCode;
+  console.log(req.body.classCode);
   let score = req.body.score;
+  console.log(req.body.score);
   let students = req.body.students;
+  console.log(req.body.students);
   console.log("Updating scores for " + classCode + " to " + score);
 
   // Match the rap period to the current period
