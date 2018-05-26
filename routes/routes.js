@@ -9,6 +9,67 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
+// Batch job to update averages every 10 minutes
+var updateJob = schedule.scheduleJob('*/10 * * * *', function(){
+  console.log('Running batch job: Update Averages');
+  updateAverages();
+});
+
+/**
+  * @desc loops through all students and updates both their long-term averages
+  *       and their average for each rap period. If no scores are given then
+  *       the average will stay at 0. This function is called every 10 minutes.
+  * @param none
+  * @return true on success, false on error
+*/
+function updateAverages() {
+  try {
+    Student.find({}).then(function(users) {
+      var itemsProcessed = 0;
+      users.forEach(function(u, index, array) {
+        let userTotal = 0;
+        let userCount = 0;
+        u.rap.forEach(function(r) {
+          let rapTotal = 0;
+          let rapCount = 0;
+          r.scores.forEach(function(s) {
+            if(s.value > 0) {
+              rapTotal += s.value;
+              rapCount++;
+            }
+          });
+          if(rapTotal == 0 ) {
+            r.average = 0;
+          } else {
+            r.average = Number(rapTotal/rapCount).toFixed(2);
+          }
+          if(r.average > 0) {
+            userTotal += average;
+            userCount++;
+          }
+        });
+        if(userTotal == 0 ) {
+          u.longTermAverage = 0;
+        } else {
+          u.longTermAverage = Number(userTotal/userCount).toFixed(2);
+        }
+        u.save().then((newUser) => {
+          //console.log('Updated averages for ' + u.name);
+          itemsProcessed++;
+          //console.log(itemsProcessed + " / " + array.length);
+          if(itemsProcessed == array.length) {
+            console.log('All student average RAP scores recalculated successfully');
+            return true;
+          }
+        });
+      });
+    });
+  } catch (error) {
+    console.log('An error occured while attempting to update averages');
+    return false;
+  }
+}
+
 // Returns the current RAP Period
 function getCurrentPeriod() {
   RapPeriods.findOne({ current: true }, function (err, period) {
@@ -557,40 +618,7 @@ router.get('/updateAverages', authCheck, (req, res) => {
 
 // Re-calculate averages for each student
 router.post('/updateAverages', (req, res) => {
-  Student.find({}).then(function(users) {
-    var itemsProcessed = 0;
-    users.forEach(function(u, index, array) {
-      Student.findOne({name: u.name}, function(err, stu){
-        if(err){ console.log("Something went wrong when searching the data!"); }
-        stu.rap.forEach(function(r) {
-          let total = 0;
-          let count = 0;
-          r.scores.forEach(function(s) {
-            if(s.value > 0) {
-              total += s.value;
-              count++;
-            }
-          });
-          if(total == 0 ) {
-            r.average = 0;
-          } else {
-            r.average = Number(total/count).toFixed(2);
-          }
-        });
-        stu.save().then((newUser) => {
-          console.log('Updated averages for ' + stu.name);
-          itemsProcessed++;
-          console.log(itemsProcessed + " / " + array.length);
-          if(itemsProcessed == array.length) {
-            console.log('All student average RAP scores recalculated successfully');
-            req.flash('success_msg', 'All student average RAP scores recalculated successfully');
-            res.redirect('/updateAverages');
-            return null;
-          }
-        });
-      });
-    });
-  });
+  updateAverages();
 });
 
 // Returns a list of Teachers for the autocomplete
