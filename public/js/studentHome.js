@@ -72,13 +72,14 @@ function generateScores(name) {
             "</div>"
           );
           $.each(rapPeriod.scores, function(key,subjectScore) {
+            let currentScore = subjectScore.value;
             if(subjectScore.value == 0) { currentScore = "No Score"; }
             $('#' + rapID).append(
               "<tr>" +
                 "<td>" + subjectScore.subject + "</td>" +
                 "<td>" + subjectScore.code + "</td>" +
                 "<td>" + subjectScore.teacher + "</td>" +
-                "<td class='score-column'>" + subjectScore.value + "</td>" +
+                "<td class='score-column'>" + currentScore + "</td>" +
               "</tr>"
             );
           });

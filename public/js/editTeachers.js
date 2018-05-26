@@ -162,10 +162,16 @@ function addTeacher() {
   });
 }
 
-function exportTeachers() {
-
-}
-
 $(document).ready(function() {
-
+  $('#exportTeachers').click(function(event) {
+    event.preventDefault();
+    $.get("/exportTeachers", function(data) {
+      let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(data);
+      let exportFileDefaultName = 'teachers.json';
+      let linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    });
+  });
 });

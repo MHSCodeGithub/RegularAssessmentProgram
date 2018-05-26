@@ -674,9 +674,10 @@ router.get('/exportTeachers', (req, res) => {
     fs.writeFile("./downloads/teachers.json", JSON.stringify(users, null, 4), (err) => {
       if (err) {
         console.error(err);
-        return;
+        return false;
       } else {
         console.log("Teachers export file has been created");
+        res.send(JSON.stringify(users, null, 4));
       }
     });
   });
