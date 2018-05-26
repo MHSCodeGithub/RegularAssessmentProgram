@@ -1,0 +1,29 @@
+doctype html
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 All Students
+              .col-sm-12#scores
+                table.table.table-striped.scores-table
+                  thead
+                    tr
+                      th(scope='col') Name
+                      th.text-center(scope='col') Year
+                      th.text-center(scope='col') Long-Term Average
+                      th.text-center(scope='col') Current Average
+                  tbody
+                    each val in students
+                      tr
+                        td
+                          a(href='/check/single?name='+val.name)= val.name
+                        td.text-center= val.grade
+                        td.text-center= val.longTermAverage
+                        td.text-center= val.currentAverage
+    include partials/footer.pug

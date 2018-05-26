@@ -25,4 +25,107 @@ router.get('/single', authCheck, (req, res) => {
   }
 });
 
+// Query a specific class (render page)
+router.get('/class', authCheck, (req, res) => {
+  res.render('checkClass', {user: req.session.user});
+});
+
+// Query a specific class (get data)
+router.post('/class', authCheck, (req, res) => {
+
+});
+
+// Query a specific subject (render page)
+router.get('/subject', authCheck, (req, res) => {
+  res.render('checkSubject', {user: req.session.user});
+});
+
+// Query a specific subject (get data)
+router.post('/subject', authCheck, (req, res) => {
+
+});
+
+// Query a specific year group (render page)
+router.get('/year', authCheck, (req, res) => {
+  res.render('checkYear', {user: req.session.user});
+});
+
+// Query a specific year group (get data)
+router.post('/year', authCheck, (req, res) => {
+
+});
+
+// Query all students (render page and get data)
+router.get('/all', authCheck, (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+          }
+        });
+      });
+      students.sort((a, b) => b.currentAverage - a.currentAverage);
+      res.render('checkAll', {user: req.session.user, students: students});
+    });
+  });
+});
+
+// Query all students (render page)
+router.get('/change', authCheck, (req, res) => {
+  res.render('checkChange', {user: req.session.user});
+});
+
+// Query all students (get data)
+router.post('/change', authCheck, (req, res) => {
+
+});
+
+// Query all students (render page and get data)
+router.get('/fives', authCheck, (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            if(r.average == 5) {
+              students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+            }
+          }
+        });
+      });
+      res.render('checkFives', {user: req.session.user, students: students});
+    });
+  });
+});
+
+// Query all students (render page and get data)
+router.get('/threes', authCheck, (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            if(r.average < 3) {
+              students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+            }
+          }
+        });
+      });
+      students.sort((a, b) => b.currentAverage - a.currentAverage);
+      res.render('checkThrees', {user: req.session.user, students: students});
+    });
+  });
+});
+
 module.exports = router;
