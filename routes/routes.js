@@ -59,9 +59,8 @@ function updateAverages() {
       });
     });
   } catch (error) {
+    console.log('An error occured while attempting to update averages:');
     console.log(error);
-  } finally {
-    console.log('An error occured while attempting to update averages');
     return false;
   }
 }
@@ -666,6 +665,20 @@ router.get('/getTeachers', (req, res) => {
     });
     //console.log(teachers);
     res.send(JSON.stringify(teachers));
+  });
+});
+
+// Returns a list of Teachers including all details
+router.get('/exportTeachers', (req, res) => {
+  Teacher.find({}).then(function(users) {
+    fs.writeFile("./downloads/teachers.json", JSON.stringify(users, null, 4), (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      } else {
+        console.log("Teachers export file has been created");
+      }
+    });
   });
 });
 
