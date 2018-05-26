@@ -80,7 +80,6 @@ function updateTeacher(teacherName, convertedName) {
   var username = $("#" + convertedName).val();
   var access = $("#" + convertedName +"-access").val();
   var faculty = $("#" + convertedName +"-faculty").val();
-  //console.log(username);
   $.getJSON("/updateTeacher?name="+teacherName+"&username="+username+"&access="
     +access+"&faculty="+faculty, function(string) {
     if(string.result) {

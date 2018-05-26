@@ -15,13 +15,7 @@ var updateJob = schedule.scheduleJob('*/10 * * * *', function(){
   updateAverages();
 });
 
-/**
-  * @desc loops through all students and updates both their long-term averages
-  *       and their average for each rap period. If no scores are given then
-  *       the average will stay at 0. This function is called every 10 minutes.
-  * @param none
-  * @return true on success, false on error
-*/
+// loops through all students and updates their averages
 function updateAverages() {
   try {
     Student.find({}).then(function(users) {
@@ -65,6 +59,8 @@ function updateAverages() {
       });
     });
   } catch (error) {
+    console.log(error);
+  } finally {
     console.log('An error occured while attempting to update averages');
     return false;
   }
@@ -173,7 +169,7 @@ router.post('/setCurrentPeriod', (req, res) => {
 // Query a specific teacher via URL
 router.get('/queryTeacher', authCheck, (req, res) => {
   if(req.query.name != null) {
-    console.log(req.query.name);
+    console.log(req.session.user.name " + looked up scores for " + req.query.name);
     res.render('teacherHome', {user: req.session.user, queryName: req.query.name});
   } else {
     res.render('teacherHome', {user: req.session.user});
@@ -341,7 +337,6 @@ router.get('/student', (req, res) => {
 // Adds a missing student to a class
 router.post('/addStudent', (req, res) => {
 
-  console.log("Adding student...");
   var student = req.body.student;
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
@@ -367,7 +362,7 @@ router.post('/addStudent', (req, res) => {
             } else {
               r.scores.push({subject: subject, code: classCode, teacher: teacher});
               user.save().then((stu) => {
-                console.log("Added " + student + " to " + classCode);
+                console.log(req.session.user.name + " added " + student + " to " + classCode);
                 res.send(JSON.stringify(true));
               });
             }
@@ -399,7 +394,7 @@ router.post('/deleteStudent', (req, res) => {
                 found = true;
                 r.scores.pull(s);
                 user.save().then((stu) => {
-                  console.log("Deleted " + student + " from " + classCode);
+                  console.log(req.session.user.name + " deleted " + student + " from " + classCode);
                   res.send(JSON.stringify(true));
                 });
               }
@@ -431,10 +426,9 @@ router.post('/deleteTeacher', (req, res) => {
   });
 });
 
-// Deletes a teacher from the system
+// Adds a teacher to the system
 router.post('/addTeacher', (req, res) => {
   var teacher = req.body.teacher;
-  console.log("Attempting to add " + teacher);
   Teacher.findOne({ name: teacher }, function (err, user) {
     if (err) { console.log(err); }
     if (user) {
@@ -446,7 +440,7 @@ router.post('/addTeacher', (req, res) => {
         access: 1
       });
       tch.save().then((stu) => {
-        console.log("Successfuly added " + teacher + " to list");
+        console.log(req.session.user.name + " successfuly added " + teacher + " to list");
         res.send(JSON.stringify(true));
       });
     }
