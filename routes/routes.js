@@ -38,7 +38,7 @@ function updateAverages() {
             r.average = Number(rapTotal/rapCount).toFixed(2);
           }
           if(r.average > 0) {
-            userTotal += average;
+            userTotal += r.average;
             userCount++;
           }
         });
