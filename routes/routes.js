@@ -9,8 +9,8 @@ const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
 
-// Batch job to update averages every 10 minutes
-var updateJob = schedule.scheduleJob('*/10 * * * *', function(){
+// Batch job to update averages every 5 minutes
+var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
   console.log('Running batch job: Update Averages');
   updateAverages();
 });
@@ -169,7 +169,7 @@ router.post('/setCurrentPeriod', (req, res) => {
 // Query a specific teacher via URL
 router.get('/queryTeacher', authCheck, (req, res) => {
   if(req.query.name != null) {
-    console.log(req.session.user.name " + looked up scores for " + req.query.name);
+    console.log(req.session.user.name + " looked up scores for " + req.query.name);
     res.render('teacherHome', {user: req.session.user, queryName: req.query.name});
   } else {
     res.render('teacherHome', {user: req.session.user});
