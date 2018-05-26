@@ -107,7 +107,8 @@ $(document).ready(function() {
   // Otherwise we are on the student home page
   } else {
     // Grab name and generate scores
-    var name = $('#studentName').html();
+    var name = $('#studentNameHeading').html();
+    console.log(name);
     generateScores(name);
   }
 });

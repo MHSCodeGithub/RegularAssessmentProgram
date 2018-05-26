@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes/routes');
+const checkRoutes = require('./routes/checkRoutes');
 const keys = require('./config/keys');
 const Student = require('./models/student');
 const Teacher = require('./models/teacher');
@@ -62,5 +63,6 @@ mongoose.connection.once('open',function() {
 
 // Set up routes
 app.use('/', routes);
+app.use('/check', checkRoutes);
 
 app.listen(3000, () => console.log('RAP listening on port 3000!'));

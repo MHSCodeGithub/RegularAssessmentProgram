@@ -148,7 +148,7 @@ function generateScores(name) {
               "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
               "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\")'>X</button>" +
             "</td>" +
-            "<td class='student-label'>" + unescape(student.name) + "</td>" +
+            "<td class='student-label'><a href='check/single?name=" + unescape(student.name) + "'>" + unescape(student.name) + "</a></td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
@@ -285,7 +285,7 @@ function addStudent(classCode, teacher, subject, x) {
           "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
           "onclick='deleteStudent(\"" + student + "\" , \"" + classCode + "\", \"" + studentNumber + "\")'>X</button>" +
         "</td>" +
-          "<td class='student-label'>" + unescape(student) + "</td>" +
+          "<td class='student-label'><a href='check/single?name=" + unescape(student) + "'>" + unescape(student) + "</a></td>" +
           "<td class='scoreColumn'>" +
 
             // Radio Button 1

@@ -180,16 +180,6 @@ router.get('/checkTeacher', authCheck, (req, res) => {
   res.render('checkTeacher', {user: req.session.user});
 });
 
-// Query a specific student
-router.get('/checkScores', authCheck, (req, res) => {
-  if(req.query.name != null && req.session.user.access > 0) {
-    console.log(req.session.user.name + " looked up scores for " + req.query.name);
-    res.render('checkScores', {user: req.session.user, queryName: req.query.name});
-  } else {
-    res.render('checkScores', {user: req.session.user});
-  }
-});
-
 // Render Import From Edval Screen
 router.get('/importEdval', authCheck, (req, res) => {
   res.render('importEdval', {user: req.session.user});
@@ -611,7 +601,11 @@ router.get('/updateAverages', authCheck, (req, res) => {
 
 // Re-calculate averages for each student
 router.post('/updateAverages', (req, res) => {
-  updateAverages();
+  updateAverages()
+  console.log('All students have been processed successfully');
+  req.flash('success_msg', 'All student usernames been updated successfully');
+  res.redirect('/updateAverages');
+  return null;
 });
 
 // Returns a list of Teachers for the autocomplete
@@ -668,7 +662,7 @@ router.get('/getTeachers', (req, res) => {
   });
 });
 
-// Returns a list of Teachers including all details
+// Exports a list of Teachers including all details
 router.get('/exportTeachers', (req, res) => {
   Teacher.find({}).then(function(users) {
     fs.writeFile("./downloads/teachers.json", JSON.stringify(users, null, 4), (err) => {
@@ -995,22 +989,27 @@ router.post('/uploadTeachers', function(req, res) {
   // Read in the POST data
   let fileUpload = req.files.fileUpload;
 
+  // Set JSON file path
+  let jsonFilePath = "./uploads/teachers.json";
+
   // Move the file to a local folder on the server
-  fileUpload.mv('./uploads/teachers.csv', function(err) {
+  fileUpload.mv(jsonFilePath, function(err) {
     if (err) { return res.status(500).send(err); }
   });
 
-  // Set CSV file path
-  var csvFilePath = "./uploads/teachers.csv";
-
-  // Imports CSV and corrects structure for RAP usage
-  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+  // Import file
+  fs.readFile(jsonFilePath, 'utf8', function (err, data) {
+    if (err) throw err;
+    console.log(data);
+    var jsonArrayObj = JSON.parse(data);
 
     // Async loop to play nice with MongoDB
     async.eachSeries(jsonArrayObj, function(teacher, callback) {
 
-      let teacherName = teacher['First Name'] + " " + teacher['Last Name'];
-      let username = teacher['Username'].toLowerCase();
+      let teacherName = teacher.name;
+      let username = teacher.username;
+      let faculty = teacher.faculty;
+      let access = teacher.access;
 
       // Searches for current teacher in DB
       Teacher.findOne({ name: teacherName }, function (err, user) {
@@ -1020,32 +1019,39 @@ router.post('/uploadTeachers', function(req, res) {
           callback();
         }
         if(user) {
+          // If teacher already exists then update the record
           user.username = username;
-          user.access = 0; // Comment this out after initial setup
-          user.save().then((stu) => {
-            console.log("Details updated for " + user.name);
+          user.access = access;
+          user.faculty = faculty;
+          user.save().then((tch) => {
+            console.log("Details imported for " + teacherName);
+            callback();
           });
-          callback();
         } else {
-          console.log(teacherName + " not found");
-          callback();
+          // Create a new teacher in the system
+          let teach = new Teacher({
+            name: teacherName,
+            faculty: faculty,
+            access: access,
+            username: username
+          });
+          teach.save().then((tch) => {
+            console.log("New teacher created: " + teacherName);
+            callback();
+          });
         }
-
       });
     }, function(err) {
       if( err ) {
       console.log('An error occurred: ' + err);
       } else {
-        console.log('All teachers have been processed successfully');
-        req.flash('success_msg', 'All teachers have been processed successfully');
+        console.log('All teachers have been imported successfully');
+        req.flash('success_msg', 'All teachers have been imported successfully');
         res.redirect('/editTeachers');
         return null;
       }
     });
-
   });
-
-
 });
 
 module.exports = router;

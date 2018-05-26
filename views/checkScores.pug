@@ -1,4 +1,6 @@
 - var page = "studentHome"
+if queryName
+  - var name = queryName
 doctype html
 html
   include partials/header.pug
@@ -11,7 +13,7 @@ html
             .card-body#content-body
               .col-sm-12
                 if name
-                  h3 name
+                  h3#studentNameHeading #{name}
                 else
                   .form-group
                       form#student-form(action="/student", autocomplete="off", method="GET" )
