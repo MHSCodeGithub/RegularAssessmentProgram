@@ -439,10 +439,8 @@ router.post('/addTeacher', (req, res) => {
 // Adds a missing class to a teacher
 router.post('/addClass', (req, res) => {
 
-  console.log("Adding class...");
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
-  console.log("teacher: " + teacher);
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     Student.find({}, function (err, users) {
@@ -458,8 +456,15 @@ router.post('/addClass', (req, res) => {
               let subject = "";
               r.scores.forEach(function(s) {
                 if(s.code == classCode) {
-                  found = true;
-                  subject = s.subject;
+                  if(s.teacher == null) {
+                    // If the class exsists but there is no teacher
+                    s.teacher = teacher;
+                    count++;
+                  } else {
+                    // Otherwise, duplicate the subject for the new teacher
+                    found = true;
+                    subject = s.subject;
+                  }
                 }
               });
               if(found) {
@@ -470,7 +475,7 @@ router.post('/addClass', (req, res) => {
           });
           u.save();
         });
-        console.log("Added " + teacher + " to " + classCode + " for " + count + " students.");
+        console.log(req.session.user.name + " added " + teacher + " to " + classCode + " for " + count + " students.");
         res.send(JSON.stringify(true));
       } else {
         res.send(JSON.stringify(false));
@@ -495,7 +500,8 @@ router.post('/removeClass', (req, res) => {
             && r.week == currentPeriod.week) {
               r.scores.forEach(function(s) {
                 if(s.code == classCode && s.teacher == teacher) {
-                  r.scores.pull(s);
+                  //r.scores.pull(s); // This deletes the entire class
+                  s.teacher = null;
                   count++;
                 }
               });
@@ -503,7 +509,7 @@ router.post('/removeClass', (req, res) => {
           });
           u.save();
         });
-        console.log("Removed " + teacher + " from " + classCode + " for " + count + " students.");
+        console.log(req.session.user.name + " removed " + teacher + " from " + classCode + " for " + count + " students.");
         res.send(JSON.stringify(true));
       } else {
         res.send(JSON.stringify(false));
