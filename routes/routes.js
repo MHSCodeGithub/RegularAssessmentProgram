@@ -113,6 +113,11 @@ router.get('/dashboard', authCheck, (req, res) => {
   }
 });
 
+// Backup RAP Data
+router.get('/backupRAP', authCheck, (req, res) => {
+  res.render('backupRAP', {user: req.session.user});
+});
+
 // Insights
 router.get('/insights', authCheck, (req, res) => {
   if(req.session.user.access == 0) {
@@ -683,6 +688,21 @@ router.get('/exportTeachers', (req, res) => {
   });
 });
 
+// Exports a list of Teachers including all details
+router.get('/exportRAP', (req, res) => {
+  Student.find({}).then(function(users) {
+    fs.writeFile("./downloads/students.json", JSON.stringify(users, null, 4), (err) => {
+      if (err) {
+        console.error(err);
+        return false;
+      } else {
+        console.log("Students export file has been created");
+        res.send(JSON.stringify(users, null, 4));
+      }
+    });
+  });
+});
+
 // Saves an individual RAP score for a certain student/class
 router.post('/save', (req, res) => {
 
@@ -989,7 +1009,7 @@ router.post('/importEMU', function(req, res) {
   });
 });
 
-// Useful for updating teacher email addresses
+// Restores list of teachers (so that they can log in)
 router.post('/uploadTeachers', function(req, res) {
 
   // Read in the POST data
@@ -1058,6 +1078,45 @@ router.post('/uploadTeachers', function(req, res) {
       }
     });
   });
+});
+
+// TODO: Complete this route
+// Restores list of teachers (so that they can log in)
+router.post('/restoreRAP', function(req, res) {
+
+  // Read in the POST data
+  let fileUpload = req.files.fileUpload;
+
+  // Set JSON file path
+  let jsonFilePath = "./uploads/students.json";
+
+  // Move the file to a local folder on the server
+  fileUpload.mv(jsonFilePath, function(err) {
+    if (err) { return res.status(500).send(err); }
+  });
+
+  // Import file
+  fs.readFile(jsonFilePath, 'utf8', function (err, data) {
+    if (err) throw err;
+    var jsonArrayObj = JSON.parse(data);
+
+    // Async loop to play nice with MongoDB
+    async.eachSeries(jsonArrayObj, function(student, callback) {
+      console.log(student.name);
+      callback();
+    }, function(err) {
+      if( err ) {
+      console.log('An error occurred: ' + err);
+      } else {
+        console.log('All RAP Data has been imported successfully');
+        req.flash('success_msg', 'All RAP Data has been imported successfully');
+        res.redirect('/backupRAP');
+        return null;
+      }
+    });
+
+  });
+
 });
 
 module.exports = router;
