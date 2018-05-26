@@ -66,9 +66,9 @@ $.getJSON("/getTeachers", function(teacher) {
           "</select>" +
         "</td>" +
         "<td>" +
-          "<button id='" + convertedName + "-save' class='btn btn-primary save-button' onclick='updateTeacher(\"" + val.name +
-            "\", \"" + convertedName + "\")'>Save</button>" +
-          "<button class='btn btn-danger' onclick='deleteTeacher(\"" + convertedName + "\")'>X</button>" +
+          "<button id='" + convertedName + "-save' class='btn btn-primary save-button' " +
+            "onclick='updateTeacher(\"" + val.name + "\", \"" + convertedName + "\")'>Save</button>" +
+          "<button class='btn btn-danger' onclick='deleteTeacher(\"" + val.name + "\", \"" + convertedName + "\")'>X</button>" +
         "</td>" +
       "</tr>"
     );
@@ -100,16 +100,69 @@ function changed(convertedName) {
   }).html("Save").css("background-color", "#007bff" ).prop('disabled', false);
 }
 
-function deleteTeacher(teacher) {
-  console.log("Deleted: " + teacher);
-  $('#' + teacher + '-row').find('td').fadeOut(1000,
-    function() {
-        $(this).parents('tr:first').remove();
-    });
+function deleteTeacher(teacherName, convertedName) {
+  var posting = $.post( "/deleteTeacher", { teacher: teacherName });
+  posting.done(function(success) {
+    console.log(success);
+    if(success == 'true') {
+      console.log("Deleted: " + teacherName);
+      $('#' + convertedName + '-row').find('td').fadeOut(1000,
+        function() {
+            $(this).parents('tr:first').remove();
+        });
+    } else {
+      console.log("Could not delete teacher");
+    }
+  });
+}
+
+function addTeacher() {
+  $('#teacherName').val("");
+  var convertedName = teacherName.replace(/\s+/g, '-').toLowerCase();
+  var posting = $.post( "/addTeacher", { teacher: teacherName });
+  posting.done(function(success) {
+    console.log(success);
+    if(success == 'true') {
+      console.log("Added: " + teacherName);
+      $('#teacherName').val();
+      $("<tr id='" + convertedName + "-row'>" +
+        "<td><a href='/queryTeacher?name=" + teacherName + "'>" + teacherName + "</a></td>" +
+        "<td>" +
+          "<input id='" + convertedName + "' class='form-control' " +
+            "onkeydown='changed(\"" + convertedName + "\");' oninput='changed(\"" + convertedName + "\");'>" +
+        "</td>" +
+        "<td>" +
+          "<select class='form-control' id='" + convertedName + "-faculty' onchange='changed(\"" + convertedName + "\");'>" +
+            "<option value='Other' selected>Other</option>" +
+            "<option value='English'>English</option>" +
+            "<option value='Mathematics'>Mathematics</option>" +
+            "<option value='Science'>Science</option>" +
+            "<option value='HSIE'>HSIE</option>" +
+            "<option value='PDHPE'>PDHPE</option>" +
+            "<option value='TAS'>TAS</option>" +
+            "<option value='CAPA'>CAPA</option>" +
+            "<option value='Special Ed'>Special Ed</option>" +
+          "</select>" +
+        "</td>" +
+        "<td>" +
+          "<select class='form-control' id='" + convertedName + "-access' onchange='changed(\"" + convertedName + "\");'>" +
+            "<option value='1' selected>Teacher</option>" +
+            "<option value='2'>Executive</option>" +
+            "<option value='3'>Administrator</option>" +
+          "</select>" +
+        "</td>" +
+        "<td>" +
+          "<button id='" + convertedName + "-save' class='btn btn-primary save-button' " +
+            "onclick='updateTeacher(\"" + teacherName + "\", \"" + convertedName + "\")'>Save</button>" +
+          "<button class='btn btn-danger' onclick='deleteTeacher(\"" + teacherName + "\", \"" + convertedName + "\")'>X</button>" +
+        "</td>" +
+      "</tr>").hide().prependTo('#teacher-table').fadeIn("slow");
+    } else {
+      console.log("Could not add teacher");
+    }
+  });
 }
 
 $(document).ready(function() {
-
-
 
 });

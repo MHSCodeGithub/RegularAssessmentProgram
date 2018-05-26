@@ -32,6 +32,7 @@ const StudentSchema = new Schema({
   gender: String,
   id: Number,
   access: Number,
+  longTermAverage: Number,
   rap: [RapSchema]
 });
 

@@ -8,7 +8,7 @@ html
           .card#content-container
             .card-body#content-body
               .col-sm-12
-                h3 Edval Class Lists
+                h3 Import From Edval
                 p Export class lists in CSV format from Edval to import into the RAP system below
                 .card#classes-card
                   .card-header#classes-header
@@ -46,6 +46,12 @@ html
                                 .col-md-4.col-lg-2.form-group
                                   div(style='margin-top: 32px;')
                                   button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Upload
+                              .row
+                                .col-sm-12
+                                  if locals.error_msg != null && locals.error_msg.length > 0
+                                    div.alert.alert-danger.text-center(role="alert") #{locals.error_msg}
+                                  if locals.success_msg != null && locals.success_msg.length > 0
+                                    div.alert.alert-success.text-center(role="alert") #{locals.success_msg}
                       .tab-pane.fade#tab-container-2(role='tabpanel', aria-labelledby='tab-instructions')
                         .row
                           .col

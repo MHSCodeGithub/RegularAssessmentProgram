@@ -4,6 +4,7 @@ const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const RapPeriods = require('../models/rapPeriods');
 const FormData = require('form-data');
+const schedule = require('node-schedule');
 const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
@@ -316,7 +317,7 @@ router.post('/addStudent', (req, res) => {
   });
 });
 
-// Adds a missing student to a class
+// Deletes a student from a class
 router.post('/deleteStudent', (req, res) => {
 
   var student = req.body.student;
@@ -350,6 +351,44 @@ router.post('/deleteStudent', (req, res) => {
         });
       }
     });
+  });
+});
+
+// Deletes a teacher from the system
+router.post('/deleteTeacher', (req, res) => {
+  var teacher = req.body.teacher;
+  console.log("Attempting to delete " + teacher);
+  Teacher.findOneAndRemove({ name: teacher }, function (err, user) {
+    if (err) { console.log(err); }
+    if (user) {
+      console.log("Successfully Deleted " + teacher);
+      res.send(JSON.stringify(true));
+    } else {
+      console.log("Error Deleting Teacher");
+      res.send(JSON.stringify(false));
+    }
+  });
+});
+
+// Deletes a teacher from the system
+router.post('/addTeacher', (req, res) => {
+  var teacher = req.body.teacher;
+  console.log("Attempting to add " + teacher);
+  Teacher.findOne({ name: teacher }, function (err, user) {
+    if (err) { console.log(err); }
+    if (user) {
+      console.log("Error: " + teacher + " already exists");
+      res.send(JSON.stringify(false));
+    } else {
+      let tch = new Teacher({
+        name: teacher,
+        access: 1
+      });
+      tch.save().then((stu) => {
+        console.log("Successfuly added " + teacher + " to list");
+        res.send(JSON.stringify(true));
+      });
+    }
   });
 });
 
@@ -554,37 +593,6 @@ router.post('/updateAverages', (req, res) => {
   });
 });
 
-// refresh teacher list based on student database
-router.get('/refreshTeachers', (req, res) => {
-  // Find all students
-  Student.find({}).then(async function(users) {
-    users.forEach(async function(u) {
-      // then loop through RAP period for each student
-      u.rap.forEach(async function(r) {
-        // then through the individual subjects for each student
-        r.scores.forEach(async function(s) {
-          try {
-            // search for the teacher
-            let foundTeacher = await Teacher.findOne({ name: s.teacher });
-              if(!foundTeacher) {
-                // If teacher doesn't exist then create them
-                let newTeacher = new Teacher({ name: s.teacher });
-                try {
-                  let newTeacherResult = await newTeacher.save()
-                  console.log(newTeacher);
-                } catch(err) {
-                  console.log(err);
-                }
-              }
-            } catch(err) {
-              console.log(err);
-            }
-        });
-      });
-    });
-  });
-});
-
 // Returns a list of Teachers for the autocomplete
 router.get('/autocomplete', (req, res) => {
   Teacher.find({}).then(function(users) {
@@ -658,7 +666,7 @@ router.post('/save', (req, res) => {
               if(s.code == classCode) {
                 s.value = score;
                 user.save().then((newUser) => {
-                  console.log('Updated score to ' + score + ' for ' + student);
+                  console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode);
                   res.end();
                 });
               }
@@ -675,12 +683,12 @@ router.post('/fillRadios', (req, res) => {
 
   // Set parameters
   let classCode = req.body.classCode;
-  console.log(req.body.classCode);
+  //console.log(req.body.classCode);
   let score = req.body.score;
-  console.log(req.body.score);
+  //console.log(req.body.score);
   let students = req.body.students;
-  console.log(req.body.students);
-  console.log("Updating scores for " + classCode + " to " + score);
+  //console.log(req.body.students);
+  console.log(req.session.user.name + " updated scores for " + classCode + " to " + score);
 
   // Match the rap period to the current period
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
@@ -699,7 +707,7 @@ router.post('/fillRadios', (req, res) => {
               if(s.code == classCode) {
                 s.value = score;
                 u.save().then((stu) => {
-                  console.log("Score updated for " + u.name);
+                  //console.log("Score updated for " + u.name);
                   // Score saved!
                 });
               }
@@ -746,12 +754,13 @@ router.post('/upload', function(req, res) {
         // Fixes Teacher Name
         let teacher = student["Teacher name"].replace(/;/g," ").replace(/  /g," ");
         teacher = teacher.split(' ')[1] + " " + teacher.split(' ')[0].charAt(0).toUpperCase() + teacher.split(' ')[0].slice(1).toLowerCase();
+        teacher = teacher.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); }); // capitalize after hyphen
 
         // Joins first and last name together
         let surname = student["Surname"].charAt(0).toUpperCase() + student["Surname"].slice(1).toLowerCase();
         let firstname = student["First name"].charAt(0).toUpperCase() + student["First name"].slice(1).toLowerCase();
         let studentName = firstname + " " + surname;
-        studentName = studentName.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); });
+        studentName = studentName.replace(/(^|[\s-])\S/g, function (match) { return match.toUpperCase(); }); // capitalize after hyphen
         studentName = studentName.replace(/'/g, '\''); // get rid of apostrophes
 
         // Import ID Numbers, set invalid numbers to 0
@@ -797,8 +806,7 @@ router.post('/upload', function(req, res) {
                 callback2();
               });
               if(!found2) {
-                let rand = Math.floor((Math.random() * 5) + 1);
-                user.rap[user.rap.length-1].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: rand});
+                user.rap[user.rap.length-1].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: 0});
                 user.save().then((newUser) => {
                   console.log('Adding new class data for: ' + studentName);
                 });
@@ -814,12 +822,12 @@ router.post('/upload', function(req, res) {
             // If student doesn't exist then create them
             let stu = new Student({
               name: studentName,
-              id: idNum
+              id: idNum,
+              access: 0
             });
 
-            let rand = Math.floor((Math.random() * 5) + 1);
             stu.rap.push({year: year, term: term, week: week, grade: student['Year'], average: 0});
-            stu.rap[0].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: rand});
+            stu.rap[0].scores.push({subject: student['Subject'], code: student['Course code'] + student['Class id'], teacher: teacher, value: 0});
 
             stu.save().then((newUser) => {
               console.log('New user created: ' + studentName);
@@ -834,6 +842,37 @@ router.post('/upload', function(req, res) {
       console.log('An error occurred: ' + err);
       } else {
         console.log('All students have been processed successfully');
+        // After import, refresh Teachers list
+        Student.find({}).then(async function(users) {
+          users.forEach(async function(u) {
+            // then loop through RAP period for each student
+            u.rap.forEach(async function(r) {
+              // then through the individual subjects for each student
+              r.scores.forEach(async function(s) {
+                try {
+                  // search for the teacher
+                  let foundTeacher = await Teacher.findOne({ name: s.teacher });
+                    if(!foundTeacher) {
+                      // If teacher doesn't exist then create them
+                      let newTeacher = new Teacher({ name: s.teacher });
+                      try {
+                        let newTeacherResult = await newTeacher.save()
+                        console.log("Added " + s.teacher + " to the list of teachers");
+                      } catch(err) {
+                        console.log("Error adding teacher: possible duplicate");
+                      }
+                    }
+                  } catch(err) {
+                    console.log("Error searching for teacher");
+                  }
+              });
+            });
+          });
+        });
+        console.log('Teacher list refreshed successfully');
+        req.flash('success_msg', 'All students have been imported successfully');
+        res.redirect('/importEdval');
+        return null;
       }
     });
 

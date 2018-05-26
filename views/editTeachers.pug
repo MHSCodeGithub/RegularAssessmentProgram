@@ -16,14 +16,19 @@ html
                   .card-header#classes-header
                     ul#subject-tabs.nav.nav-pills.nav-fill(role='tablist')
                       li.nav-item
-                        a.nav-link.active#tab-upload(data-toggle='pill', href='#tab-container-1', role='tab', aria-controls='tab-container-1', aria-selected='true') Edit
+                        a.nav-link.active#tab-edit(data-toggle='pill', href='#tab-container-1', role='tab', aria-controls='tab-container-1', aria-selected='true') Edit
                       li.nav-item
-                        a.nav-link#tab-instructions(data-toggle='pill', href='#tab-container-2', role='tab', aria-controls='tab-container-2', aria-selected='true') Upload
+                        a.nav-link#tab-upload(data-toggle='pill', href='#tab-container-2', role='tab', aria-controls='tab-container-2', aria-selected='true') Upload
                   .card-body#classes-body
                     .tab-content#tab-container
-                      .tab-pane.fade.show.active#tab-container-1(role='tabpanel', aria-labelledby='tab-upload')
+                      .tab-pane.fade.show.active#tab-container-1(role='tabpanel', aria-labelledby='tab-edit')                        
+                        .row#addTeacher
+                          .col-lg-8.col-md-6.col-sm-12.col-xs-12
+                            input#teacherName.form-control.form-control-lg(type='text', placeholder='Teacher Full Name')
+                          .col-lg-4.col-md-6.col-sm-12.col-xs-12
+                            button.btn.btn-primary.btn-lg(style='width: 100%', onclick='addTeacher();') Add Teacher
                         #display
-                      .tab-pane.fade#tab-container-2(role='tabpanel', aria-labelledby='tab-instructions')
+                      .tab-pane.fade#tab-container-2(role='tabpanel', aria-labelledby='tab-upload')
                         .row
                           .col-sm-12
                             form#upload-form(action="/uploadTeachers", autocomplete="off", method="POST", encType="multipart/form-data")

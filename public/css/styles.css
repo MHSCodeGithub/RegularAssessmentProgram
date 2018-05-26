@@ -134,7 +134,7 @@ h3 {
   transition: all 0.2s ease-out;
 }
 
-#add-student {
+#add-student, #addTeacher {
   margin-bottom: 15px;
 }
 
