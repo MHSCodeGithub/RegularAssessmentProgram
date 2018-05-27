@@ -1,3 +1,4 @@
+- var page = "checkSubject"
 doctype html
 html
   include partials/header.pug
@@ -10,6 +11,10 @@ html
             .card-body#content-body
               .col-sm-12
                 h3 By Subject
-                p Coming soon...
+                form#subject-form(action="/check/class", autocomplete="off", method="GET" )
+                  .input-group
+                    input.form-control.form-control-lg(type='text', id='subject', name='subject', placeholder="Subject")
+                    span.input-group-btn
+                      button.btn.btn-primary(type='submit') Go!
               .col-sm-12#scores                
     include partials/footer.pug

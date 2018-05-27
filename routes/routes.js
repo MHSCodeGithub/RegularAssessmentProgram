@@ -660,6 +660,23 @@ router.get('/autocompleteClasses', (req, res) => {
   });
 });
 
+// Returns a list of Students for the autocomplete
+router.get('/autocompleteSubjects', (req, res) => {
+  Student.find({}).then(function(users) {
+    let subjects = [];
+    users.forEach(function(u) {
+      u.rap.forEach(function(r) {
+        r.scores.forEach(function(s) {
+          subjects.push(s.subject);
+        });
+      });
+    });
+    let subjectsUnique = Array.from(new Set(subjects));
+    res.send(JSON.stringify(subjectsUnique));
+    return null;
+  });
+});
+
 // Returns a list of Teachers including all details
 router.get('/getTeachers', (req, res) => {
   Teacher.find({}).then(function(users) {

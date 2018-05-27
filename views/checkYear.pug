@@ -1,3 +1,4 @@
+- var page = "checkYear"
 doctype html
 html
   include partials/header.pug
@@ -10,6 +11,14 @@ html
             .card-body#content-body
               .col-sm-12
                 h3 By Year Group
-                p Coming soon...
+                .row
+                  .col-sm-3
+                    button#year7.btn.btn-primary.year-button(style='width: 100%;') 7
+                  .col-sm-3
+                    button#year8.btn.btn-primary.year-button(style='width: 100%;') 8
+                  .col-sm-3
+                    button#year9.btn.btn-primary.year-button(style='width: 100%;') 9
+                  .col-sm-3
+                    button#year10.btn.btn-primary.year-button(style='width: 100%;') 10
               .col-sm-12#scores                
     include partials/footer.pug

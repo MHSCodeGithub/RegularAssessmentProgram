@@ -31,8 +31,29 @@ router.get('/class', authCheck, (req, res) => {
 });
 
 // Query a specific class (get data)
-router.post('/class', authCheck, (req, res) => {
-
+router.get('/getClass', authCheck, (req, res) => {
+  var classCode = req.query.code;
+  console.log(req.session.user.name + " looked up scores for " + classCode);
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            r.scores.forEach(function(s) {
+              if(s.code == classCode) {
+                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, score: s.value });
+              }
+            });
+          }
+        });
+      });
+      students.sort((a, b) => b.score - a.score);
+      res.send(JSON.stringify(students));
+    });
+  });
 });
 
 // Query a specific subject (render page)
@@ -41,8 +62,29 @@ router.get('/subject', authCheck, (req, res) => {
 });
 
 // Query a specific subject (get data)
-router.post('/subject', authCheck, (req, res) => {
-
+router.get('/getSubject', authCheck, (req, res) => {
+  var subject = req.query.subject;
+  console.log(req.session.user.name + " looked up scores for " + subject);
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            r.scores.forEach(function(s) {
+              if(s.subject == subject) {
+                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, score: s.value });
+              }
+            });
+          }
+        });
+      });
+      students.sort((a, b) => b.score - a.score);
+      res.send(JSON.stringify(students));
+    });
+  });
 });
 
 // Query a specific year group (render page)
@@ -51,8 +93,26 @@ router.get('/year', authCheck, (req, res) => {
 });
 
 // Query a specific year group (get data)
-router.post('/year', authCheck, (req, res) => {
-
+router.get('/getYear', authCheck, (req, res) => {
+  var year = req.query.year;
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            if(r.grade == year) {
+              students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+            }
+          }
+        });
+      });
+      students.sort((a, b) => b.currentAverage - a.currentAverage);
+      res.send(JSON.stringify(students));
+    });
+  });
 });
 
 // Query all students (render page and get data)
