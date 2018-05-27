@@ -11,7 +11,7 @@ var async = require('async');
 
 // Batch job to update averages every 5 minutes
 var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
-  console.log('Running batch job: Update Averages');
+  //console.log('Running batch job: Update Averages');
   updateAverages();
 });
 
@@ -52,7 +52,7 @@ function updateAverages() {
           itemsProcessed++;
           //console.log(itemsProcessed + " / " + array.length);
           if(itemsProcessed == array.length) {
-            console.log('All student average RAP scores recalculated successfully');
+            //console.log('All student average RAP scores recalculated successfully');
             return true;
           }
         });
@@ -124,6 +124,24 @@ router.get('/insights', authCheck, (req, res) => {
     res.render('studentHome', {user: req.session.user});
   } else {
     res.render('insights', {user: req.session.user});
+  }
+});
+
+// Generate Letters
+router.get('/generateLetters', authCheck, (req, res) => {
+  if(req.session.user.access < 2) {
+    res.redirect('/');
+  } else {
+    res.render('generateLetters', {user: req.session.user});
+  }
+});
+
+// Generate Posters
+router.get('/generatePosters', authCheck, (req, res) => {
+  if(req.session.user.access < 2) {
+    res.redirect('/');
+  } else {
+    res.render('generatePosters', {user: req.session.user});
   }
 });
 
