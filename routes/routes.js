@@ -80,20 +80,20 @@ const authCheck = (req, res, next) => {
     next();
   }
 }
+var ieRedirecter = function(req, res, next) {
+  if(req.headers['user-agent'].indexOf("MSIE") >= 0)
+    res.redirect("http://example.com/");
+  else
+    next();
+};
 
 // Basic home route
-router.get('/', authCheck, (req, res) => {
-  var ieRedirecter = function(req, res, next) {
-    if(req.headers['user-agent'].indexOf("MSIE") >= 0) {
-      res.render('internetExplorer');
-    } else {
-      if(req.session.user.access == 0) {
-        res.render('studentHome', {user: req.session.user});
-      } else {
-        res.render('teacherHome', {user: req.session.user});
-      }
-    }
-  };
+router.get('/', authCheck, ieRedirecter, (req, res) => {
+  if(req.session.user.access == 0) {
+    res.render('studentHome', {user: req.session.user});
+  } else {
+    res.render('teacherHome', {user: req.session.user});
+  }
 });
 
 // Fix apostrophes
@@ -220,7 +220,7 @@ router.get('/rubric', (req, res) => {
 });
 
 // Render login screen
-router.get('/login', (req,res) => {
+router.get('/login', ieRedirecter, (req,res) => {
   if(req.session.user != null) {
     res.redirect('/');
   } else {
