@@ -15,6 +15,11 @@ const authCheck = (req, res, next) => {
   }
 }
 
+// Search for teacher on Check Teacher page
+router.get('/teacher', authCheck, (req, res) => {
+  res.render('checkTeacher', {user: req.session.user});
+});
+
 // Query a specific student
 router.get('/single', authCheck, (req, res) => {
   if(req.query.name != null && req.session.user.access > 0) {

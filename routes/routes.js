@@ -209,11 +209,6 @@ router.get('/queryTeacher', authCheck, (req, res) => {
   }
 });
 
-// Search for teacher on Check Teacher page
-router.get('/checkTeacher', authCheck, (req, res) => {
-  res.render('checkTeacher', {user: req.session.user});
-});
-
 // Render Import From Edval Screen
 router.get('/importEdval', authCheck, (req, res) => {
   res.render('importEdval', {user: req.session.user});
@@ -306,7 +301,7 @@ router.get('/teacher', (req, res) => {
 
   // Build list of classes and students for this teacher
   // Loop through every student
-  Student.find({}).then(function(users) {
+  Student.find({}).sort({name: 'ascending'}).then(function(users) {
     users.forEach(function(u) {
       // then loop through RAP period for each student
       u.rap.forEach(function(r) {
@@ -672,7 +667,7 @@ router.get('/autocomplete', (req, res) => {
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteStudents', (req, res) => {
-  Student.find({}).then(function(users) {
+  Student.find({}).sort({name: 'ascending'}).then(function(users) {
     let students = [];
     users.forEach(function(u) {
       students.push(u.name);
@@ -718,7 +713,7 @@ router.get('/autocompleteSubjects', (req, res) => {
 
 // Returns a list of Teachers including all details
 router.get('/getTeachers', (req, res) => {
-  Teacher.find({}).then(function(users) {
+  Teacher.find({}).sort({name: 'ascending'}).then(function(users) {
     let teachers = [];
     users.forEach(function(u) {
       teachers.push({name: u.name, username: u.username,

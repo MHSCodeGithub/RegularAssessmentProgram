@@ -13,22 +13,19 @@ nav.navbar.navbar-expand-md.navbar-dark.justify-content-between
           li.nav-item
             a.nav-link(href='/insights') Insights
           li.nav-item
-            a.nav-link(href='/') Enter Scores
-          if user.access < 2
-            li.nav-item
-              a.nav-link(href='/check/single') Check Scores
-          else
-            li.nav-item.dropdown
-              a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Check Scores
-              .dropdown-menu(aria-labelledby=navbarDropdown)
-                a.dropdown-item(href='/check/single') Single Student
-                a.dropdown-item(href='/check/class') By Class
-                a.dropdown-item(href='/check/subject') By Subject
-                a.dropdown-item(href='/check/year') By Year Group
-                a.dropdown-item(href='/check/all') All Students
-                a.dropdown-item(href='/check/change') By Biggest Change
-                a.dropdown-item(href='/check/fives') Perfect 5's
-                a.dropdown-item(href='/check/threes') Under 3's
+            a.nav-link(href='/') Enter Scores          
+          li.nav-item.dropdown
+            a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Check Scores
+            .dropdown-menu(aria-labelledby=navbarDropdown)
+              a.dropdown-item(href='/check/single') Single Student
+              a.dropdown-item(href='/check/class') By Class
+              a.dropdown-item(href='/check/subject') By Subject
+              a.dropdown-item(href='/check/teacher') By Teacher
+              a.dropdown-item(href='/check/year') By Year Group
+              a.dropdown-item(href='/check/all') All Students
+              a.dropdown-item(href='/check/change') By Biggest Change
+              a.dropdown-item(href='/check/fives') Perfect 5's
+              a.dropdown-item(href='/check/threes') Under 3's
           if user.access > 2
             li.nav-item.dropdown
               a.nav-link.dropdown-toggle#navbarDropdown(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Admin
@@ -37,7 +34,6 @@ nav.navbar.navbar-expand-md.navbar-dark.justify-content-between
                 a.dropdown-item(href='/generateLetters') Generate Letters
                 a.dropdown-item(href='/generatePosters') Generate Posters
                 a.dropdown-item(href='/editTeachers') Edit Teachers
-                a.dropdown-item(href='/checkTeacher') Check Teacher
                 a.dropdown-item(href='/backupRAP') Backup / Restore
                 a.dropdown-item(href='/importEdval') Import Edval Data
                 a.dropdown-item(href='/importEMU') Import EMU Data
