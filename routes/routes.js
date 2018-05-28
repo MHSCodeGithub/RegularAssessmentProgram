@@ -765,6 +765,7 @@ router.post('/save', (req, res) => {
   var student = req.body.student;
   var classCode = req.body.classCode;
   var score = req.body.score;
+  var teacher = req.body.teacher;
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     Student.findOne({ name: student }, function (err, user) {
@@ -778,7 +779,7 @@ router.post('/save', (req, res) => {
               if(s.code == classCode) {
                 s.value = score;
                 user.save().then((newUser) => {
-                  console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode);
+                  console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode + " with teacher " + teacher);
                   res.end();
                 });
               }
