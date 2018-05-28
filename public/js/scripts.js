@@ -20,8 +20,6 @@ function getInternetExplorerVersion()
 
 console.log('IE version:', getInternetExplorerVersion());
 
-$(document).ready(function() {
-
-
-
-});
+if (getInternetExplorerVersion() == 11) {
+  window.location.replace("/internetExplorer");
+}
