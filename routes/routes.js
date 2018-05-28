@@ -80,7 +80,7 @@ const authCheck = (req, res, next) => {
     next();
   }
 }
-var ieRedirecter = function(req, res, next) {
+const ieRedirecter = function(req, res, next) {
   if(req.headers['user-agent'].indexOf("MSIE") >= 0)
     res.redirect("http://example.com/");
   else
