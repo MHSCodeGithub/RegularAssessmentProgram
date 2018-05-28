@@ -299,41 +299,34 @@ router.get('/teacher', (req, res) => {
   var teacher = req.query.name;
   let classes = [];
 
-  // Build list of classes and students for this teacher
-  // Loop through every student
-  Student.find({}).sort({name: 'ascending'}).then(function(users) {
-    users.forEach(function(u) {
-      // then loop through RAP period for each student
-      u.rap.forEach(function(r) {
-        // then through the individual subject scores for each student
-        r.scores.forEach(function(s) {
-          // if the teacher input matches the student's teacher
-          if(s.teacher == teacher) {
-            let classFound = false;
-            // then loop through the class list for the teacher to see if the class is added yet
-            classes.forEach(function(c) {
-              // if the class already exists then push the student into the list
-              if(c.code == s.code) {
-                classFound = true;
-                c.students.push({name: u.name, score: s.value});
-                //console.log('Class already exists, adding ' + c.students[c.students.length-1]);
+  // This function searches for all students with the current teacher in the current RAP period
+  // It then loops through and builds a list of students for each of the teacher's classes
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({'rap.scores.teacher':teacher, 'rap.year':currentPeriod.year,
+      'rap.term':currentPeriod.term, 'rap.week':currentPeriod.week})
+      .sort({name: 'ascending'}).then(function(users) {
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          r.scores.forEach(function(s) {
+            if(s.teacher == teacher) {
+              let classFound = false;
+              classes.forEach(function(c) { // see if the class is added yet
+                if(c.code == s.code) {
+                  classFound = true;
+                  c.students.push({name: u.name, score: s.value}); // if class exists push the student into the array
+                }
+              });
+              if(!classFound) { // if class NOT found then push the class and student into the array
+                let studentsArr = [{name: u.name, score: s.value}];
+                classes.push({code: s.code, subject: s.subject, students: studentsArr});
               }
-            });
-            // if the class was NOT found then push the class and student into the array
-            if(!classFound) {
-              let studentsArr = [{name: u.name, score: s.value}];
-              classes.push({code: s.code, subject: s.subject, students: studentsArr});
-              //console.log('-----New class added: ' + classes[classes.length-1].subject);
             }
-          }
+          });
         });
       });
+      res.send(JSON.stringify(classes)); // Pass JSON string of Teacher's class data back to Client
     });
-
-    // Pass JSON string of Teacher's class data back to Client
-    res.send(JSON.stringify(classes));
   });
-
 });
 
 // Returns all details about a specific student
@@ -401,7 +394,7 @@ router.post('/deleteStudent', (req, res) => {
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     Student.findOne({ name: student }, function (err, user) {
-      if (err) { console.log(err); }
+      if (err) { console.log("Error deleting student"); }
       if (user) {
         user.rap.forEach(function(r) {
           if(r.year == currentPeriod.year
@@ -473,9 +466,10 @@ router.post('/addClass', (req, res) => {
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
 
+
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({}, function (err, users) {
-      if (err) { console.log(err); }
+    Student.find({'rap.scores.code':classCode}, function (err, users) {
+      if (err) { console.log("Error adding class"); }
       if (users) {
         let count = 0;
         users.forEach(function(u) {
@@ -483,31 +477,39 @@ router.post('/addClass', (req, res) => {
             if(r.year == currentPeriod.year
             && r.term == currentPeriod.term
             && r.week == currentPeriod.week) {
-              let found = false;
-              let subject = "";
+
+              // Check to see if teacher already has subject
+              let alreadyHasClass = false;
               r.scores.forEach(function(s) {
-                // Lookup class code to ensure it exists
-                if(s.code == classCode) {
-                  if(s.teacher == "No Teacher") {
-                    // If the class exsists but there is no teacher
-                    // Add the teacher and reset score to 0
-                    s.teacher = teacher;
-                    s.value = 0;
-                    count++;
-                  } else {
-                    // Otherwise, duplicate the subject for the new teacher
-                    found = true;
-                    subject = s.subject;
-                  }
+                if(s.code == classCode && s.teacher == teacher) {
+                  alreadyHasClass = true;
                 }
               });
+
+              // If teacher not already on this class, then attempt to add them
+              let found = false;
+              let subject = "";
+              if(!alreadyHasClass) {
+                r.scores.forEach(function(s) {
+                  // Lookup class code to ensure it exists
+                  if(s.code == classCode) {
+                    if(s.teacher == "No Teacher") {
+                      // If the class exsists but there is no teacher
+                      // Add the teacher and reset score to 0
+                      s.teacher = teacher;
+                      s.value = 0;
+                      count++;
+                    } else {
+                      // Otherwise, duplicate the subject for the new teacher
+                      found = true;
+                      subject = s.subject;
+                    }
+                  }
+                });
+              }
               if(found) {
                 r.scores.push({subject: subject, code: classCode, teacher: teacher, value: 0});
                 count++;
-              } else {
-                // Class code does not exist, exit with error message
-                // TODO: Add error message system
-                res.send(JSON.stringify(false));
               }
             }
           });
@@ -521,6 +523,8 @@ router.post('/addClass', (req, res) => {
       }
     });
   });
+
+
 });
 
 // Removes a class from a teacher
@@ -537,11 +541,26 @@ router.post('/removeClass', (req, res) => {
             if(r.year == currentPeriod.year
             && r.term == currentPeriod.term
             && r.week == currentPeriod.week) {
+
+              // Check to see if another teacher has the class
+              let hasOtherTeacher = false;
+              r.scores.forEach(function(s) {
+                if(s.code == classCode && s.teacher != teacher) {
+                  hasOtherTeacher = true;
+                }
+              });
+
+              // Remove teacher from class
               r.scores.forEach(function(s) {
                 if(s.code == classCode && s.teacher == teacher) {
-                  s.teacher = "No Teacher";
-                  s.value = 0;
-                  count++;
+                  if(hasOtherTeacher) {
+                    r.scores.pull(s);
+                    count++;
+                  } else {
+                    s.teacher = "No Teacher";
+                    s.value = 0;
+                    count++;
+                  }
                 }
               });
             }
