@@ -116,7 +116,6 @@ function deleteTeacher(teacherName, convertedName) {
 }
 
 function addTeacher() {
-  $('#teacherName').val("");
   var convertedName = teacherName.replace(/\s+/g, '-').toLowerCase();
   var posting = $.post( "/addTeacher", { teacher: teacherName });
   posting.done(function(success) {
@@ -160,6 +159,7 @@ function addTeacher() {
       console.log("Could not add teacher");
     }
   });
+  $('#teacherName').val("");
 }
 
 $(document).ready(function() {
