@@ -17,7 +17,7 @@ function fillRadios(num, classCode) {
       }
     }
   });
-  $.post( "/fillRadios", { classCode: classCode, score: num, students: stuNames });
+  $.post( "/fillRadios", { classCode: classCode, score: num, students: stuNames, teacher: teacher });
 }
 
 // Generate the HTML for student scores for each class
@@ -112,11 +112,11 @@ function generateScores(name) {
                   "<th scope='col' style='width: 20px;'></th>" +
                   "<th scope='col'>Name:</th>" +
                   "<th scope='col' class='scoreColumn'>" +
-                    "<a href='#' onClick='fillRadios(1, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
-                    "<a href='#' onClick='fillRadios(2, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
-                    "<a href='#' onClick='fillRadios(3, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
-                    "<a href='#' onClick='fillRadios(4, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
-                    "<a href='#' onClick='fillRadios(5, \""+y.code+"\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
+                    "<a href='#' onClick='fillRadios(1, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
+                    "<a href='#' onClick='fillRadios(2, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
+                    "<a href='#' onClick='fillRadios(3, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
+                    "<a href='#' onClick='fillRadios(4, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
+                    "<a href='#' onClick='fillRadios(5, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
                   "</th>" +
                 "</tr>" +
               "</thead>" +

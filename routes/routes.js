@@ -796,12 +796,9 @@ router.post('/fillRadios', (req, res) => {
 
   // Set parameters
   let classCode = req.body.classCode;
-  //console.log(req.body.classCode);
   let score = req.body.score;
-  //console.log(req.body.score);
   let students = req.body.students;
-  //console.log(req.body.students);
-  console.log(req.session.user.name + " updated scores for " + classCode + " to " + score);
+  let teacher = req.body.teacher;
 
   // Match the rap period to the current period
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
@@ -817,10 +814,10 @@ router.post('/fillRadios', (req, res) => {
             // then through the individual subject scores for each student
             r.scores.forEach(function(s) {
               // if the class code matches the code sent
-              if(s.code == classCode) {
+              if(s.code == classCode && s.teacher == teacher) {
                 s.value = score;
                 u.save().then((stu) => {
-                  //console.log("Score updated for " + u.name);
+                  console.log(req.session.user.name + " updated scores for " + classCode + "(" + teacher + ") to " + score);
                   // Score saved!
                 });
               }
