@@ -776,7 +776,7 @@ router.post('/save', (req, res) => {
             && r.term == currentPeriod.term
             && r.week == currentPeriod.week) {
             r.scores.forEach(function(s) {
-              if(s.code == classCode) {
+              if(s.code == classCode && s.teacher == teacher) {
                 s.value = score;
                 user.save().then((newUser) => {
                   console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode + " with teacher " + teacher);
