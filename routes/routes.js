@@ -382,7 +382,7 @@ router.post('/addStudent', (req, res) => {
               console.log(student + " already member of " + classCode);
               res.send(JSON.stringify(false));
             } else {
-              r.scores.push({subject: subject, code: classCode, teacher: teacher});
+              r.scores.push({subject: subject, code: classCode, teacher: teacher, value: 0});
               user.save().then((stu) => {
                 console.log(req.session.user.name + " added " + student + " to " + classCode);
                 res.send(JSON.stringify(true));
@@ -400,6 +400,7 @@ router.post('/deleteStudent', (req, res) => {
 
   var student = req.body.student;
   var classCode = req.body.classCode;
+  var teacherName = req.body.teacherName;
   console.log("Attempting to delete " + student);
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
@@ -412,11 +413,11 @@ router.post('/deleteStudent', (req, res) => {
           && r.week == currentPeriod.week) {
             let found = false;
             r.scores.forEach(function(s) {
-              if(s.code == classCode) {
+              if(s.code == classCode && s.teacher == teacherName) {
                 found = true;
                 r.scores.pull(s);
                 user.save().then((stu) => {
-                  console.log(req.session.user.name + " deleted " + student + " from " + classCode);
+                  console.log(req.session.user.name + " deleted " + student + " from " + classCode + " with teacher " + teacherName);
                   res.send(JSON.stringify(true));
                 });
               }

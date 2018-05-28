@@ -146,7 +146,7 @@ function generateScores(name) {
             "<td class='student-delete'>" +
               "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
               "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
-              "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\")'>X</button>" +
+              "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\", \"" + name + "\")'>X</button>" +
             "</td>" +
             "<td class='student-label'><a href='check/single?name=" + unescape(student.name) + "'>" + unescape(student.name) + "</a></td>" +
             "<td class='scoreColumn'>" +
@@ -329,9 +329,9 @@ function addStudent(classCode, teacher, subject, x) {
 }
 
 // Delete student from class
-function deleteStudent(studentName, classCode, num) {
+function deleteStudent(studentName, classCode, num, teacher) {
 
-  var posting = $.post( "/deleteStudent", { student: unescape(studentName), classCode: classCode });
+  var posting = $.post( "/deleteStudent", { student: unescape(studentName), classCode: classCode, teacherName: teacher });
 
   posting.done(function(success) {
     console.log(success);
