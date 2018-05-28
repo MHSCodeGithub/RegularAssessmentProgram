@@ -83,11 +83,17 @@ const authCheck = (req, res, next) => {
 
 // Basic home route
 router.get('/', authCheck, (req, res) => {
-  if(req.session.user.access == 0) {
-    res.render('studentHome', {user: req.session.user});
-  } else {
-    res.render('teacherHome', {user: req.session.user});
-  }
+  var ieRedirecter = function(req, res, next) {
+    if(req.headers['user-agent'].indexOf("MSIE") >= 0) {
+      res.render('internetExplorer');
+    } else {
+      if(req.session.user.access == 0) {
+        res.render('studentHome', {user: req.session.user});
+      } else {
+        res.render('teacherHome', {user: req.session.user});
+      }
+    }
+  };
 });
 
 // Fix apostrophes
