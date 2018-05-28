@@ -116,13 +116,13 @@ function deleteTeacher(teacherName, convertedName) {
 }
 
 function addTeacher() {
+  var teacherName = $('#teacherName').val();
   var convertedName = teacherName.replace(/\s+/g, '-').toLowerCase();
   var posting = $.post( "/addTeacher", { teacher: teacherName });
   posting.done(function(success) {
     console.log(success);
     if(success == 'true') {
       console.log("Added: " + teacherName);
-      $('#teacherName').val();
       $("<tr id='" + convertedName + "-row'>" +
         "<td><a href='/queryTeacher?name=" + teacherName + "'>" + teacherName + "</a></td>" +
         "<td>" +
