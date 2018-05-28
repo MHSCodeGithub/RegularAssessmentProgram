@@ -142,6 +142,7 @@ router.get('/generateLetters', authCheck, (req, res) => {
   }
 });
 
+// Render 'Internet Explorer Not Supported' page
 router.get('/internetExplorer', (req, res) => {
   res.render('internetExplorer');
 });
@@ -413,6 +414,7 @@ router.post('/deleteStudent', (req, res) => {
           && r.week == currentPeriod.week) {
             let found = false;
             r.scores.forEach(function(s) {
+              // Ensure to only delete from class if teacher also matches
               if(s.code == classCode && s.teacher == teacherName) {
                 found = true;
                 r.scores.pull(s);
@@ -489,10 +491,13 @@ router.post('/addClass', (req, res) => {
               let found = false;
               let subject = "";
               r.scores.forEach(function(s) {
+                // Lookup class code to ensure it exists
                 if(s.code == classCode) {
-                  if(s.teacher == null) {
+                  if(s.teacher == "No Teacher") {
                     // If the class exsists but there is no teacher
+                    // Add the teacher and reset score to 0
                     s.teacher = teacher;
+                    s.value = 0;
                     count++;
                   } else {
                     // Otherwise, duplicate the subject for the new teacher
@@ -502,8 +507,12 @@ router.post('/addClass', (req, res) => {
                 }
               });
               if(found) {
-                r.scores.push({subject: subject, code: classCode, teacher: teacher});
+                r.scores.push({subject: subject, code: classCode, teacher: teacher, value: 0});
                 count++;
+              } else {
+                // Class code does not exist, exit with error message
+                // TODO: Add error message system
+                res.send(JSON.stringify(false));
               }
             }
           });
@@ -512,6 +521,7 @@ router.post('/addClass', (req, res) => {
         console.log(req.session.user.name + " added " + teacher + " to " + classCode + " for " + count + " students.");
         res.send(JSON.stringify(true));
       } else {
+        // TODO: Add error message system
         res.send(JSON.stringify(false));
       }
     });
@@ -534,8 +544,8 @@ router.post('/removeClass', (req, res) => {
             && r.week == currentPeriod.week) {
               r.scores.forEach(function(s) {
                 if(s.code == classCode && s.teacher == teacher) {
-                  //r.scores.pull(s); // This deletes the entire class
-                  s.teacher = null;
+                  s.teacher = "No Teacher";
+                  s.value = 0;
                   count++;
                 }
               });
