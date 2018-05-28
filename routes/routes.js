@@ -142,6 +142,10 @@ router.get('/generateLetters', authCheck, (req, res) => {
   }
 });
 
+router.get('/internetExplorer', (req, res) => {
+  res.render('internetExplorer');
+});
+
 // Generate Posters
 router.get('/generatePosters', authCheck, (req, res) => {
   if(req.session.user.access < 2) {
