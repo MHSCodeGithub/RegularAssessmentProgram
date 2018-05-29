@@ -18,8 +18,4 @@ function getInternetExplorerVersion()
   return rv;
 }
 
-console.log('IE version:', getInternetExplorerVersion());
-
-if (getInternetExplorerVersion() == 11) {
-  window.location.replace("/internetExplorer");
-}
+console.log('IE version: ', getInternetExplorerVersion());

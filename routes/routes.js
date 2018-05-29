@@ -80,15 +80,9 @@ const authCheck = (req, res, next) => {
     next();
   }
 }
-const ieRedirecter = function(req, res, next) {
-  if(req.headers['user-agent'].indexOf("MSIE") >= 0)
-    res.redirect("http://example.com/");
-  else
-    next();
-};
 
 // Basic home route
-router.get('/', authCheck, ieRedirecter, (req, res) => {
+router.get('/', authCheck, (req, res) => {
   if(req.session.user.access == 0) {
     res.render('studentHome', {user: req.session.user});
   } else {
@@ -220,7 +214,7 @@ router.get('/rubric', (req, res) => {
 });
 
 // Render login screen
-router.get('/login', ieRedirecter, (req,res) => {
+router.get('/login', (req,res) => {
   if(req.session.user != null) {
     res.redirect('/');
   } else {
@@ -781,21 +775,33 @@ router.post('/save', (req, res) => {
   var score = req.body.score;
   var teacher = req.body.teacher;
 
+
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     Student.findOne({ name: student }, function (err, user) {
       if (err) { console.log(err); }
       if (user) {
+        var success = false;
         user.rap.forEach(function(r) {
           if(r.year == currentPeriod.year
             && r.term == currentPeriod.term
             && r.week == currentPeriod.week) {
             r.scores.forEach(function(s) {
               if(s.code == classCode && s.teacher == teacher) {
-                s.value = score;
-                user.save().then((newUser) => {
-                  console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode + " with teacher " + teacher);
-                  res.end();
-                });
+                if(s.value == score) {
+                  s.value = 0;
+                  user.save().then((newUser) => {
+                    console.log(req.session.user.name + ' unset score for ' + student + ' in ' + classCode + " with teacher " + teacher);
+                    res.send(JSON.stringify(false));
+                  });
+                } else {
+                  s.value = score;
+                  user.save().then((newUser) => {
+                    success = true;
+                    console.log(req.session.user.name + ' updated score to ' + score + ' for ' + student + ' in ' + classCode + " with teacher " + teacher);
+                    res.send(JSON.stringify(true));
+                  });
+                }
+
               }
             });
           }
@@ -831,7 +837,7 @@ router.post('/fillRadios', (req, res) => {
               if(s.code == classCode && s.teacher == teacher) {
                 s.value = score;
                 u.save().then((stu) => {
-                  console.log(req.session.user.name + " updated scores for " + classCode + "(" + teacher + ") to " + score);
+                  console.log(req.session.user.name + " updated scores for " + u.name + " in " + classCode + " (with " + teacher + ") to " + score);
                   // Score saved!
                 });
               }
