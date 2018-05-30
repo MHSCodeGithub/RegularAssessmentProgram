@@ -141,6 +141,7 @@ function generateScores(name) {
 
       $.each(y.students, function(i, student) {
 
+        console.log(student);
         studentNumber++;
         student.name = escape(student.name);
         var convertedName = student.name.replace(/\s+/g, '-').toLowerCase();
@@ -165,7 +166,10 @@ function generateScores(name) {
               "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
               "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\", \"" + name + "\")'>X</button>" +
             "</td>" +
-            "<td class='student-label'><a href='check/single?name=" + unescape(student.name) + "'>" + unescape(student.name) + "</a></td>" +
+            "<td class='student-label'>" +
+              "<a href='check/single?name=" + unescape(student.name) + "' " +
+              "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.studentID + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
+            "</td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
@@ -226,7 +230,11 @@ function generateScores(name) {
     );
 
     // Activate tooltips
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip({
+      animated: 'fade',
+      html: true,
+      offset: '50, 10'
+    });
 
     // Fill all student name inputs with autocomplete data
     $.getJSON("/autocompleteStudents", function(students) {
@@ -402,7 +410,7 @@ function startup() {
 
 // Runs when document loaded
 $(document).ready(function() {
-  jQuery.ajaxSetup({ cache: false });
+  jQuery.ajaxSetup({ cache: false }); // Fix for IE11
   startup();
 });
 

@@ -307,11 +307,11 @@ router.get('/teacher', (req, res) => {
               classes.forEach(function(c) { // see if the class is added yet
                 if(c.code == s.code) {
                   classFound = true;
-                  c.students.push({name: u.name, score: s.value}); // if class exists push the student into the array
+                  c.students.push({name: u.name, score: s.value, studentID: u.id}); // if class exists push the student into the array
                 }
               });
               if(!classFound) { // if class NOT found then push the class and student into the array
-                let studentsArr = [{name: u.name, score: s.value}];
+                let studentsArr = [{name: u.name, score: s.value, studentID: u.id}];
                 classes.push({code: s.code, subject: s.subject, students: studentsArr});
               }
             }
