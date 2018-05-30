@@ -1,5 +1,3 @@
-var studentNumber = 0;
-
 function labelClick() {
   event.preventDefault();
 }
@@ -11,11 +9,9 @@ function handleClick(student, classCode, score, teacher, obj) {
   var posting = $.post( "/save", { student: unescape(student), classCode: classCode, score: score, teacher: teacher });
 
   posting.done(function(success) {
-    console.log("Success: " + success);
     if(success == "true") {
       $("#" + id).prop("checked", true);
     } else {
-      console.log("unsuccessful");
       $("#" + id).prop("checked", false);
     }
   });
@@ -23,17 +19,15 @@ function handleClick(student, classCode, score, teacher, obj) {
 
 // Fill down score for particular class
 function fillRadios(num, classCode, teacher) {
-  let stuNames = [];
   let matches = document.querySelectorAll(".form-check-input");
   $.each(matches, function(i, stu) {
     if(stu.value == classCode && stu.id.slice(0,1) == num) {
-      stuNames.push({name: unescape(stu.name)});
       if (typeof document.getElementById(stu.id) != 'undefined') {
         document.getElementById(stu.id).checked = true;
       }
     }
   });
-  $.post( "/fillRadios", { classCode: classCode, score: num, students: stuNames, teacher: teacher });
+  $.post( "/fillRadios", { classCode: classCode, score: num, teacher: teacher });
 }
 
 // Generate the HTML for student scores for each class
@@ -141,8 +135,6 @@ function generateScores(name) {
 
       $.each(y.students, function(i, student) {
 
-        console.log(student);
-        studentNumber++;
         student.name = escape(student.name);
         var convertedName = student.name.replace(/\s+/g, '-').toLowerCase();
 
@@ -160,48 +152,48 @@ function generateScores(name) {
 
         // Dynamically creates the radio buttons
         $('#subjects-body-' + x).append(
-          "<tr id='" + studentNumber + "'>" +
+          "<tr id='" + y.code + "_" + student.id + "'>" +
             "<td class='student-delete'>" +
               "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
               "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
-              "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + studentNumber + "\", \"" + name + "\")'>X</button>" +
+              "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + student.id + "\", \"" + name + "\")'>X</button>" +
             "</td>" +
             "<td class='student-label'>" +
               "<a href='check/single?name=" + unescape(student.name) + "' " +
-              "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.studentID + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
+              "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.id + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
             "</td>" +
             "<td class='scoreColumn'>" +
 
               // Radio Button 1
-              "<input class='form-check-input' " + checked1 + " type='radio' name='" + student.name + "' " +
+              "<input class='form-check-input' " + checked1 + " type='radio' name='" + y.code + "_" + student.name + "' " +
               "id='1" + "_" + i + "_" + y.code + "' value='" + y.code + "'>" +
               "<label for='1" + "_" + i + "_" + y.code + "' class='scoreRadio' onclick='labelClick();'" +
               "onmouseup='handleClick(\""+student.name+"\", \""+y.code+"\", 1, \"" + name + "\", this);' " +
               "data-toggle='tooltip' data-placement='bottom' title='Unsatisfactory Performance'>1</label>" +
 
               // Radio Button 2
-              "<input class='form-check-input' " + checked2 + " type='radio' name='" + student.name + "' " +
+              "<input class='form-check-input' " + checked2 + " type='radio' name='" + y.code + "_" + student.name + "' " +
               "id='2" + "_" + i + "_" + y.code + "' value='" + y.code + "'>" +
               "<label for='2" + "_" + i + "_" + y.code + "' class='scoreRadio' onclick='labelClick();' " +
               "onmouseup='handleClick(\""+student.name+"\", \""+y.code+"\", 2, \"" + name + "\");' " +
               "data-toggle='tooltip' data-placement='bottom' title='Of Concern'>2</label>" +
 
               // Radio Button 3
-              "<input class='form-check-input' " + checked3 + " type='radio' name='" + student.name + "' " +
+              "<input class='form-check-input' " + checked3 + " type='radio' name='" + y.code + "_" + student.name + "' " +
               "id='3" + "_" + i + "_" + y.code + "' value='" + y.code + "'>" +
               "<label for='3" + "_" + i + "_" + y.code + "' class='scoreRadio' onclick='labelClick();' " +
               "onmouseup='handleClick(\""+student.name+"\", \""+y.code+"\", 3, \"" + name + "\");' " +
               "data-toggle='tooltip' data-placement='bottom' title='Good'>3</label>" +
 
               // Radio Button 4
-              "<input class='form-check-input' " + checked4 + " type='radio' name='" + student.name + "' " +
+              "<input class='form-check-input' " + checked4 + " type='radio' name='" + y.code + "_" + student.name + "' " +
               "id='4" + "_" + i + "_" + y.code + "' value='" + y.code + "'>" +
               "<label for='4" + "_" + i + "_" + y.code + "' class='scoreRadio' onclick='labelClick();' " +
               "onmouseup='handleClick(\""+student.name+"\", \""+y.code+"\", 4, \"" + name + "\");' " +
               "data-toggle='tooltip' data-placement='bottom' title='Excellent'>4</label>" +
 
               // Radio Button 5
-              "<input class='form-check-input' " + checked5 + " type='radio' name='" + student.name + "' " +
+              "<input class='form-check-input' " + checked5 + " type='radio' name='" + y.code + "_" + student.name + "' " +
               "id='5" + "_" + i + "_" + y.code + "' value='" + y.code + "'>" +
               "<label for='5" + "_" + i + "_" + y.code + "' class='scoreRadio' onclick='labelClick();' " +
               "onmouseup='handleClick(\""+student.name+"\", \""+y.code+"\", 5, \"" + name + "\");'" +
@@ -230,11 +222,7 @@ function generateScores(name) {
     );
 
     // Activate tooltips
-    $('[data-toggle="tooltip"]').tooltip({
-      animated: 'fade',
-      html: true,
-      offset: '50, 10'
-    });
+    refreshTooltips();
 
     // Fill all student name inputs with autocomplete data
     $.getJSON("/autocompleteStudents", function(students) {
@@ -250,6 +238,12 @@ function generateScores(name) {
       });
     });
 
+    $('[data-toggle="tooltip"]').on('shown.bs.tooltip', function () {
+      $("img").bind("error",function(){
+        $(this).attr("src","/img/students/default.jpg");
+      });
+    });
+
   });
 
 }
@@ -257,7 +251,16 @@ function generateScores(name) {
 // Remove and re-add tooltips
 function refreshTooltips() {
   $('[data-toggle="tooltip"]').tooltip('dispose');
-  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').tooltip({
+    animated: 'fade',
+    html: true,
+    offset: '50, 10'
+  });
+  $('[data-toggle="tooltip"]').on('shown.bs.tooltip', function () {
+    $("img").bind("error",function(){
+      $(this).attr("src","/img/students/default.jpg");
+    });
+  });
 }
 
 // Add class
@@ -272,8 +275,6 @@ function addClass() {
   var posting = $.post( "/addClass", { classCode: classCode, teacher: name });
 
   posting.done(function(success) {
-    console.log(success);
-    $('[data-toggle="tooltip"]').tooltip('dispose');
     generateScores(name);
   });
 }
@@ -288,10 +289,7 @@ function removeClass(classCode) {
       name = $('#teacherName').html();
     }
     var posting = $.post( "/removeClass", { classCode: classCode, teacher: name });
-
     posting.done(function(success) {
-      console.log(success);
-      $('[data-toggle="tooltip"]').tooltip('dispose');
       generateScores(name);
     });
   }
@@ -302,82 +300,78 @@ function addStudent(classCode, teacher, subject, x) {
   var student = escape($('#' + classCode).val());
   var convertedName = student.replace(/\s+/g, '-').toLowerCase();
   var posting = $.post( "/addStudent", { student: unescape(student), classCode: classCode, subject: subject, teacher: teacher });
-
   posting.done(function(success) {
-    console.log(success);
-    if(success == 'true') {
-      studentNumber++;
-      console.log(studentNumber);
-      $('[data-toggle="tooltip"]').tooltip('dispose');
-      $("<tr id='" + studentNumber + "'>" +
-        "<td class='student-delete'>" +
-          "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
-          "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
-          "onclick='deleteStudent(\"" + student + "\" , \"" + classCode + "\", \"" + studentNumber + "\", \"" + teacher + "\")'>X</button>" +
-        "</td>" +
-          "<td class='student-label'><a href='check/single?name=" + unescape(student) + "'>" + unescape(student) + "</a></td>" +
+    if(success != 'false') {
+      student = JSON.parse(success);
+      student.name = escape(student.name);
+      $("<tr id='" + classCode + "_" + student.id + "'>" +
+          "<td class='student-delete'>" +
+            "<button class='btn btn-danger btn-delete' id=\"" + convertedName + "-delete\"" +
+            "data-toggle='tooltip' data-placement='bottom' title='Remove Student' " +
+            "onclick='deleteStudent(\"" + student.name + "\" , \"" + classCode + "\", \"" + student.id + "\", \"" + teacher + "\")'>X</button>" +
+          "</td>" +
+          "<td class='student-label'>" +
+            "<a href='check/single?name=" + unescape(student.name) + "' " +
+            "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.id + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
+          "</td>" +
           "<td class='scoreColumn'>" +
 
             // Radio Button 1
-            "<input class='form-check-input' type='radio' name='" + student + "' id='1" + "_" +
-            studentNumber + "_" + classCode + "' value='" + classCode + "'>" +
-            "<label for='1" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
-            "onmouseup='handleClick(\""+student+"\", \""+classCode+"\", 1, \"" + teacher + "\");' " +
+            "<input class='form-check-input' type='radio' name='" + classCode + "_" + student.name + "' id='1" + "_" +
+            student.id + "_" + classCode + "' value='" + classCode + "'>" +
+            "<label for='1" + "_" + student.id + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
+            "onmouseup='handleClick(\""+student.name+"\", \""+classCode+"\", 1, \"" + teacher + "\");' " +
             "data-toggle='tooltip' data-placement='bottom' title='Unsatisfactory Performance'>1</label>" +
 
             // Radio Button 2
-            "<input class='form-check-input' type='radio' name='" + student.name + "' id='2" + "_" +
-            studentNumber + "_" + classCode + "' value='" + classCode + "'>" +
-            "<label for='2" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
-            "onmouseup='handleClick(\""+student+"\", \""+classCode+"\", 2, \"" + teacher + "\");' " +
+            "<input class='form-check-input' type='radio' name='" + classCode + "_" + student.name + "' id='2" + "_" +
+            student.id + "_" + classCode + "' value='" + classCode + "'>" +
+            "<label for='2" + "_" + student.id + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
+            "onmouseup='handleClick(\""+student.name+"\", \""+classCode+"\", 2, \"" + teacher + "\");' " +
             "data-toggle='tooltip' data-placement='bottom' title='Of Concern'>2</label>" +
 
             // Radio Button 3
-            "<input class='form-check-input' type='radio' name='" + student.name + "' id='3" + "_" +
-            studentNumber + "_" + classCode + "' value='" + classCode + "'>" +
-            "<label for='3" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
-            "onmouseup='handleClick(\""+student+"\", \""+classCode+"\", 3, \"" + teacher + "\");' " +
+            "<input class='form-check-input' type='radio' name='" + classCode + "_" + student.name + "' id='3" + "_" +
+            student.id + "_" + classCode + "' value='" + classCode + "'>" +
+            "<label for='3" + "_" + student.id + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
+            "onmouseup='handleClick(\""+student.name+"\", \""+classCode+"\", 3, \"" + teacher + "\");' " +
             "data-toggle='tooltip' data-placement='bottom' title='Good'>3</label>" +
 
             // Radio Button 4
-            "<input class='form-check-input' type='radio' name='" + student.name + "' id='4" + "_" +
-            studentNumber + "_" + classCode + "' value='" + classCode + "'>" +
-            "<label for='4" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
-            "onmouseup='handleClick(\""+student+"\", \""+classCode+"\", 4, \"" + teacher + "\");' " +
+            "<input class='form-check-input' type='radio' name='" + classCode + "_" + student.name + "' id='4" + "_" +
+            student.id + "_" + classCode + "' value='" + classCode + "'>" +
+            "<label for='4" + "_" + student.id + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
+            "onmouseup='handleClick(\""+student.name+"\", \""+classCode+"\", 4, \"" + teacher + "\");' " +
             "data-toggle='tooltip' data-placement='bottom' title='Excellent'>4</label>" +
 
             // Radio Button 5
-            "<input class='form-check-input' type='radio' name='" + student.name + "' id='5" + "_" +
-            studentNumber + "_" + classCode + "' value='" + classCode + "'>" +
-            "<label for='5" + "_" + studentNumber + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
-            "onmouseup='handleClick(\""+student+"\", \""+classCode+"\", 5, \"" + teacher + "\");' " +
+            "<input class='form-check-input' type='radio' name='" + classCode + "_" + student.name + "' id='5" + "_" +
+            student.id + "_" + classCode + "' value='" + classCode + "'>" +
+            "<label for='5" + "_" + student.id + "_" + classCode + "' class='scoreRadio' onclick='labelClick();' " +
+            "onmouseup='handleClick(\""+student.name+"\", \""+classCode+"\", 5, \"" + teacher + "\");' " +
             "data-toggle='tooltip' data-placement='bottom' title='Outstanding'>5</label>" +
 
           "</td>" +
         "</tr>"
       ).hide().prependTo('#subjects-body-' + x).fadeIn("slow");
+      refreshTooltips();
     } else {
       alert("Student not enrolled, or student already in your class");
     }
-    $('[data-toggle="tooltip"]').tooltip();
   });
 }
 
 // Delete student from class
 function deleteStudent(studentName, classCode, num, teacher) {
-
   var posting = $.post( "/deleteStudent", { student: unescape(studentName), classCode: classCode, teacherName: teacher });
-
   posting.done(function(success) {
-    console.log(success);
     if(success == 'true') {
       console.log("Deleted: " + studentName);
-      $('[data-toggle="tooltip"]').tooltip('dispose');
-      $('#' + num).find('td').fadeOut(1000,
+      $('#' + classCode + "_" + num).find('td').fadeOut(1000,
         function() {
             $(this).parents('tr:first').remove();
         });
-      $('[data-toggle="tooltip"]').tooltip();
+      refreshTooltips();
     } else {
       console.log("Could not delete student");
     }

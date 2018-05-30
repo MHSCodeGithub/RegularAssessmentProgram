@@ -307,11 +307,11 @@ router.get('/teacher', (req, res) => {
               classes.forEach(function(c) { // see if the class is added yet
                 if(c.code == s.code) {
                   classFound = true;
-                  c.students.push({name: u.name, score: s.value, studentID: u.id}); // if class exists push the student into the array
+                  c.students.push({name: u.name, score: s.value, id: u.id}); // if class exists push the student into the array
                 }
               });
               if(!classFound) { // if class NOT found then push the class and student into the array
-                let studentsArr = [{name: u.name, score: s.value, studentID: u.id}];
+                let studentsArr = [{name: u.name, score: s.value, id: u.id}];
                 classes.push({code: s.code, subject: s.subject, students: studentsArr});
               }
             }
@@ -368,7 +368,7 @@ router.post('/addStudent', (req, res) => {
               r.scores.push({subject: subject, code: classCode, teacher: teacher, value: 0});
               user.save().then((stu) => {
                 console.log(req.session.user.name + " added " + student + " to " + classCode);
-                res.send(JSON.stringify(true));
+                res.send(JSON.stringify(user));
               });
             }
           }
@@ -817,13 +817,12 @@ router.post('/fillRadios', (req, res) => {
   // Set parameters
   let classCode = req.body.classCode;
   let score = req.body.score;
-  let students = req.body.students;
   let teacher = req.body.teacher;
 
   // Match the rap period to the current period
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     // Loop through every student from class list
-    Student.find({"$or":students}).then(function(users) {
+    Student.find({"rap.scores.code":classCode}).then(function(users) {
       //console.log(users);
       users.forEach(function(u) {
         // then loop through each RAP period to find the current one

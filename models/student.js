@@ -11,7 +11,7 @@ const ScoreSchema = new Schema({
     min: [0, 'Too low'],
     max: [5, 'Too high']
   }
-},{ _id : false });
+});
 
 const RapSchema = new Schema({
   year: Number,
@@ -24,7 +24,7 @@ const RapSchema = new Schema({
     max: [5, 'Too high']
   },
   scores: [ScoreSchema]
-},{ _id : false });
+});
 
 const StudentSchema = new Schema({
   name: String,
@@ -34,7 +34,7 @@ const StudentSchema = new Schema({
   access: Number,
   longTermAverage: Number,
   rap: [RapSchema]
-},{ _id : false });
+});
 
 // Create model
 const Student = mongoose.model('student', StudentSchema);
