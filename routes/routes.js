@@ -815,7 +815,13 @@ router.get('/fixNull', (req, res) => {
 
   Student.find({"rap.scores.teacher":null}).then(function(users) {
     users.forEach(function(u) {
-      console.log(u);
+      u.rap.forEach(function(r) {
+        r.scores.forEach(function(s) {
+          if(s.teacher == null) {
+            console.log(u.name " needs fixing for " + s.code);
+          }
+        });
+      });
     });
     res.send(JSON.stringify(users));
   });
