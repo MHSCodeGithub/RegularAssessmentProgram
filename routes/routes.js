@@ -296,26 +296,28 @@ router.get('/teacher', (req, res) => {
   // This function searches for all students with the current teacher in the current RAP period
   // It then loops through and builds a list of students for each of the teacher's classes
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({'rap.scores.teacher':teacher, 'rap.year':currentPeriod.year,
-      'rap.term':currentPeriod.term, 'rap.week':currentPeriod.week})
-      .sort({name: 'ascending'}).then(function(users) {
+    Student.find({'rap.scores.teacher':teacher}).sort({name: 'ascending'}).then(function(users) {
       users.forEach(function(u) {
         u.rap.forEach(function(r) {
-          r.scores.forEach(function(s) {
-            if(s.teacher == teacher) {
-              let classFound = false;
-              classes.forEach(function(c) { // see if the class is added yet
-                if(c.code == s.code) {
-                  classFound = true;
-                  c.students.push({name: u.name, score: s.value, id: u.id}); // if class exists push the student into the array
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            r.scores.forEach(function(s) {
+              if(s.teacher == teacher) {
+                let classFound = false;
+                classes.forEach(function(c) { // see if the class is added yet
+                  if(c.code == s.code) {
+                    classFound = true;
+                    c.students.push({name: u.name, score: s.value, id: u.id}); // if class exists push the student into the array
+                  }
+                });
+                if(!classFound) { // if class NOT found then push the class and student into the array
+                  let studentsArr = [{name: u.name, score: s.value, id: u.id}];
+                  classes.push({code: s.code, subject: s.subject, students: studentsArr});
                 }
-              });
-              if(!classFound) { // if class NOT found then push the class and student into the array
-                let studentsArr = [{name: u.name, score: s.value, id: u.id}];
-                classes.push({code: s.code, subject: s.subject, students: studentsArr});
               }
-            }
-          });
+            });
+          }
         });
       });
       res.send(JSON.stringify(classes)); // Pass JSON string of Teacher's class data back to Client
@@ -811,8 +813,8 @@ router.post('/save', (req, res) => {
   });
 });
 
+// Show which students have no teacher assigned for a particular class
 router.get('/showNoTeacher', (req, res) => {
-
   Student.find({"rap.scores.teacher":"No Teacher"}).then(function(users) {
     users.forEach(function(u) {
       u.rap.forEach(function(r) {
@@ -827,6 +829,101 @@ router.get('/showNoTeacher', (req, res) => {
   });
 });
 
+// Show which classes have mostly zeroes
+router.get('/showNoScores', (req, res) => {
+  Student.find().distinct('rap.scores.teacher', function(error, teachers) {
+    let teacherArray = [];
+    async.eachSeries(teachers, function(t, callback) {
+      teacher = t;
+      let classes = [];
+      Student.find({'rap.scores.teacher':teacher}).sort({name: 'ascending'}).then(function(users) {
+        users.forEach(function(u) {
+          u.rap.forEach(function(r) {
+            r.scores.forEach(function(s) {
+              if(s.teacher == teacher) {
+                let classFound = false;
+                classes.forEach(function(c) { // see if the class is added yet
+                  if(c.code == s.code && c.teacher == s.teacher) {
+                    classFound = true;
+                    c.scores.push(s.value); // if class exists push the student into the array
+                  }
+                });
+                if(!classFound) { // if class NOT found then push the class and student into the array
+                  let scores = [s.value];
+                  classes.push({"code": s.code, "teacher": s.teacher, "scores": scores});
+                }
+              }
+            });
+          });
+        });
+        teacherArray.push(classes);
+        callback();
+      });
+    }, function(err) {
+      if( err ) {
+        console.log('An error occurred: ' + err);
+      } else {
+        let classesNotDone = [];
+        for (var i = 0; i < teacherArray.length; i++) {
+          for (var j = 0; j < teacherArray[i].length; j++) {
+            if(teacherArray[i][j].scores.reduce(function(acc, val) { return acc + val; }) == 0) {
+              classesNotDone.push({"code":teacherArray[i][j].code, "teacher":teacherArray[i][j].teacher});
+            }
+          }
+        }
+        console.log(classesNotDone);
+        res.send(JSON.stringify(classesNotDone,null,4));
+      }
+    });
+  });
+});
+
+router.get('/showNoTeacher', (req, res) => {
+  Student.find({"rap.scores.teacher":"No Teacher"}).then(function(users) {
+    users.forEach(function(u) {
+      u.rap.forEach(function(r) {
+        r.scores.forEach(function(s) {
+          if(s.teacher == "No Teacher") {
+            console.log(u.name + " has no teacher for " + s.code);
+          }
+        });
+      });
+    });
+    res.send(JSON.stringify(users));
+  });
+});
+
+// Show which classes have mostly zeroes
+router.get('/countScores', (req, res) => {
+  Student.count({'rap.scores.value': 1}, function (err, ones) {
+    if (err) { next(err); }
+    else {
+      Student.count({'rap.scores.value': 2}, function (err, twos) {
+        if (err) { next(err); }
+        else {
+          Student.count({'rap.scores.value': 3}, function (err, threes) {
+            if (err) { next(err); }
+            else {
+              Student.count({'rap.scores.value': 4}, function (err, fours) {
+                if (err) { next(err); }
+                else {
+                  Student.count({'rap.scores.value': 5}, function (err, fives) {
+                    if (err) { next(err); }
+                    else {
+                      var string = {"1":ones, "2":twos, "3":threes, "4":fours, "5":fives};
+                      console.log(string);
+                      res.send(string);
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+});
 
 // Fills the RAP scores for a certain class with a single score
 router.post('/fillRadios', (req, res) => {
