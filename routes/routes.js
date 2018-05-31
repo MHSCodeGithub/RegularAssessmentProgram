@@ -811,16 +811,14 @@ router.post('/save', (req, res) => {
   });
 });
 
-router.get('/fixNull', (req, res) => {
+router.get('/showNoTeacher', (req, res) => {
 
-  Student.find({"rap.scores.teacher":null}).then(function(users) {
+  Student.find({"rap.scores.teacher":"No Teacher"}).then(function(users) {
     users.forEach(function(u) {
       u.rap.forEach(function(r) {
         r.scores.forEach(function(s) {
-          if(s.teacher == null) {
-            console.log(u.name + " needs fixing for " + s.code);
-            s.teacher = "No Teacher";
-            u.save();
+          if(s.teacher == "No Teacher") {
+            console.log(u.name + " has no teacher for " + s.code);
           }
         });
       });
