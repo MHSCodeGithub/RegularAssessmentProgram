@@ -811,6 +811,17 @@ router.post('/save', (req, res) => {
   });
 });
 
+router.get('/fixNull', (req, res) => {
+
+  Student.find({"rap.scores.teacher":null}).then(function(users) {
+    users.forEach(function(u) {
+      console.log(u);
+    });
+    res.send(JSON.stringify(users));
+  });
+});
+
+
 // Fills the RAP scores for a certain class with a single score
 router.post('/fillRadios', (req, res) => {
 
