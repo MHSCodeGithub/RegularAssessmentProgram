@@ -818,7 +818,7 @@ router.get('/fixNull', (req, res) => {
       u.rap.forEach(function(r) {
         r.scores.forEach(function(s) {
           if(s.teacher == null) {
-            console.log(u.name " needs fixing for " + s.code);
+            console.log(u.name + " needs fixing for " + s.code);
           }
         });
       });
