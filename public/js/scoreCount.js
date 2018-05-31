@@ -36,6 +36,9 @@ function generateChart() {
                         beginAtZero:true
                     }
                 }]
+            },
+            legend: {
+              display: false
             }
         }
     });

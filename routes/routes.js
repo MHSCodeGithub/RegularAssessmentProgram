@@ -899,7 +899,7 @@ router.get('/showNoTeacher', (req, res) => {
   });
 });
 
-// Show which classes have mostly zeroes
+// Count individual score values
 router.get('/countScores', (req, res) => {
   console.log("Counting scores...");
   Student.count({'rap.scores.value': 1}, function (err, ones) {
