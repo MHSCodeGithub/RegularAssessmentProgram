@@ -829,6 +829,11 @@ router.get('/showNoTeacher', (req, res) => {
   });
 });
 
+// Render page of classes/teachers not completed
+router.get('/showNotDone', (req, res) => {
+
+});
+
 // Show which classes have mostly zeroes
 router.get('/showNoScores', (req, res) => {
   Student.find().distinct('rap.scores.teacher', function(error, teachers) {
@@ -872,12 +877,13 @@ router.get('/showNoScores', (req, res) => {
           }
         }
         console.log(classesNotDone);
-        res.send(JSON.stringify(classesNotDone,null,4));
+        res.send(JSON.stringify(classesNotDone));
       }
     });
   });
 });
 
+// Show which classes have no teacher
 router.get('/showNoTeacher', (req, res) => {
   Student.find({"rap.scores.teacher":"No Teacher"}).then(function(users) {
     users.forEach(function(u) {
@@ -895,6 +901,7 @@ router.get('/showNoTeacher', (req, res) => {
 
 // Show which classes have mostly zeroes
 router.get('/countScores', (req, res) => {
+  console.log("Counting scores...");
   Student.count({'rap.scores.value': 1}, function (err, ones) {
     if (err) { next(err); }
     else {
@@ -910,7 +917,7 @@ router.get('/countScores', (req, res) => {
                   Student.count({'rap.scores.value': 5}, function (err, fives) {
                     if (err) { next(err); }
                     else {
-                      var string = {"1":ones, "2":twos, "3":threes, "4":fours, "5":fives};
+                      var string = [ones, twos, threes, fours, fives];
                       console.log(string);
                       res.send(string);
                     }
