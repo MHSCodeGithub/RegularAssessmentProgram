@@ -77,6 +77,7 @@ $(document).ready(function() {
     $("#subject").autocomplete({
       source:[subjects]
     });
+    $('#subject').focus();
   });
 
   // On class search form submit

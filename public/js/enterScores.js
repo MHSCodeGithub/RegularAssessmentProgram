@@ -402,6 +402,7 @@ function startup() {
       $("#teacherName").autocomplete({
         source:[teachers]
       });
+      $('#teacherName').focus();
     });
     // AJAX request for Teacher's classes
     $("#teacher-form" ).submit(function( event ) {

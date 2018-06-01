@@ -76,6 +76,7 @@ $(document).ready(function() {
     $("#classCode").autocomplete({
       source:[classes]
     });
+    $('#classCode').focus();
   });
 
   // On class search form submit
