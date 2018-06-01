@@ -1,12 +1,12 @@
 function generateScores(name) {
+  $('#scores').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
   $.getJSON("/student?name="+name, function(jsonData) {
     if(jsonData == null) {
-      $('#accordion').remove();
-      $('#not-found').remove();
+      $('#scores').empty();
       $('#scores').append("<h5 id='not-found'>No RAP scores found</h5>");
     } else {
-      $('#accordion').remove();
-      $('#not-found').remove();
+      $('#scores').empty();
       $('#scores').append("<div id='accordion' role='tablist'>");
       $.each(jsonData.rap, function(key,rapPeriod) {
         let currentAverage = rapPeriod.average;
@@ -108,7 +108,6 @@ $(document).ready(function() {
   } else {
     // Grab name and generate scores
     var name = $('#studentNameHeading').html();
-    console.log(name);
     generateScores(name);
   }
 });

@@ -33,10 +33,13 @@ function fillRadios(num, classCode, teacher) {
 // Generate the HTML for student scores for each class
 function generateScores(name) {
 
+  $('#classes').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
+
   $.getJSON("/teacher?name="+name, function(string) {
 
     // destroy any class lists that are already there
-    $('#classes-card').remove();
+    $('#classes').empty();
 
     // Create tab list
     $('#classes').append("<div class='card' id='classes-card'></div>");

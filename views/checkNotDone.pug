@@ -1,4 +1,5 @@
-- var page = "insights"
+- var page = "checkNotDone"
+doctype html
 html
   include partials/header.pug
   body
@@ -9,8 +10,6 @@ html
           .card#content-container
             .card-body#content-body
               .col-sm-12
-                h3 Insights
-                p Current score distribution:
-                #loading
-                canvas#myChart(width="500px", height="220px")
+                h3 Classes With No Score               
+              .col-sm-12#scores
     include partials/footer.pug

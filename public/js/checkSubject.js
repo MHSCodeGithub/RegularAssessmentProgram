@@ -1,9 +1,10 @@
 // Generate the table of scores
 function generateScores(subject) {
   $.getJSON("/check/getSubject?subject="+subject, function(jsonData) {
+    $('#scores').append("<div id='loading-spinner'></div>");
+    $('#loading-spinner').jmspinner('large');
     if(jsonData == null) {
-      $('#scores-table').remove();
-      $('#not-found').remove();
+      $('#scores').empty();
       $('#scores').append("<h5 id='not-found'>No RAP scores found</h5>");
     } else {
       $('#scores').empty();

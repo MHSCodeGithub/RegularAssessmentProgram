@@ -336,6 +336,7 @@ router.get('/student', (req, res) => {
   var student = req.query.name;
 
   Student.findOne({name: req.query.name}).then(function(stu) {
+    console.log(req.session.user.name + " looked up scores for " + req.query.name);
     res.send(JSON.stringify(stu));
   });
 
@@ -830,8 +831,8 @@ router.get('/showNoTeacher', (req, res) => {
 });
 
 // Render page of classes/teachers not completed
-router.get('/showNotDone', (req, res) => {
-
+router.get('/checkNotDone', (req, res) => {
+  res.render('checkNotDone', {user: req.session.user});
 });
 
 // Show which classes have mostly zeroes
@@ -876,7 +877,7 @@ router.get('/showNoScores', (req, res) => {
             }
           }
         }
-        console.log(classesNotDone);
+        //console.log(classesNotDone);
         res.send(JSON.stringify(classesNotDone));
       }
     });
@@ -1143,7 +1144,10 @@ router.post('/importEMU', function(req, res) {
 
   // Move the file to a local folder on the server
   fileUpload.mv('./uploads/importedEMU.csv', function(err) {
-    if (err) { return res.status(500).send(err); }
+    if (err) {
+      console.log("There was an error while attempting to upload the EMU data");
+      return res.status(500).send(err);
+    }
   });
 
   // Set CSV file path
@@ -1152,11 +1156,14 @@ router.post('/importEMU', function(req, res) {
   // Imports CSV and corrects structure for RAP usage
   csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
 
+    console.log("Importing " + jsonArrayObj.length + " students...");
+
     // Async loop to play nice with MongoDB
     async.eachSeries(jsonArrayObj, function(student, callback) {
 
       // Ignore entire row if it doesn't contain the data we need
       if(student["studentNo"] == null || student["DEC User ID"] == null) {
+        console.log("Error in EMU file");
         callback();
       } else {
 
@@ -1181,7 +1188,6 @@ router.post('/importEMU', function(req, res) {
             callback();
           } else {
             // If student ID number is NOT found
-
             callback();
           }
         });

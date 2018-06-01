@@ -1,5 +1,10 @@
+// show loading animation
+$('#display').append("<div id='loading-spinner'></div>");
+$('#loading-spinner').jmspinner('large');
+
 // get details of each teacher
 $.getJSON("/getTeachers", function(teacher) {
+  $('#display').empty();
   $('#display').append(
     "<table class='table table-striped'>" +
       "<thead>" +

@@ -1,5 +1,8 @@
 function generateChart() {
   console.log("Generating chart...");
+  $('#myChart').hide();
+  $('#loading').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores", function(values) {
     console.log(values);
     var ctx = document.getElementById("myChart").getContext('2d');
@@ -42,6 +45,8 @@ function generateChart() {
             }
         }
     });
+    $('#loading').remove();
+    $('#myChart').fadeIn(200);
   });
 }
 
