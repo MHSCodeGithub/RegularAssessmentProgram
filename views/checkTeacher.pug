@@ -10,11 +10,12 @@ html
           .card#content-container
             .card-body#content-body
               .col-sm-12
+                h3 By Teacher
                 .form-group
-                    form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
-                      .input-group
-                        input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
-                        span.input-group-btn
-                          button.btn.btn-primary(type='submit') Go!
+                  form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
+                    .input-group
+                      input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
+                      span.input-group-btn
+                        button.btn.btn-primary(type='submit') Go!
               .col-sm-12#classes
     include partials/footer.pug

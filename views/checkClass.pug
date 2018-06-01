@@ -11,10 +11,11 @@ html
             .card-body#content-body
               .col-sm-12
                 h3 By Class
-                form#class-form(action="/check/class", autocomplete="off", method="GET" )
-                  .input-group
-                    input.form-control.form-control-lg(type='text', id='classCode', name='classCode', placeholder="Class Code")
-                    span.input-group-btn
-                      button.btn.btn-primary(type='submit') Go!
+                .form-group
+                  form#class-form(action="/check/class", autocomplete="off", method="GET" )
+                    .input-group
+                      input.form-control.form-control-lg(type='text', id='classCode', name='classCode', placeholder="Class Code")
+                      span.input-group-btn
+                        button.btn.btn-primary(type='submit') Go!
               .col-sm-12#scores                
     include partials/footer.pug
