@@ -16,6 +16,7 @@ function generateScores(classCode) {
               "<th scope='col' class='text-center'>Year</th>" +
               "<th scope='col' class='text-center'>Long-Term Average</th>" +
               "<th scope='col' class='text-center'>Current Average</th>" +
+              "<th scope='col'>Teacher</th>" +
               "<th scope='col' class='text-center'>Class Score</th>" +
             "</tr>" +
           "</thead>" +
@@ -26,17 +27,47 @@ function generateScores(classCode) {
         console.log(student);
         $('#scores-body').append(
           "<tr>" +
-            "<td><a href='/check/single?name=" + student.name + "'>" + student.name + "</a></td>" +
+            "<td><a href='../check/single?name=" + student.name + "' " +
+            "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.id + ".jpg\">'>" + student.name + "</a></td>" +
             "<td class='text-center'>" + student.grade + "</td>" +
             "<td class='text-center'>" + student.longTermAverage + "</td>" +
             "<td class='text-center'>" + student.currentAverage + "</td>" +
+            "<td><a href='../check/teacher?name=" + student.teacher + "'>" + student.teacher + "</a></td>" +
             "<td class='text-center'>" + student.score + "</td>" +
           "</tr>"
         );
       });
     }
+    refreshTooltips();
   });
 }
+
+// Remove and re-add tooltips
+function refreshTooltips() {
+  $('[data-toggle="tooltip"]').tooltip('dispose');
+  $('[data-toggle="tooltip"]').tooltip({
+    animated: 'fade',
+    html: true,
+    offset: '50, 10'
+  });
+  $('[data-toggle="tooltip"]').on('shown.bs.tooltip', function () {
+    $("img").bind("error",function(){
+      $(this).attr("src","/img/students/default.jpg");
+    });
+  });
+}
+
+// Find out if the page was accessed with a GET parameter
+var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+    sURLVariables = sPageURL.split('&'), sParameterName, i;
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+    if (sParameterName[0] === sParam) {
+      return sParameterName[1] === undefined ? true : sParameterName[1];
+    }
+  }
+};
 
 $(document).ready(function() {
 
@@ -53,5 +84,12 @@ $(document).ready(function() {
     generateScores(code);
     event.preventDefault();
   });
+
+  var classCode = getUrlParameter('code');
+
+  if(classCode != null) {
+    $('#classCode').val(classCode);
+    generateScores(classCode);
+  }
 
 });

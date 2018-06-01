@@ -102,8 +102,16 @@ $(document).ready(function() {
     $("#student-form" ).submit(function( event ) {
       var name = $('#studentName').val();
       generateScores(name);
+      window.history.pushState("", "", '/check/single?name=' + name);
       event.preventDefault();
     });
+
+    var name = getUrlParameter('name');
+
+    if(name != null) {
+      $('#studentName').val(name);
+      generateScores(name);
+    }
   // Otherwise we are on the student home page
   } else {
     // Grab name and generate scores

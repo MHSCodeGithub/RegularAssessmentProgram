@@ -381,6 +381,18 @@ function deleteStudent(studentName, classCode, num, teacher) {
   });
 }
 
+// Find out if the page was accessed with a GET parameter
+var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+    sURLVariables = sPageURL.split('&'), sParameterName, i;
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+    if (sParameterName[0] === sParam) {
+      return sParameterName[1] === undefined ? true : sParameterName[1];
+    }
+  }
+};
+
 // Functions to run on startup
 function startup() {
   // If we are on the student search page
@@ -395,8 +407,16 @@ function startup() {
     $("#teacher-form" ).submit(function( event ) {
       var name = $('#teacherName').val();
       generateScores(name);
+      window.history.pushState("", "", '/check/teacher?name=' + name);
       event.preventDefault();
     });
+
+    var name = getUrlParameter('name');
+
+    if(name != null) {
+      $('#teacherName').val(name);
+      generateScores(name);
+    }
   // Otherwise we are on the teacher's home page
   } else {
     // Grab name and generate scores

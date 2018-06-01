@@ -45,7 +45,7 @@ $.getJSON("/getTeachers", function(teacher) {
     // Build table of teachers and their details
     $('#teacher-table').append(
       "<tr id='" + convertedName + "-row'>" +
-        "<td><a href='/queryTeacher?name=" + val.name + "'>" + val.name + "</a></td>" +
+        "<td><a href='check/teacher?name=" + val.name + "'>" + val.name + "</a></td>" +
         "<td>" +
           "<input id='" + convertedName + "' class='form-control' value='" + val.username + "' " +
             "onkeydown='changed(\"" + convertedName + "\");' oninput='changed(\"" + convertedName + "\");'>" +

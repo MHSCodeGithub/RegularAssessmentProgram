@@ -40,7 +40,7 @@ router.get('/getClass', authCheck, (req, res) => {
   var classCode = req.query.code;
   console.log(req.session.user.name + " looked up scores for " + classCode);
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({}).then(function(users) {
+    Student.find({'rap.scores.code':classCode}).sort({name: 'ascending'}).then(function(users) {
       let students = [];
       users.forEach(function(u) {
         u.rap.forEach(function(r) {
@@ -49,7 +49,8 @@ router.get('/getClass', authCheck, (req, res) => {
           && r.week == currentPeriod.week) {
             r.scores.forEach(function(s) {
               if(s.code == classCode) {
-                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, score: s.value });
+                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage,
+                  currentAverage: r.average, score: s.value, teacher: s.teacher, id: u.id });
               }
             });
           }
@@ -71,7 +72,7 @@ router.get('/getSubject', authCheck, (req, res) => {
   var subject = req.query.subject;
   console.log(req.session.user.name + " looked up scores for " + subject);
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({}).then(function(users) {
+    Student.find({'rap.scores.subject':subject}).sort({name: 'ascending'}).then(function(users) {
       let students = [];
       users.forEach(function(u) {
         u.rap.forEach(function(r) {
@@ -80,12 +81,14 @@ router.get('/getSubject', authCheck, (req, res) => {
           && r.week == currentPeriod.week) {
             r.scores.forEach(function(s) {
               if(s.subject == subject) {
-                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, score: s.value });
+                students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage,
+                  currentAverage: r.average, score: s.value, teacher: s.teacher, code: s.code, id: u.id });
               }
             });
           }
         });
       });
+      students.sort((a, b) => a.name - b.name);
       students.sort((a, b) => b.score - a.score);
       res.send(JSON.stringify(students));
     });
