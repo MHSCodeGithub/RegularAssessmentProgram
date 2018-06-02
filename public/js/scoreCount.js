@@ -4,6 +4,7 @@ var wholeChart;
 function wholeSchoolChart() {
   console.log("Generating chart...");
   $('#chart').hide();
+  $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores", function(values) {
@@ -54,7 +55,7 @@ function wholeSchoolChart() {
             }
         }
     });
-    $('#loading').fadeOut(200).remove();
+    $('#loading').fadeOut(200).empty();
     $('#chart').fadeIn(400);
   });
 }
@@ -62,6 +63,7 @@ function wholeSchoolChart() {
 function byYearChart() {
   console.log("Generating chart...");
   $('#chart').hide();
+  $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores?year=7", function(year7) {
@@ -119,7 +121,7 @@ function byYearChart() {
                   }
               }
           });
-          $('#loading').fadeOut(200).remove();
+          $('#loading').fadeOut(2200).empty();
           $('#chart').fadeIn(400);
         });
       });
