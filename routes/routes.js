@@ -216,15 +216,15 @@ router.get('/generatePosters', authCheck, (req, res) => {
             } else if(count > 100) {
               return 4;
             } else if(count > 90) {
-              return 7.2;
+              return 8;
             } else if(count > 80) {
-              return 9;
+              return 10;
             } else if(count > 70) {
-              return 12;
+              return 14;
             } else if(count > 60) {
-              return 15;
+              return 17;
             } else {
-              return 18;
+              return 20;
             }
           }
 
@@ -232,7 +232,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year7, {
               columns: 3,
-              columnGap: 20,
+              columnGap: 5,
               height: 820,
               width: 802,
               align: 'center',
@@ -259,7 +259,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year8, {
               columns: 3,
-              columnGap: 20,
+              columnGap: 5,
               height: 820,
               width: 802,
               align: 'center',
@@ -286,7 +286,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year9, {
               columns: 3,
-              columnGap: 20,
+              columnGap: 5,
               height: 820,
               width: 802,
               align: 'center',
@@ -313,7 +313,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year10, {
               columns: 3,
-              columnGap: 20,
+              columnGap: 5,
               height: 820,
               width: 802,
               align: 'center',
