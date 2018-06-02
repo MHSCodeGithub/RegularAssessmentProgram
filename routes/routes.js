@@ -208,26 +208,25 @@ router.get('/generatePosters', authCheck, (req, res) => {
           );
 
           function calcLineGap(count) {
+            console.log(count);
             if(count > 120) {
               return 0;
             } else if(count > 110) {
-              return 2;
+              return 3;
             } else if(count > 100) {
-              return 4;
-            } else if(count > 90) {
               return 6;
+            } else if(count > 90) {
+              return 9;
             } else if(count > 80) {
-              return 8;
-            } else if(count > 70) {
-              return 10;
-            } else if(count > 60) {
               return 12;
+            } else if(count > 70) {
+              return 15;
+            } else if(count > 60) {
+              return 18;
             } else {
-              return 14;
+              return 21;
             }
           }
-
-          console.log(count7);
 
           doc.fontSize(16)
           .font('Helvetica')
@@ -236,7 +235,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify',
+              align: 'center',
               lineGap: calcLineGap(count7)
             }
           );
@@ -263,7 +262,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify',
+              align: 'center',
               lineGap: calcLineGap(count8)
             }
           );
@@ -290,7 +289,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify',
+              align: 'center',
               lineGap: calcLineGap(count9)
             }
           );
@@ -317,7 +316,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify',
+              align: 'center',
               lineGap: calcLineGap(count10)
             }
           );
