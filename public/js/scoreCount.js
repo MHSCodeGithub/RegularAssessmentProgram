@@ -139,4 +139,7 @@ $(document).ready(function() {
     byYearChart();
   });
 
+  $("#byWhole").trigger("click");
+  $("#byWhole").focus();
+
 });

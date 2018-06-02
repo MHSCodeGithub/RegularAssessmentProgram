@@ -143,7 +143,7 @@ router.get('/internetExplorer', (req, res) => {
 });
 
 // Generate Posters
-router.get('/generatePosters', authCheck, (req, res) => {
+router.get('/generatePosters.pdf', authCheck, (req, res) => {
   if(req.session.user.access < 2) {
     res.redirect('/');
   } else {
