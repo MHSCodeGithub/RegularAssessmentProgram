@@ -209,22 +209,26 @@ router.get('/generatePosters', authCheck, (req, res) => {
 
           function calcLineGap(count) {
             console.log(count);
-            if(count > 120) {
+            if(count > 126) {
               return 0;
-            } else if(count > 110) {
+            } else if(count > 119) {
               return 2;
-            } else if(count > 100) {
+            } else if(count > 110) {
+              return 3;
+            } else if(count > 95) {
               return 4;
             } else if(count > 90) {
               return 7;
-            } else if(count > 80) {
+            } else if(count > 85) {
               return 9;
+            } else if(count > 80) {
+              return 11;
             } else if(count > 70) {
-              return 12;
+              return 14;
             } else if(count > 60) {
-              return 15;
+              return 18;
             } else {
-              return 20;
+              return 24;
             }
           }
 
