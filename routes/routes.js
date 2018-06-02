@@ -152,6 +152,10 @@ router.get('/generatePosters', authCheck, (req, res) => {
       var year8 = "";
       var year9 = "";
       var year10 = "";
+      var count7 = 0;
+      var count8 = 0;
+      var count9 = 0;
+      var count10 = 0;
 
       RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
         Student.find({}).sort({name: 'ascending'}).then(function(users) {
@@ -162,12 +166,16 @@ router.get('/generatePosters', authCheck, (req, res) => {
               && r.week == currentPeriod.week) {
                 if(r.grade == 7 && r.average >= 3) {
                   year7 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                  count7++;
                 } else if(r.grade == 8 && r.average >= 3) {
                   year8 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                  count8++;
                 } else if(r.grade == 9 && r.average >= 3) {
                   year9 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                  count9++;
                 } else if(r.grade == 10 && r.average >= 3) {
                   year10 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                  count10++;
                 }
               }
             });
@@ -190,13 +198,36 @@ router.get('/generatePosters', authCheck, (req, res) => {
 
           doc.fontSize(34)
             .font('Helvetica-Bold')
-            .text("Year 7 - Term 2 Week 5", {
+            .text("Year 7 - Term " + currentPeriod.term + " Week " + currentPeriod.week,
+            {
               height: 100,
               width: 842,
               align: 'center',
               lineGap: 20,
             }
           );
+
+          function calcLineGap(count) {
+            if(count > 120) {
+              return 0;
+            } else if(count > 110) {
+              return 2;
+            } else if(count > 100) {
+              return 4;
+            } else if(count > 90) {
+              return 6;
+            } else if(count > 80) {
+              return 8;
+            } else if(count > 70) {
+              return 10;
+            } else if(count > 60) {
+              return 12;
+            } else {
+              return 14;
+            }
+          }
+
+          console.log(count7);
 
           doc.fontSize(16)
           .font('Helvetica')
@@ -205,7 +236,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify'
+              align: 'justify',
+              lineGap: calcLineGap(count7)
             }
           );
 
@@ -215,7 +247,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
 
           doc.fontSize(34)
             .font('Helvetica-Bold')
-            .text("Year 8 - Term 2 Week 5", {
+            .text("Year 8 - Term " + currentPeriod.term + " Week " + currentPeriod.week,
+            {
               height: 100,
               width: 842,
               align: 'center',
@@ -230,7 +263,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify'
+              align: 'justify',
+              lineGap: calcLineGap(count8)
             }
           );
 
@@ -240,7 +274,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
 
           doc.fontSize(34)
             .font('Helvetica-Bold')
-            .text("Year 9 - Term 2 Week 5", {
+            .text("Year 9 - Term " + currentPeriod.term + " Week " + currentPeriod.week,
+            {
               height: 100,
               width: 842,
               align: 'center',
@@ -255,7 +290,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify'
+              align: 'justify',
+              lineGap: calcLineGap(count9)
             }
           );
 
@@ -265,7 +301,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
 
           doc.fontSize(34)
             .font('Helvetica-Bold')
-            .text("Year 10 - Term 2 Week 5", {
+            .text("Year 10 - Term " + currentPeriod.term + " Week " + currentPeriod.week,
+            {
               height: 100,
               width: 842,
               align: 'center',
@@ -280,7 +317,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
               columnGap: 25,
               height: 820,
               width: 792,
-              align: 'justify'
+              align: 'justify',
+              lineGap: calcLineGap(count10)
             }
           );
 
