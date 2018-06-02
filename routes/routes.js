@@ -5,6 +5,7 @@ const Teacher = require('../models/teacher');
 const RapPeriods = require('../models/rapPeriods');
 const FormData = require('form-data');
 const schedule = require('node-schedule');
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 var csv = require("csvtojson");
 var async = require('async');
@@ -146,7 +147,152 @@ router.get('/generatePosters', authCheck, (req, res) => {
   if(req.session.user.access < 2) {
     res.redirect('/');
   } else {
-    res.render('generatePosters', {user: req.session.user});
+
+      var year7 = "";
+      var year8 = "";
+      var year9 = "";
+      var year10 = "";
+
+      RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+        Student.find({}).sort({name: 'ascending'}).then(function(users) {
+          users.forEach(function(u) {
+            u.rap.forEach(function(r) {
+              if(r.year == currentPeriod.year
+              && r.term == currentPeriod.term
+              && r.week == currentPeriod.week) {
+                if(r.grade == 7 && r.average >= 3) {
+                  year7 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                } else if(r.grade == 8 && r.average >= 3) {
+                  year8 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                } else if(r.grade == 9 && r.average >= 3) {
+                  year9 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                } else if(r.grade == 10 && r.average >= 3) {
+                  year10 += u.name + " (" + Number(r.average).toFixed(2) + ")\n";
+                }
+              }
+            });
+          });
+
+          var doc = new PDFDocument({
+            layout: 'portrait',
+            size: [842, 1191],
+            margins: {
+              top: 150,
+              bottom: 50,
+              left: 25,
+              right: 25
+            }
+          });
+
+          doc.pipe(res);
+
+          doc.image('public/img/rap-poster.jpg', 0, 0);
+
+          doc.fontSize(34)
+            .font('Helvetica-Bold')
+            .text("Year 7 - Term 2 Week 5", {
+              height: 100,
+              width: 842,
+              align: 'center',
+              lineGap: 20,
+            }
+          );
+
+          doc.fontSize(16)
+          .font('Helvetica')
+            .text(year7, {
+              columns: 3,
+              columnGap: 25,
+              height: 820,
+              width: 792,
+              align: 'justify'
+            }
+          );
+
+          doc.addPage();
+
+          doc.image('public/img/rap-poster.jpg', 0, 0);
+
+          doc.fontSize(34)
+            .font('Helvetica-Bold')
+            .text("Year 8 - Term 2 Week 5", {
+              height: 100,
+              width: 842,
+              align: 'center',
+              lineGap: 20,
+            }
+          );
+
+          doc.fontSize(16)
+          .font('Helvetica')
+            .text(year8, {
+              columns: 3,
+              columnGap: 25,
+              height: 820,
+              width: 792,
+              align: 'justify'
+            }
+          );
+
+          doc.addPage();
+
+          doc.image('public/img/rap-poster.jpg', 0, 0);
+
+          doc.fontSize(34)
+            .font('Helvetica-Bold')
+            .text("Year 9 - Term 2 Week 5", {
+              height: 100,
+              width: 842,
+              align: 'center',
+              lineGap: 20,
+            }
+          );
+
+          doc.fontSize(16)
+          .font('Helvetica')
+            .text(year9, {
+              columns: 3,
+              columnGap: 25,
+              height: 820,
+              width: 792,
+              align: 'justify'
+            }
+          );
+
+          doc.addPage();
+
+          doc.image('public/img/rap-poster.jpg', 0, 0);
+
+          doc.fontSize(34)
+            .font('Helvetica-Bold')
+            .text("Year 10 - Term 2 Week 5", {
+              height: 100,
+              width: 842,
+              align: 'center',
+              lineGap: 20,
+            }
+          );
+
+          doc.fontSize(16)
+          .font('Helvetica')
+            .text(year10, {
+              columns: 3,
+              columnGap: 25,
+              height: 820,
+              width: 792,
+              align: 'justify'
+            }
+          );
+
+          doc.end();
+
+        });
+      });
+
+
+
+
+
   }
 });
 

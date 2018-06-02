@@ -103,7 +103,7 @@ function byYearChart() {
                     },
                     {
                         label: "Year 10",
-                        backgroundColor: "yellow",
+                        backgroundColor: "orange",
                         data: year10
                     }
                 ]
@@ -121,7 +121,7 @@ function byYearChart() {
                   }
               }
           });
-          $('#loading').fadeOut(2200).empty();
+          $('#loading').fadeOut(200).empty();
           $('#chart').fadeIn(400);
         });
       });
