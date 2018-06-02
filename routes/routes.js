@@ -187,8 +187,8 @@ router.get('/generatePosters', authCheck, (req, res) => {
             margins: {
               top: 150,
               bottom: 50,
-              left: 25,
-              right: 25
+              left: 20,
+              right: 20
             }
           });
 
@@ -216,7 +216,7 @@ router.get('/generatePosters', authCheck, (req, res) => {
             } else if(count > 100) {
               return 4;
             } else if(count > 90) {
-              return 7;
+              return 7.2;
             } else if(count > 80) {
               return 9;
             } else if(count > 70) {
@@ -232,9 +232,9 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year7, {
               columns: 3,
-              columnGap: 25,
+              columnGap: 20,
               height: 820,
-              width: 792,
+              width: 802,
               align: 'center',
               lineGap: calcLineGap(count7)
             }
@@ -259,9 +259,9 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year8, {
               columns: 3,
-              columnGap: 25,
+              columnGap: 20,
               height: 820,
-              width: 792,
+              width: 802,
               align: 'center',
               lineGap: calcLineGap(count8)
             }
@@ -286,9 +286,9 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year9, {
               columns: 3,
-              columnGap: 25,
+              columnGap: 20,
               height: 820,
-              width: 792,
+              width: 802,
               align: 'center',
               lineGap: calcLineGap(count9)
             }
@@ -313,9 +313,9 @@ router.get('/generatePosters', authCheck, (req, res) => {
           .font('Helvetica')
             .text(year10, {
               columns: 3,
-              columnGap: 25,
+              columnGap: 20,
               height: 820,
-              width: 792,
+              width: 802,
               align: 'center',
               lineGap: calcLineGap(count10)
             }
