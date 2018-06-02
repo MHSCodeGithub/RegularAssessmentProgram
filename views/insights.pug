@@ -10,7 +10,13 @@ html
             .card-body#content-body
               .col-sm-12
                 h3 Insights
-                p Current score distribution:
+                .form-group
+                  .row
+                    .col-sm-6
+                      button#byWhole.btn.btn-primary.year-button(style='width: 100%;') Whole School
+                    .col-sm-6
+                      button#byYear.btn.btn-primary.year-button(style='width: 100%;') By year Group
+              .col-sm-12
                 #loading
-                canvas#myChart(width="500px", height="220px")
+                canvas#chart(width="500px", height="220px")
     include partials/footer.pug

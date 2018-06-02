@@ -1,12 +1,21 @@
-function generateChart() {
+var yearChart;
+var wholeChart;
+
+function wholeSchoolChart() {
   console.log("Generating chart...");
-  $('#myChart').hide();
+  $('#chart').hide();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores", function(values) {
     console.log(values);
-    var ctx = document.getElementById("myChart").getContext('2d');
-    var myChart = new Chart(ctx, {
+    var canvas = document.getElementById("chart");
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    if(yearChart != null) {
+      yearChart.destroy();
+    }
+    wholeChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
@@ -45,11 +54,87 @@ function generateChart() {
             }
         }
     });
-    $('#loading').remove();
-    $('#myChart').fadeIn(200);
+    $('#loading').fadeOut(200).remove();
+    $('#chart').fadeIn(400);
+  });
+}
+
+function byYearChart() {
+  console.log("Generating chart...");
+  $('#chart').hide();
+  $('#loading').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
+  $.getJSON("/countScores?year=7", function(year7) {
+    $.getJSON("/countScores?year=8", function(year8) {
+      $.getJSON("/countScores?year=9", function(year9) {
+        $.getJSON("/countScores?year=10", function(year10) {
+          console.log(year7);
+          console.log(year8);
+          console.log(year9);
+          console.log(year10);
+          var canvas = document.getElementById("chart");
+          var ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.beginPath();
+          if(wholeChart != null) {
+            wholeChart.destroy();
+          }
+          yearChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
+                datasets: [
+                    {
+                        label: "Year 7",
+                        backgroundColor: "blue",
+                        data: year7
+                    },
+                    {
+                        label: "Year 8",
+                        backgroundColor: "red",
+                        data: year8
+                    },
+                    {
+                        label: "Year 9",
+                        backgroundColor: "green",
+                        data: year9
+                    },
+                    {
+                        label: "Year 10",
+                        backgroundColor: "yellow",
+                        data: year10
+                    }
+                ]
+              },
+              options: {
+                  scales: {
+                      yAxes: [{
+                          ticks: {
+                              beginAtZero:true
+                          }
+                      }]
+                  },
+                  legend: {
+                    display: true
+                  }
+              }
+          });
+          $('#loading').fadeOut(200).remove();
+          $('#chart').fadeIn(400);
+        });
+      });
+    });
   });
 }
 
 $(document).ready(function() {
-  generateChart();
+
+  $("#byWhole").click(function(event) {
+    wholeSchoolChart();
+  });
+
+  $("#byYear").click(function(event) {
+    byYearChart();
+  });
+
 });

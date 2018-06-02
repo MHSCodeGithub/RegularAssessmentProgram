@@ -902,25 +902,65 @@ router.get('/showNoTeacher', (req, res) => {
 
 // Count individual score values
 router.get('/countScores', (req, res) => {
-  console.log("Counting scores...");
-  Student.count({'rap.scores.value': 1}, function (err, ones) {
-    if (err) { next(err); }
-    else {
-      Student.count({'rap.scores.value': 2}, function (err, twos) {
+
+  if(req.query.year == null) {
+    console.log("Counting scores for the whole school...");
+    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+      Student.count({
+        $and: [
+          {'rap.scores.value': 1},
+          { 'rap.year': currentPeriod.year },
+          { 'rap.term': currentPeriod.term },
+          { 'rap.week': currentPeriod.week }
+        ]
+      }, function (err, ones) {
         if (err) { next(err); }
         else {
-          Student.count({'rap.scores.value': 3}, function (err, threes) {
+          Student.count({
+            $and: [
+              {'rap.scores.value': 2},
+              { 'rap.year': currentPeriod.year },
+              { 'rap.term': currentPeriod.term },
+              { 'rap.week': currentPeriod.week }
+            ]
+          }, function (err, twos) {
             if (err) { next(err); }
             else {
-              Student.count({'rap.scores.value': 4}, function (err, fours) {
+              Student.count({
+                $and: [
+                  {'rap.scores.value': 3},
+                  { 'rap.year': currentPeriod.year },
+                  { 'rap.term': currentPeriod.term },
+                  { 'rap.week': currentPeriod.week }
+                ]
+              }, function (err, threes) {
                 if (err) { next(err); }
                 else {
-                  Student.count({'rap.scores.value': 5}, function (err, fives) {
+                  Student.count({
+                    $and: [
+                      {'rap.scores.value': 4},
+                      { 'rap.year': currentPeriod.year },
+                      { 'rap.term': currentPeriod.term },
+                      { 'rap.week': currentPeriod.week }
+                    ]
+                  }, function (err, fours) {
                     if (err) { next(err); }
                     else {
-                      var string = [ones, twos, threes, fours, fives];
-                      console.log(string);
-                      res.send(string);
+                      Student.count({
+                        $and: [
+                          {'rap.scores.value': 5},
+                          { 'rap.year': currentPeriod.year },
+                          { 'rap.term': currentPeriod.term },
+                          { 'rap.week': currentPeriod.week }
+                        ]
+                      }, function (err, fives) {
+                        if (err) { next(err); }
+                        else {
+                          var string = [ones, twos, threes, fours, fives];
+                          console.log(string);
+                          res.send(string);
+                        }
+                      });
                     }
                   });
                 }
@@ -929,8 +969,86 @@ router.get('/countScores', (req, res) => {
           });
         }
       });
-    }
-  });
+    });
+  } else {
+    console.log("Counting scores for year " + req.query.year);
+    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+      Student.count({
+        $and: [
+          {'rap.scores.value': 1},
+          {'rap.grade': parseInt(req.query.year)},
+          { 'rap.year': currentPeriod.year },
+          { 'rap.term': currentPeriod.term },
+          { 'rap.week': currentPeriod.week },
+        ]
+      }, function (err, ones) {
+        if (err) { next(err); }
+        else {
+          Student.count({
+            $and: [
+              {'rap.scores.value': 2},
+              {'rap.grade': parseInt(req.query.year)},
+              { 'rap.year': currentPeriod.year },
+              { 'rap.term': currentPeriod.term },
+              { 'rap.week': currentPeriod.week }
+            ]
+          }, function (err, twos) {
+            if (err) { next(err); }
+            else {
+              Student.count({
+                $and: [
+                  {'rap.scores.value': 3},
+                  {'rap.grade': parseInt(req.query.year)},
+                  { 'rap.year': currentPeriod.year },
+                  { 'rap.term': currentPeriod.term },
+                  { 'rap.week': currentPeriod.week }
+                ]
+              }, function (err, threes) {
+                if (err) { next(err); }
+                else {
+                  Student.count({
+                    $and: [
+                      {'rap.scores.value': 4},
+                      {'rap.grade': parseInt(req.query.year)},
+                      { 'rap.year': currentPeriod.year },
+                      { 'rap.term': currentPeriod.term },
+                      { 'rap.week': currentPeriod.week }
+                    ]
+                  }, function (err, fours) {
+                    if (err) { next(err); }
+                    else {
+                      Student.count({
+                        $and: [
+                          {'rap.scores.value': 5},
+                          {'rap.grade': parseInt(req.query.year)},
+                          { 'rap.year': currentPeriod.year },
+                          { 'rap.term': currentPeriod.term },
+                          { 'rap.week': currentPeriod.week }
+                        ]
+                      }, function (err, fives) {
+                        if (err) { next(err); }
+                        else {
+                          var total = ones + twos + threes + fours + fives;
+                          ones = Math.round((ones / total) * 100);
+                          twos = Math.round((twos / total) * 100);
+                          threes = Math.round((threes / total) * 100);
+                          fours = Math.round((fours / total) * 100);
+                          fives = Math.round((fives / total) * 100);
+                          var string = [ones, twos, threes, fours, fives];
+                          console.log(string);
+                          res.send(string);
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+  }
 });
 
 // Fills the RAP scores for a certain class with a single score
