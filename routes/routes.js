@@ -208,14 +208,14 @@ router.get('/generatePosters', authCheck, (req, res) => {
           );
 
           function calcLineGap(count) {
-            console.log(count);
+            //console.log(count);
             if(count > 126) {
               return 0;
-            } else if(count > 119) {
+            } else if(count > 118) {
               return 2;
             } else if(count > 110) {
               return 3;
-            } else if(count > 95) {
+            } else if(count > 96) {
               return 4;
             } else if(count > 90) {
               return 7;
