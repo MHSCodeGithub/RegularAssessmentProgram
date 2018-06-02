@@ -212,19 +212,19 @@ router.get('/generatePosters', authCheck, (req, res) => {
             if(count > 120) {
               return 0;
             } else if(count > 110) {
-              return 3;
+              return 2;
             } else if(count > 100) {
-              return 6;
+              return 4;
             } else if(count > 90) {
-              return 9;
+              return 6;
             } else if(count > 80) {
-              return 12;
+              return 8;
             } else if(count > 70) {
-              return 15;
+              return 10;
             } else if(count > 60) {
-              return 18;
+              return 12;
             } else {
-              return 21;
+              return 14;
             }
           }
 
