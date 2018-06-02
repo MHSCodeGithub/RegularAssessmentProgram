@@ -216,13 +216,13 @@ router.get('/generatePosters', authCheck, (req, res) => {
             } else if(count > 100) {
               return 4;
             } else if(count > 90) {
-              return 8;
+              return 7;
             } else if(count > 80) {
-              return 10;
+              return 9;
             } else if(count > 70) {
-              return 14;
+              return 12;
             } else if(count > 60) {
-              return 17;
+              return 15;
             } else {
               return 20;
             }
