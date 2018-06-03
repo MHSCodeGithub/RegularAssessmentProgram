@@ -78,9 +78,9 @@ function byYearChart() {
           $.getJSON("/getGroupAverage?current=true", function(group) {
 
             var year7average = group.year7;
-            var year7average = group.year8;
-            var year7average = group.year9;
-            var year7average = group.year10;
+            var year8average = group.year8;
+            var year9average = group.year9;
+            var year10average = group.year10;
 
             var canvas = document.getElementById("chart");
             var ctx = canvas.getContext('2d');

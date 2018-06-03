@@ -95,7 +95,7 @@ function updateAverages() {
             //console.log(itemsProcessed + " / " + array.length);
             if(itemsProcessed == array.length) {
               if(schoolCount > 0) {
-                //if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
+                if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
                   currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
                   currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
                   currentPeriod.year8 = Number(year8total / year7count).toFixed(2);
@@ -106,7 +106,7 @@ function updateAverages() {
                   console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
                   console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
                   console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
-                //}
+                }
               }
               currentPeriod.save().then((newPeriod) => {
                 console.log('All student average RAP scores recalculated successfully');
@@ -1272,8 +1272,8 @@ router.get('/countScores', (req, res) => {
                         if (err) { next(err); }
                         else {
                           var string = [ones, twos, threes, fours, fives];
-                          console.log(string);
-                          res.send(string);
+                          //console.log(string);
+                          res.send(JSON.stringify(string));
                         }
                       });
                     }
@@ -1351,7 +1351,7 @@ router.get('/countScores', (req, res) => {
                           fours = Number(fours / count * 100).toFixed(2);
                           fives = Number(fives / count * 100).toFixed(2);
                           var percentages = [ones, twos, threes, fours, fives];
-                          console.log(JSON.stringify({'percentages': percentages, 'totals':totals, 'count':count}));
+                          //console.log(JSON.stringify({'percentages': percentages, 'totals':totals, 'count':count}));
                           res.send(JSON.stringify({'percentages': percentages, 'totals':totals, 'count':count}));
                         }
                       });
