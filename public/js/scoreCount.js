@@ -2,13 +2,12 @@ var yearChart;
 var wholeChart;
 
 function wholeSchoolChart() {
-  console.log("Generating chart...");
+  //console.log("Generating chart...");
   $('#chart').hide();
   $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores", function(values) {
-    console.log(values);
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -66,7 +65,7 @@ function wholeSchoolChart() {
 }
 
 function byYearChart() {
-  console.log("Generating chart...");
+  //console.log("Generating chart...");
   $('#chart').hide();
   $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");

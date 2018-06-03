@@ -106,10 +106,10 @@ function updateAverages() {
                   console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
                   console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
                   console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+                  console.log('All student average RAP scores recalculated successfully');
                 }
               }
               currentPeriod.save().then((newPeriod) => {
-                console.log('All student average RAP scores recalculated successfully');
                 return true;
               });
             }
@@ -1219,7 +1219,7 @@ router.get('/showNoTeacher', (req, res) => {
 router.get('/countScores', (req, res) => {
 
   if(req.query.year == null) {
-    console.log("Counting scores for the whole school...");
+    //console.log("Counting scores for the whole school...");
     RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
       Student.count({
         $and: [
@@ -1286,7 +1286,7 @@ router.get('/countScores', (req, res) => {
       });
     });
   } else {
-    console.log("Counting scores for year " + req.query.year);
+    //console.log("Counting scores for year " + req.query.year);
     RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
       Student.count({
         $and: [
