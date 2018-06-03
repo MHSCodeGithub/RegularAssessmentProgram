@@ -84,6 +84,7 @@ function byYearChart() {
 
           // Year 7 average
           var year7total = Number(year7[0]) + (Number(year7[1]) * 2) + (Number(year7[2]) * 3) + (Number(year7[3]) * 4) + (Number(year7[4]) * 5);
+          console.log(year7total);
           var year7average = Number(year7total / 100).toFixed(2);
 
           // Year 8 average

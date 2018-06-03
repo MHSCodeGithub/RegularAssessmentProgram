@@ -30,6 +30,14 @@ function updateAverages() {
         var itemsProcessed = 0;
         var schoolTotal = 0;
         var schoolCount = 0;
+        var year7total = 0;
+        var year7count = 0;
+        var year8total = 0;
+        var year8count = 0;
+        var year9total = 0;
+        var year9count = 0;
+        var year10total = 0;
+        var year10count = 0;
         users.forEach(function(u, index, array) {
           let userTotal = 0;
           let userCount = 0;
@@ -48,30 +56,54 @@ function updateAverages() {
               if(rapTotal == 0 ) {
                 r.average = 0;
               } else {
-                r.average = Number(rapTotal/rapCount).toFixed(2);
+                if(rapCount > 0) {
+                  r.average = Number(rapTotal/rapCount).toFixed(2);
+                }
               }
               if(r.average > 0) {
                 userTotal += r.average;
                 schoolTotal += r.average;
                 userCount++;
                 schoolCount++;
-                console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
+                if(r.grade == 7) {
+                  year7total += r.average;
+                  year7count++;
+                } else if(r.grade == 8) {
+                  year8total += r.average;
+                  year8count++;
+                } else if(r.grade == 9) {
+                  year9total += r.average;
+                  year9count++;
+                } else if(r.grade == 10) {
+                  year10total += r.average;
+                  year10count++;
+                }
+                //console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
               }
             }
           });
           if(userTotal == 0 ) {
             u.longTermAverage = 0;
           } else {
-            u.longTermAverage = Number(userTotal/userCount).toFixed(2);
+            if(userCount > 0) {
+              u.longTermAverage = Number(userTotal/userCount).toFixed(2);
+            }
           }
           u.save().then((newUser) => {
             //console.log('Updated averages for ' + u.name);
             itemsProcessed++;
             //console.log(itemsProcessed + " / " + array.length);
             if(itemsProcessed == array.length) {
-              currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
+              if(schoolCount > 0) {
+                currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
+                console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
+                console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
+                console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
+                console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
+                console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+              }
               currentPeriod.save().then((newPeriod) => {
-                //console.log('All student average RAP scores recalculated successfully');
+                console.log('All student average RAP scores recalculated successfully');
                 return true;
               });
             }
