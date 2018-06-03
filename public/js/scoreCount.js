@@ -83,9 +83,9 @@ function byYearChart() {
           console.log(year10);
 
           // Year 7 average
-          var year7total = Number(year7[0]) + (Number(year7[1]) * 2) + (Number(year7[2]) * 3) + (Number(year7[3]) * 4) + (Number(year7[4]) * 5);
-          console.log(year7total);
-          var year7average = Number(year7total / 100).toFixed(2);
+          var year7total = year7.totals[0] + (year7.totals[1]*2) + (year7.totals[2]*3) + (year7.totals[3]*4) + (year7.totals[4]*5);
+          var year7average = Number(year7total / year7.count).toFixed(2);
+          console.log("Year 7 Average: " + year7average);
 
           // Year 8 average
           var year8total = Number(year8[0]) + (Number(year8[1]) * 2) + (Number(year8[2]) * 3) + (Number(year8[3]) * 4) + (Number(year8[4]) * 5);
@@ -114,22 +114,22 @@ function byYearChart() {
                     {
                         label: "Year 7",
                         backgroundColor: "blue",
-                        data: year7
+                        data: year7.percentages
                     },
                     {
                         label: "Year 8",
                         backgroundColor: "red",
-                        data: year8
+                        data: year8.percentages
                     },
                     {
                         label: "Year 9",
                         backgroundColor: "green",
-                        data: year9
+                        data: year9.percentages
                     },
                     {
                         label: "Year 10",
                         backgroundColor: "orange",
-                        data: year10
+                        data: year10.percentages
                     }
                 ]
               },
