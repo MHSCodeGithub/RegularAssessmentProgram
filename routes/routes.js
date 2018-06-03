@@ -45,6 +45,7 @@ function updateAverages() {
                   schoolTotal += s.value;
                   rapCount++;
                   schoolCount++;
+                  console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
                 }
               });
               if(rapTotal == 0 ) {
@@ -1305,14 +1306,14 @@ router.get('/countScores', (req, res) => {
                         if (err) { next(err); }
                         else {
                           var total = ones + twos + threes + fours + fives;
-                          ones = Math.round((ones / total) * 100);
-                          twos = Math.round((twos / total) * 100);
-                          threes = Math.round((threes / total) * 100);
-                          fours = Math.round((fours / total) * 100);
-                          fives = Math.round((fives / total) * 100);
+                          ones = Number(ones / total * 100).toFixed(4);
+                          twos = Number(twos / total * 100).toFixed(4);
+                          threes = Number(threes / total * 100).toFixed(4);
+                          fours = Number(fours / total * 100).toFixed(4);
+                          fives = Number(fives / total * 100).toFixed(4);
                           var string = [ones, twos, threes, fours, fives];
                           console.log(string);
-                          res.send(string);
+                          res.send(JSON.stringify(string));
                         }
                       });
                     }

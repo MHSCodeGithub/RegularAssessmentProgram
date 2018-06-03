@@ -83,24 +83,20 @@ function byYearChart() {
           console.log(year10);
 
           // Year 7 average
-          var year7count = year7[0] + year7[1] + year7[2] + year7[3] + year7[4];
-          var year7total = year7[0] + (year7[1] * 2) + (year7[2] * 3) + (year7[3] * 4) + (year7[4] * 5);
-          var year7average = Number(year7total / year7count).toFixed(2);
+          var year7total = Number(year7[0]) + (Number(year7[1]) * 2) + (Number(year7[2]) * 3) + (Number(year7[3]) * 4) + (Number(year7[4]) * 5);
+          var year7average = Number(year7total / 100).toFixed(2);
 
           // Year 8 average
-          var year8count = year8[0] + year8[1] + year8[2] + year8[3] + year8[4];
-          var year8total = year8[0] + (year8[1] * 2) + (year8[2] * 3) + (year8[3] * 4) + (year8[4] * 5);
-          var year8average = Number(year8total / year8count).toFixed(2);
+          var year8total = Number(year8[0]) + (Number(year8[1]) * 2) + (Number(year8[2]) * 3) + (Number(year8[3]) * 4) + (Number(year8[4]) * 5);
+          var year8average = Number(year8total / 100).toFixed(2);
 
           // Year 9 average
-          var year9count = year9[0] + year9[1] + year9[2] + year9[3] + year9[4];
-          var year9total = year9[0] + (year9[1] * 2) + (year9[2] * 3) + (year9[3] * 4) + (year9[4] * 5);
-          var year9average = Number(year9total / year9count).toFixed(2);
+          var year9total = Number(year9[0]) + (Number(year9[1]) * 2) + (Number(year9[2]) * 3) + (Number(year9[3]) * 4) + (Number(year9[4]) * 5);
+          var year9average = Number(year9total / 100).toFixed(2);
 
           // Year 10 average
-          var year10count = year10[0] + year10[1] + year10[2] + year10[3] + year10[4];
-          var year10total = year10[0] + (year10[1] * 2) + (year10[2] * 3) + (year10[3] * 4) + (year10[4] * 5);
-          var year10average = Number(year10total / year10count).toFixed(2);
+          var year10total = Number(year10[0]) + (Number(year10[1]) * 2) + (Number(year10[2]) * 3) + (Number(year10[3]) * 4) + (Number(year10[4]) * 5);
+          var year10average = Number(year10total / 100).toFixed(2);
 
           var canvas = document.getElementById("chart");
           var ctx = canvas.getContext('2d');
