@@ -7,7 +7,8 @@ const RapPeriodsSchema = new Schema({
   term: Number,
   week: Number,
   current: Boolean,
-  active: Boolean
+  active: Boolean,
+  average: Number
 });
 
 // Create model

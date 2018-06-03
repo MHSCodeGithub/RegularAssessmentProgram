@@ -8,15 +8,18 @@ html
         .col-sm-12
           .card#content-container
             .card-body#content-body
-              .col-sm-12
-                h3 Insights
-                .form-group
-                  .row
-                    .col-sm-6
-                      button#byWhole.btn.btn-primary.year-button(style='width: 100%;') Whole School
-                    .col-sm-6
-                      button#byYear.btn.btn-primary.year-button(style='width: 100%;') By year Group
-              .col-sm-12
-                #loading
-                canvas#chart(width="500px", height="220px")
+              .row
+                .col-sm-3
+                  h3 Insights
+                .col-sm-9
+                  #stats.d-flex.justify-content-end
+              .row.form-group
+                .col-sm-6
+                  button#byWhole.btn.btn-primary.year-button(style='width: 100%;') Whole School
+                .col-sm-6
+                  button#byYear.btn.btn-primary.year-button(style='width: 100%;') By Year Group
+              .row
+                .col-sm-12
+                  #loading
+                  canvas#chart(width="500px", height="220px")
     include partials/footer.pug

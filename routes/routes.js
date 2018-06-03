@@ -19,43 +19,62 @@ var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
 // loops through all students and updates their averages
 function updateAverages() {
   try {
-    Student.find({}).then(function(users) {
-      var itemsProcessed = 0;
-      users.forEach(function(u, index, array) {
-        let userTotal = 0;
-        let userCount = 0;
-        u.rap.forEach(function(r) {
-          let rapTotal = 0;
-          let rapCount = 0;
-          r.scores.forEach(function(s) {
-            if(s.value > 0) {
-              rapTotal += s.value;
-              rapCount++;
+    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+      Student.find({
+        $and: [
+          { 'rap.year': currentPeriod.year },
+          { 'rap.term': currentPeriod.term },
+          { 'rap.week': currentPeriod.week }
+        ]
+      }).then(function(users) {
+        var itemsProcessed = 0;
+        var schoolTotal = 0;
+        var schoolCount = 0;
+        users.forEach(function(u, index, array) {
+          let userTotal = 0;
+          let userCount = 0;
+          u.rap.forEach(function(r) {
+            if(r.year == currentPeriod.year
+            && r.term == currentPeriod.term
+            && r.week == currentPeriod.week) {
+              let rapTotal = 0;
+              let rapCount = 0;
+              r.scores.forEach(function(s) {
+                if(s.value > 0) {
+                  rapTotal += s.value;
+                  schoolTotal += s.value;
+                  rapCount++;
+                  schoolCount++;
+                }
+              });
+              if(rapTotal == 0 ) {
+                r.average = 0;
+              } else {
+                r.average = Number(rapTotal/rapCount).toFixed(2);
+              }
+              if(r.average > 0) {
+                userTotal += r.average;
+                userCount++;
+              }
             }
           });
-          if(rapTotal == 0 ) {
-            r.average = 0;
+          if(userTotal == 0 ) {
+            u.longTermAverage = 0;
           } else {
-            r.average = Number(rapTotal/rapCount).toFixed(2);
+            u.longTermAverage = Number(userTotal/userCount).toFixed(2);
           }
-          if(r.average > 0) {
-            userTotal += r.average;
-            userCount++;
-          }
-        });
-        if(userTotal == 0 ) {
-          u.longTermAverage = 0;
-        } else {
-          u.longTermAverage = Number(userTotal/userCount).toFixed(2);
-        }
-        u.save().then((newUser) => {
-          //console.log('Updated averages for ' + u.name);
-          itemsProcessed++;
-          //console.log(itemsProcessed + " / " + array.length);
-          if(itemsProcessed == array.length) {
-            //console.log('All student average RAP scores recalculated successfully');
-            return true;
-          }
+          u.save().then((newUser) => {
+            //console.log('Updated averages for ' + u.name);
+            itemsProcessed++;
+            //console.log(itemsProcessed + " / " + array.length);
+            if(itemsProcessed == array.length) {
+              currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
+              currentPeriod.save().then((newPeriod) => {
+                //console.log('All student average RAP scores recalculated successfully');
+                return true;
+              });
+            }
+          });
         });
       });
     });
@@ -135,11 +154,6 @@ router.get('/generateLetters', authCheck, (req, res) => {
   } else {
     res.render('generateLetters', {user: req.session.user});
   }
-});
-
-// Render 'Internet Explorer Not Supported' page
-router.get('/internetExplorer', (req, res) => {
-  res.render('internetExplorer');
 });
 
 // Generate Posters
@@ -483,7 +497,14 @@ router.get('/teacher', (req, res) => {
   // This function searches for all students with the current teacher in the current RAP period
   // It then loops through and builds a list of students for each of the teacher's classes
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({'rap.scores.teacher':teacher}).sort({name: 'ascending'}).then(function(users) {
+    Student.find({
+      $and: [
+        { 'rap.scores.teacher': teacher },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).sort({name: 'ascending'}).then(function(users) {
       users.forEach(function(u) {
         u.rap.forEach(function(r) {
           if(r.year == currentPeriod.year
@@ -538,7 +559,14 @@ router.post('/addStudent', (req, res) => {
   let subject = req.body.subject;
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.findOne({ name: student }, function (err, user) {
+    Student.findOne({
+      $and: [
+        { name: student },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, user) {
       if (err) { console.log(err); }
       if (user) {
         user.rap.forEach(function(r) {
@@ -577,7 +605,14 @@ router.post('/deleteStudent', (req, res) => {
   console.log("Attempting to delete " + student);
 
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.findOne({ name: student }, function (err, user) {
+    Student.findOne({
+      $and: [
+        { name: student },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, user) {
       if (err) { console.log("Error deleting student"); }
       if (user) {
         user.rap.forEach(function(r) {
@@ -650,9 +685,15 @@ router.post('/addClass', (req, res) => {
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
 
-
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({'rap.scores.code':classCode}, function (err, users) {
+    Student.find({
+      $and: [
+        { 'rap.scores.code': classCode },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, users) {
       if (err) { console.log("Error adding class"); }
       if (users) {
         let count = 0;
@@ -716,7 +757,14 @@ router.post('/removeClass', (req, res) => {
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({}, function (err, users) {
+    Student.find({
+      $and: [
+        { 'rap.scores.code': classCode },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, users) {
       if (err) { console.log(err); }
       if (users) {
         let count = 0;
@@ -849,7 +897,7 @@ router.get('/updateAverages', authCheck, (req, res) => {
 
 // Re-calculate averages for each student
 router.post('/updateAverages', (req, res) => {
-  updateAverages()
+  updateAverages();
   console.log('All students have been processed successfully');
   req.flash('success_msg', 'All student usernames been updated successfully');
   res.redirect('/updateAverages');
@@ -870,47 +918,71 @@ router.get('/autocomplete', (req, res) => {
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteStudents', (req, res) => {
-  Student.find({}).sort({name: 'ascending'}).then(function(users) {
-    let students = [];
-    users.forEach(function(u) {
-      students.push(u.name);
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({
+      $and: [
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).sort({name: 'ascending'}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        students.push(u.name);
+      });
+      //console.log(teachers);
+      res.send(JSON.stringify(students));
     });
-    //console.log(teachers);
-    res.send(JSON.stringify(students));
   });
 });
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteClasses', (req, res) => {
-  Student.find({}).then(function(users) {
-    let classes = [];
-    users.forEach(function(u) {
-      u.rap.forEach(function(r) {
-        r.scores.forEach(function(s) {
-          classes.push(s.code);
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({
+      $and: [
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).then(function(users) {
+      let classes = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          r.scores.forEach(function(s) {
+            classes.push(s.code);
+          });
         });
       });
+      let classesUnique = Array.from(new Set(classes));
+      res.send(JSON.stringify(classesUnique));
+      return null;
     });
-    let classesUnique = Array.from(new Set(classes));
-    res.send(JSON.stringify(classesUnique));
-    return null;
   });
 });
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteSubjects', (req, res) => {
-  Student.find({}).then(function(users) {
-    let subjects = [];
-    users.forEach(function(u) {
-      u.rap.forEach(function(r) {
-        r.scores.forEach(function(s) {
-          subjects.push(s.subject);
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({
+      $and: [
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).then(function(users) {
+      let subjects = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          r.scores.forEach(function(s) {
+            subjects.push(s.subject);
+          });
         });
       });
+      let subjectsUnique = Array.from(new Set(subjects));
+      res.send(JSON.stringify(subjectsUnique));
+      return null;
     });
-    let subjectsUnique = Array.from(new Set(subjects));
-    res.send(JSON.stringify(subjectsUnique));
-    return null;
   });
 });
 
@@ -965,9 +1037,15 @@ router.post('/save', (req, res) => {
   var score = req.body.score;
   var teacher = req.body.teacher;
 
-
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.findOne({ name: student }, function (err, user) {
+    Student.findOne({
+      $and: [
+        { name: student },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, user) {
       if (err) { console.log(err); }
       if (user) {
         var success = false;
@@ -991,7 +1069,6 @@ router.post('/save', (req, res) => {
                     res.send(JSON.stringify(true));
                   });
                 }
-
               }
             });
           }
@@ -1024,49 +1101,61 @@ router.get('/checkNotDone', (req, res) => {
 
 // Show which classes have mostly zeroes
 router.get('/showNoScores', (req, res) => {
-  Student.find().distinct('rap.scores.teacher', function(error, teachers) {
-    let teacherArray = [];
-    async.eachSeries(teachers, function(t, callback) {
-      teacher = t;
-      let classes = [];
-      Student.find({'rap.scores.teacher':teacher}).sort({name: 'ascending'}).then(function(users) {
-        users.forEach(function(u) {
-          u.rap.forEach(function(r) {
-            r.scores.forEach(function(s) {
-              if(s.teacher == teacher) {
-                let classFound = false;
-                classes.forEach(function(c) { // see if the class is added yet
-                  if(c.code == s.code && c.teacher == s.teacher) {
-                    classFound = true;
-                    c.scores.push(s.value); // if class exists push the student into the array
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find().distinct('rap.scores.teacher', function(error, teachers) {
+      let teacherArray = [];
+      async.eachSeries(teachers, function(teacher, callback) {
+        let classes = [];
+        Student.find({
+          $and: [
+            { 'rap.scores.teacher': teacher },
+            { 'rap.year': currentPeriod.year },
+            { 'rap.term': currentPeriod.term },
+            { 'rap.week': currentPeriod.week }
+          ]
+        }).sort({name: 'ascending'}).then(function(users) {
+          users.forEach(function(u) {
+            u.rap.forEach(function(r) {
+              if(r.year == currentPeriod.year
+              && r.term == currentPeriod.term
+              && r.week == currentPeriod.week) {
+                r.scores.forEach(function(s) {
+                  if(s.teacher == teacher) {
+                    let classFound = false;
+                    classes.forEach(function(c) { // see if the class is added yet
+                      if(c.code == s.code && c.teacher == s.teacher) {
+                        classFound = true;
+                        c.scores.push(s.value); // if class exists push the student into the array
+                      }
+                    });
+                    if(!classFound) { // if class NOT found then push the class and student into the array
+                      let scores = [s.value];
+                      classes.push({"code": s.code, "teacher": s.teacher, "scores": scores});
+                    }
                   }
                 });
-                if(!classFound) { // if class NOT found then push the class and student into the array
-                  let scores = [s.value];
-                  classes.push({"code": s.code, "teacher": s.teacher, "scores": scores});
-                }
               }
             });
           });
+          teacherArray.push(classes);
+          callback();
         });
-        teacherArray.push(classes);
-        callback();
-      });
-    }, function(err) {
-      if( err ) {
-        console.log('An error occurred: ' + err);
-      } else {
-        let classesNotDone = [];
-        for (var i = 0; i < teacherArray.length; i++) {
-          for (var j = 0; j < teacherArray[i].length; j++) {
-            if(teacherArray[i][j].scores.reduce(function(acc, val) { return acc + val; }) == 0) {
-              classesNotDone.push({"code":teacherArray[i][j].code, "teacher":teacherArray[i][j].teacher});
+      }, function(err) {
+        if( err ) {
+          console.log('An error occurred: ' + err);
+        } else {
+          let classesNotDone = [];
+          for (var i = 0; i < teacherArray.length; i++) {
+            for (var j = 0; j < teacherArray[i].length; j++) {
+              if(teacherArray[i][j].scores.reduce(function(acc, val) { return acc + val; }) == 0) {
+                classesNotDone.push({"code":teacherArray[i][j].code, "teacher":teacherArray[i][j].teacher});
+              }
             }
           }
+          //console.log(classesNotDone);
+          res.send(JSON.stringify(classesNotDone));
         }
-        //console.log(classesNotDone);
-        res.send(JSON.stringify(classesNotDone));
-      }
+      });
     });
   });
 });
@@ -1095,7 +1184,7 @@ router.get('/countScores', (req, res) => {
     RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
       Student.count({
         $and: [
-          {'rap.scores.value': 1},
+          { 'rap.scores.value': 1},
           { 'rap.year': currentPeriod.year },
           { 'rap.term': currentPeriod.term },
           { 'rap.week': currentPeriod.week }
@@ -1105,7 +1194,7 @@ router.get('/countScores', (req, res) => {
         else {
           Student.count({
             $and: [
-              {'rap.scores.value': 2},
+              { 'rap.scores.value': 2},
               { 'rap.year': currentPeriod.year },
               { 'rap.term': currentPeriod.term },
               { 'rap.week': currentPeriod.week }
@@ -1115,7 +1204,7 @@ router.get('/countScores', (req, res) => {
             else {
               Student.count({
                 $and: [
-                  {'rap.scores.value': 3},
+                  { 'rap.scores.value': 3},
                   { 'rap.year': currentPeriod.year },
                   { 'rap.term': currentPeriod.term },
                   { 'rap.week': currentPeriod.week }
@@ -1125,7 +1214,7 @@ router.get('/countScores', (req, res) => {
                 else {
                   Student.count({
                     $and: [
-                      {'rap.scores.value': 4},
+                      { 'rap.scores.value': 4},
                       { 'rap.year': currentPeriod.year },
                       { 'rap.term': currentPeriod.term },
                       { 'rap.week': currentPeriod.week }
@@ -1135,7 +1224,7 @@ router.get('/countScores', (req, res) => {
                     else {
                       Student.count({
                         $and: [
-                          {'rap.scores.value': 5},
+                          { 'rap.scores.value': 5},
                           { 'rap.year': currentPeriod.year },
                           { 'rap.term': currentPeriod.term },
                           { 'rap.week': currentPeriod.week }
@@ -1162,8 +1251,8 @@ router.get('/countScores', (req, res) => {
     RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
       Student.count({
         $and: [
-          {'rap.scores.value': 1},
-          {'rap.grade': parseInt(req.query.year)},
+          { 'rap.scores.value': 1},
+          { 'rap.grade': parseInt(req.query.year)},
           { 'rap.year': currentPeriod.year },
           { 'rap.term': currentPeriod.term },
           { 'rap.week': currentPeriod.week },
@@ -1173,8 +1262,8 @@ router.get('/countScores', (req, res) => {
         else {
           Student.count({
             $and: [
-              {'rap.scores.value': 2},
-              {'rap.grade': parseInt(req.query.year)},
+              { 'rap.scores.value': 2},
+              { 'rap.grade': parseInt(req.query.year)},
               { 'rap.year': currentPeriod.year },
               { 'rap.term': currentPeriod.term },
               { 'rap.week': currentPeriod.week }
@@ -1184,8 +1273,8 @@ router.get('/countScores', (req, res) => {
             else {
               Student.count({
                 $and: [
-                  {'rap.scores.value': 3},
-                  {'rap.grade': parseInt(req.query.year)},
+                  { 'rap.scores.value': 3},
+                  { 'rap.grade': parseInt(req.query.year)},
                   { 'rap.year': currentPeriod.year },
                   { 'rap.term': currentPeriod.term },
                   { 'rap.week': currentPeriod.week }
@@ -1195,8 +1284,8 @@ router.get('/countScores', (req, res) => {
                 else {
                   Student.count({
                     $and: [
-                      {'rap.scores.value': 4},
-                      {'rap.grade': parseInt(req.query.year)},
+                      { 'rap.scores.value': 4},
+                      { 'rap.grade': parseInt(req.query.year)},
                       { 'rap.year': currentPeriod.year },
                       { 'rap.term': currentPeriod.term },
                       { 'rap.week': currentPeriod.week }
@@ -1206,8 +1295,8 @@ router.get('/countScores', (req, res) => {
                     else {
                       Student.count({
                         $and: [
-                          {'rap.scores.value': 5},
-                          {'rap.grade': parseInt(req.query.year)},
+                          { 'rap.scores.value': 5},
+                          { 'rap.grade': parseInt(req.query.year)},
                           { 'rap.year': currentPeriod.year },
                           { 'rap.term': currentPeriod.term },
                           { 'rap.week': currentPeriod.week }
@@ -1238,6 +1327,24 @@ router.get('/countScores', (req, res) => {
   }
 });
 
+// Get the whole-school average for either the current, or all RAP periods
+router.get('/getWholeAverage', (req, res) => {
+  var current = req.query.current;
+  if(current == 'true') {
+    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+      res.send(JSON.stringify(currentPeriod.average));
+    });
+  } else {
+    RapPeriods.find({}, function(err, allPeriods) {
+      var averages = [];
+      allPeriods.forEach(function(currentPeriod) {
+        averages.push(currentPeriod.average);
+      });
+      res.send(JSON.stringify(averages));
+    });
+  }
+});
+
 // Fills the RAP scores for a certain class with a single score
 router.post('/fillRadios', (req, res) => {
 
@@ -1249,7 +1356,14 @@ router.post('/fillRadios', (req, res) => {
   // Match the rap period to the current period
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
     // Loop through every student from class list
-    Student.find({"rap.scores.code":classCode}).then(function(users) {
+    Student.find({
+      $and: [
+        { 'rap.scores.code': classCode },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).then(function(users) {
       //console.log(users);
       users.forEach(function(u) {
         // then loop through each RAP period to find the current one
@@ -1586,7 +1700,7 @@ router.post('/uploadTeachers', function(req, res) {
 });
 
 // TODO: Complete this route
-// Restores list of teachers (so that they can log in)
+// Restores all RAP data (clears then re-writes database)
 router.post('/restoreRAP', function(req, res) {
 
   // Read in the POST data
