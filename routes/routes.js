@@ -42,10 +42,7 @@ function updateAverages() {
               r.scores.forEach(function(s) {
                 if(s.value > 0) {
                   rapTotal += s.value;
-                  schoolTotal += s.value;
                   rapCount++;
-                  schoolCount++;
-                  console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
                 }
               });
               if(rapTotal == 0 ) {
@@ -55,7 +52,10 @@ function updateAverages() {
               }
               if(r.average > 0) {
                 userTotal += r.average;
+                schoolTotal += r.average;
                 userCount++;
+                schoolCount++;
+                console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
               }
             }
           });
