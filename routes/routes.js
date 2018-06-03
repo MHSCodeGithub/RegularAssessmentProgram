@@ -97,6 +97,10 @@ function updateAverages() {
               if(schoolCount > 0) {
                 //if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
                   currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
+                  currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
+                  currentPeriod.year8 = Number(year8total / year7count).toFixed(2);
+                  currentPeriod.year9 = Number(year9total / year9count).toFixed(2);
+                  currentPeriod.year10 = Number(year10total / year10count).toFixed(2);
                   console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
                   console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
                   console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
@@ -1375,6 +1379,34 @@ router.get('/getWholeAverage', (req, res) => {
       var averages = [];
       allPeriods.forEach(function(currentPeriod) {
         averages.push(currentPeriod.average);
+      });
+      res.send(JSON.stringify(averages));
+    });
+  }
+});
+
+// Get the averages for each year group for either the current, or all RAP periods
+router.get('/getGroupAverage', (req, res) => {
+  var current = req.query.current;
+  if(current == 'true') {
+    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+      res.send(JSON.stringify({
+        'year7':currentPeriod.year7,
+        'year8':currentPeriod.year8,
+        'year9':currentPeriod.year9,
+        'year10':currentPeriod.year10
+      }));
+    });
+  } else {
+    RapPeriods.find({}, function(err, allPeriods) {
+      var averages = [];
+      allPeriods.forEach(function(currentPeriod) {
+        averages.push({
+          'year7':currentPeriod.year7,
+          'year8':currentPeriod.year8,
+          'year9':currentPeriod.year9,
+          'year10':currentPeriod.year10
+        });
       });
       res.send(JSON.stringify(averages));
     });
