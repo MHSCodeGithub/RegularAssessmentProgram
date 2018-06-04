@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 const fileUpload = require('express-fileupload');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
@@ -464,56 +465,60 @@ router.get('/login', (req,res) => {
 
 // Authenticate against Sentral server, redirect to home page
 router.post('/login', (req, res) => {
-  var username = req.body.username;
-	var password = req.body.password;
-  var form = new FormData();
-  form.append('username', username);
-  form.append('password', password);
-  form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
-    if(response.headers.location != "/portal/dashboard") {
-      console.log(username + " was not able to log in via Sentral Student Portal");
-      // try again with different portal for staff
-      var form2 = new FormData();
-      form2.append('sentral-username', username);
-      form2.append('sentral-password', password);
-      form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
-        if(response2.statusCode == 200) {
-          console.log(username + " was not able to log in via Sentral Staff Portal");
-        } else {
-          console.log("Logged in through Sentral Staff Portal");
-          console.log("Checking to see if the user is a staff member...");
-          Teacher.findOne({ username: username }, function (err, user) {
-            if(user) {
-              req.session.user = user;
-              res.redirect('/');
-            }
-          });
-        }
-      });
-      res.render('login', {error: "Invalid username or password"});
-    } else {
-      // See if user is a teacher
-      Teacher.findOne({ username: username }, function (err, user) {
-        if(user) {
-          req.session.user = user;
-          console.log(user.name + " logged in");
-          res.redirect('/');
-        } else {
-          // See if user is a student
-          console.log("Checking to see if the user is a student...");
-          Student.findOne({ username: username }, function (err, user) {
-            if(user) {
-              req.session.user = user;
-              console.log(user.name + " logged in");
-              res.redirect('/');
-            } else {
-              res.render('login', {error: "Invalid username or password"});
-            }
-          });
-        }
-      });
-    }
-  });
+  try {
+    var username = req.body.username;
+  	var password = req.body.password;
+    var form = new FormData();
+    form.append('username', username);
+    form.append('password', password);
+    form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
+      if(response.headers.location != "/portal/dashboard") {
+        console.log(username + " was not able to log in via Sentral Student Portal");
+        // try again with different portal for staff
+        var form2 = new FormData();
+        form2.append('sentral-username', username);
+        form2.append('sentral-password', password);
+        form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
+          if(response2.statusCode == 200) {
+            console.log(username + " was not able to log in via Sentral Staff Portal");
+            res.render('login', {error: "Invalid username or password"});
+          } else {
+            console.log("Logged in through Sentral Staff Portal");
+            console.log("Checking to see if the user is a staff member...");
+            Teacher.findOne({ username: username }, function (err, user) {
+              if(user) {
+                req.session.user = user;
+                res.redirect('/');
+              }
+            });
+          }
+        });
+      } else {
+        // See if user is a teacher
+        Teacher.findOne({ username: username }, function (err, user) {
+          if(user) {
+            req.session.user = user;
+            console.log(user.name + " logged in");
+            res.redirect('/');
+          } else {
+            // See if user is a student
+            console.log("Checking to see if the user is a student...");
+            Student.findOne({ username: username }, function (err, user) {
+              if(user) {
+                req.session.user = user;
+                console.log(user.name + " logged in");
+                res.redirect('/');
+              } else {
+                res.render('login', {error: "Invalid username or password"});
+              }
+            });
+          }
+        });
+      }
+    });
+  } catch (e) {
+    res.render('login', {error: "Invalid username or password"});
+  }
 });
 
 // Auth logout
@@ -583,10 +588,82 @@ router.get('/student', (req, res) => {
   var student = req.query.name;
 
   Student.findOne({name: req.query.name}).then(function(stu) {
-    console.log(req.session.user.name + " looked up scores for " + req.query.name);
+    if(req.session.user.name == req.query.name) {
+      RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+        stu.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            r.checked = true;
+            stu.save().then((newStu) => {
+              console.log(req.session.user.name + " checked their own scores");
+            });
+          }
+        });
+      });
+    } else {
+      console.log(req.session.user.name + " looked up scores for " + req.query.name);
+    }
     res.send(JSON.stringify(stu));
   });
 
+});
+
+// Tracks how many students have checked their RAP scores in the current period
+router.get('/trackChecked', (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.count({
+      $and: [
+        { 'rap.checked': true },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, checked) {
+      Student.count({
+        $and: [
+          { $or:
+            [
+              {'rap.checked': false },
+              {'rap.checked': null }
+            ]
+          },
+          { 'rap.year': currentPeriod.year },
+          { 'rap.term': currentPeriod.term },
+          { 'rap.week': currentPeriod.week }
+        ]
+      }, function (err, unchecked) {
+        //console.log({'unchecked':unchecked,'checked':checked});
+        res.send(JSON.stringify({'unchecked':unchecked,'checked':checked}));
+      });
+    });
+  });
+});
+
+// Tracks which students have checked their RAP scores in the current period
+router.get('/whoChecked', (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({
+      $and: [
+        { 'rap.checked': true },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }).then(function(students) {
+      var studentsChecked = [];
+      students.forEach(function(student) {
+        student.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            studentsChecked.push({'name':student.name,'currentAverage':r.average,'longTermAverage':student.longTermAverage})
+          }
+        });
+      });
+      res.send(JSON.stringify(studentsChecked));
+    });
+  });
 });
 
 // Adds a missing student to a class
@@ -1774,36 +1851,63 @@ router.post('/restoreRAP', function(req, res) {
   // Read in the POST data
   let fileUpload = req.files.fileUpload;
 
-  // Set JSON file path
+  // Set JSON file path and upload
   let jsonFilePath = "./uploads/students.json";
-
-  // Move the file to a local folder on the server
   fileUpload.mv(jsonFilePath, function(err) {
     if (err) { return res.status(500).send(err); }
   });
 
   // Import file
   fs.readFile(jsonFilePath, 'utf8', function (err, data) {
-    if (err) throw err;
-    var jsonArrayObj = JSON.parse(data);
+    if (err) {
+      throw err;
+    } else {
 
-    // Async loop to play nice with MongoDB
-    async.eachSeries(jsonArrayObj, function(student, callback) {
-      console.log(student.name);
-      callback();
-    }, function(err) {
-      if( err ) {
-      console.log('An error occurred: ' + err);
-      } else {
-        console.log('All RAP Data has been imported successfully');
-        req.flash('success_msg', 'All RAP Data has been imported successfully');
-        res.redirect('/backupRAP');
-        return null;
-      }
-    });
+      Student.find({}).then(function(users) {
+        fs.writeFile("./downloads/backup.json", JSON.stringify(users, null, 4), (err) => {
+          if (err) {
+            console.error(err);
+            return false;
+          } else {
+            console.log("Backup file has been created");
+            // Delete everything old collection
+            Student.remove({}).then(() => {
+              console.log("Old data removed!");
+              // Parse and loop through data
+              var jsonArrayObj = JSON.parse(data);
+              async.eachSeries(jsonArrayObj, function(student, callback) {
 
+                let stu = new Student({
+                  name: student.name,
+                  username: student.username,
+                  gender: student.gender,
+                  id: student.id,
+                  access: student.access,
+                  longTermAverage: student.longTermAverage,
+                  rap: student.rap
+                });
+
+                stu.save().then((newStu) => {
+                  console.log("Saved: " + student.name);
+                });
+
+                callback();
+              }, function(err) {
+                if( err ) {
+                console.log('An error occurred: ' + err);
+                } else {
+                  console.log('All RAP Data has been imported successfully');
+                  req.flash('success_msg', 'All RAP Data has been imported successfully');
+                  res.redirect('/backupRAP');
+                  return null;
+                }
+              });
+            });
+          }
+        });
+      });
+    }
   });
-
 });
 
 module.exports = router;

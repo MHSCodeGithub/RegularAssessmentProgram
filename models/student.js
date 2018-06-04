@@ -23,7 +23,8 @@ const RapSchema = new Schema({
     min: [0, 'Too low'],
     max: [5, 'Too high']
   },
-  scores: [ScoreSchema]
+  scores: [ScoreSchema],
+  checked: Boolean
 });
 
 const StudentSchema = new Schema({

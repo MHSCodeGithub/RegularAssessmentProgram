@@ -1,5 +1,4 @@
-var yearChart;
-var wholeChart;
+var chart;
 
 function wholeSchoolChart() {
   //console.log("Generating chart...");
@@ -12,10 +11,10 @@ function wholeSchoolChart() {
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
-    if(yearChart != null) {
-      yearChart.destroy();
+    if(chart != null) {
+      chart.destroy();
     }
-    wholeChart = new Chart(ctx, {
+    chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
@@ -64,6 +63,63 @@ function wholeSchoolChart() {
   });
 }
 
+function studentLoginsChart() {
+  //console.log("Generating chart...");
+  $('#chart').hide();
+  $('#loading').show();
+  $('#loading').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
+  $.getJSON("/trackChecked", function(values) {
+    var canvas = document.getElementById("chart");
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    if(chart != null) {
+      chart.destroy();
+    }
+    var data = [values.unchecked,values.checked];
+    console.log(data);
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Unchecked", "Checked"],
+            datasets: [{
+                label: 'Count',
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            legend: {
+              display: false
+            }
+        }
+    });
+    $('#loading').fadeOut(200).empty();
+    $('#chart').fadeIn(400);
+    $.getJSON("/getWholeAverage", function(average) {
+      $('#stats').empty().hide();
+      $('#stats').append("<h5>Number of Student Logins: <strong>" + values.checked + "</strong></h4>");
+      $('#stats').fadeIn(400);
+    });
+  });
+}
+
 function byYearChart() {
   //console.log("Generating chart...");
   $('#chart').hide();
@@ -85,10 +141,10 @@ function byYearChart() {
             var ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.beginPath();
-            if(wholeChart != null) {
-              wholeChart.destroy();
+            if(chart != null) {
+              chart.destroy();
             }
-            yearChart = new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                   labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
@@ -151,6 +207,11 @@ $(document).ready(function() {
 
   $("#byYear").click(function(event) {
     byYearChart();
+  });
+
+  $("#byLogins").click(function(event) {
+    console.log("hi");
+    studentLoginsChart();
   });
 
   $("#byWhole").trigger("click");
