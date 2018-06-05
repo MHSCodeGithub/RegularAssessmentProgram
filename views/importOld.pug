@@ -1,0 +1,45 @@
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 Import From Old RAP Data
+                p Export old RAP data in CSV format (Name, Grade, Score), then upload below for the correct RAP period.
+              .col-sm-12
+                form#upload-form(action="/importOld", autocomplete="off", method="POST", encType="multipart/form-data")
+                  .row
+                    .col-md-8.col-lg-4.form-group
+                      label(for='fileUpload') CSV File:
+                      input.browse-file.form-control-file.form-control-lg(type='file', id='fileUpload', name='fileUpload', placeholder="Browse File", required)
+                    .col-md-4.col-lg-2.form-group
+                      label(for='year') Year:
+                      select.form-control.form-control-lg(id='year', name='year')
+                        option 2017
+                        option(selected) 2018
+                    .col-md-4.col-lg-2.form-group
+                      label(for='term') Term:
+                      select.form-control.form-control-lg(id='term', name='term')
+                        option 1
+                        option(selected) 2
+                        option 3
+                        option 4
+                    .col-md-4.col-lg-2.form-group
+                      label(for='week') Week:
+                      select.form-control.form-control-lg(id='week', name='week')
+                        option(selected) 5
+                        option 9
+                    .col-md-4.col-lg-2.form-group
+                      div(style='margin-top: 32px;')
+                      button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Upload
+                  .row
+                    .col-sm-12
+                      if locals.error_msg != null && locals.error_msg.length > 0
+                        div.alert.alert-danger.text-center(role="alert") #{locals.error_msg}
+                      if locals.success_msg != null && locals.success_msg.length > 0
+                        div.alert.alert-success.text-center(role="alert") #{locals.success_msg}                      
+    include partials/footer.pug

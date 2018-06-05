@@ -8,7 +8,7 @@ const FormData = require('form-data');
 const schedule = require('node-schedule');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-var csv = require("csvtojson");
+const csv = require("csvtojson");
 var async = require('async');
 
 // Batch job to update averages every 5 minutes
@@ -444,9 +444,14 @@ router.get('/queryTeacher', authCheck, (req, res) => {
   }
 });
 
-// Render Import From Edval Screen
+// Render 'Import From Edval' screen
 router.get('/importEdval', authCheck, (req, res) => {
   res.render('importEdval', {user: req.session.user});
+});
+
+// Render 'Import From Old Data' screen
+router.get('/importOld', authCheck, (req, res) => {
+  res.render('importOld', {user: req.session.user});
 });
 
 // Rubric
@@ -1554,7 +1559,7 @@ router.post('/upload', function(req, res) {
   var csvFilePath = "./uploads/imported.csv";
 
   // Imports CSV and corrects structure for RAP usage
-  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+  csv().fromFile(csvFilePath).done(function(jsonArrayObj) {
 
     // Async loop to play nice with MongoDB
     async.eachSeries(jsonArrayObj, function(student, callback) {
@@ -1657,6 +1662,14 @@ router.post('/upload', function(req, res) {
       console.log('An error occurred: ' + err);
       } else {
         console.log('All students have been processed successfully');
+        fs.unlink(csvFilePath, (err) => {
+          if(err) {
+            console.log("An error occured");
+            throw err;
+          } else {
+            console.log('Temporary file was deleted');
+          }
+        });
         // After import, refresh Teachers list
         Student.find({}).then(async function(users) {
           users.forEach(async function(u) {
@@ -1718,7 +1731,7 @@ router.post('/importEMU', function(req, res) {
   var csvFilePath = "./uploads/importedEMU.csv";
 
   // Imports CSV and corrects structure for RAP usage
-  csv().fromFile(csvFilePath).on("end_parsed", function(jsonArrayObj) {
+  csv().fromFile(csvFilePath).done(function(jsonArrayObj) {
 
     console.log("Importing " + jsonArrayObj.length + " students...");
 
@@ -1765,6 +1778,14 @@ router.post('/importEMU', function(req, res) {
       }
       else {
         console.log('All students have been processed successfully');
+        fs.unlink(csvFilePath, (err) => {
+          if(err) {
+            console.log("An error occured");
+            throw err;
+          } else {
+            console.log('Temporary file was deleted');
+          }
+        });
         req.flash('success_msg', 'All student usernames been updated successfully');
         res.redirect('/importEMU');
         return null;
@@ -1836,6 +1857,14 @@ router.post('/uploadTeachers', function(req, res) {
       console.log('An error occurred: ' + err);
       } else {
         console.log('All teachers have been imported successfully');
+        fs.unlink(jsonFilePath, (err) => {
+          if(err) {
+            console.log("An error occured");
+            throw err;
+          } else {
+            console.log('Temporary file was deleted');
+          }
+        });
         req.flash('success_msg', 'All teachers have been imported successfully');
         res.redirect('/editTeachers');
         return null;
@@ -1844,7 +1873,6 @@ router.post('/uploadTeachers', function(req, res) {
   });
 });
 
-// TODO: Complete this route
 // Restores all RAP data (clears then re-writes database)
 router.post('/restoreRAP', function(req, res) {
 
@@ -1863,6 +1891,7 @@ router.post('/restoreRAP', function(req, res) {
       throw err;
     } else {
 
+      // Backup all the data before continuing with restore
       Student.find({}).then(function(users) {
         fs.writeFile("./downloads/backup.json", JSON.stringify(users, null, 4), (err) => {
           if (err) {
@@ -1870,13 +1899,16 @@ router.post('/restoreRAP', function(req, res) {
             return false;
           } else {
             console.log("Backup file has been created");
+
             // Delete everything old collection
             Student.remove({}).then(() => {
               console.log("Old data removed!");
+
               // Parse and loop through data
               var jsonArrayObj = JSON.parse(data);
               async.eachSeries(jsonArrayObj, function(student, callback) {
 
+                // Create student
                 let stu = new Student({
                   name: student.name,
                   username: student.username,
@@ -1887,6 +1919,7 @@ router.post('/restoreRAP', function(req, res) {
                   rap: student.rap
                 });
 
+                // Save student
                 stu.save().then((newStu) => {
                   console.log("Saved: " + student.name);
                 });
@@ -1897,6 +1930,14 @@ router.post('/restoreRAP', function(req, res) {
                 console.log('An error occurred: ' + err);
                 } else {
                   console.log('All RAP Data has been imported successfully');
+                  fs.unlink(jsonFilePath, (err) => {
+                    if(err) {
+                      console.log("An error occured");
+                      throw err;
+                    } else {
+                      console.log('Temporary file was deleted');
+                    }
+                  });
                   req.flash('success_msg', 'All RAP Data has been imported successfully');
                   res.redirect('/backupRAP');
                   return null;
@@ -1907,6 +1948,173 @@ router.post('/restoreRAP', function(req, res) {
         });
       });
     }
+  });
+});
+
+// Imports old RAP data (Name and Average)
+router.post('/importOld', function(req, res) {
+
+  // Read in the POST data
+  let fileUpload = req.files.fileUpload;
+  let year = req.body.year;
+  let term = req.body.term;
+  let week = req.body.week;
+
+  // Set JSON file path and upload
+  let csvFilePath = "./uploads/oldData.csv";
+  fileUpload.mv(csvFilePath, function(err) {
+    if (err) {
+      console.log("Encountered an error uploading file");
+      return res.status(500).send(err);
+    }
+  });
+
+  // Import CSV file
+  csv().fromFile(csvFilePath).then(function(jsonArrayObj) {
+
+    console.log(jsonArrayObj);
+
+    // Loop through each line in the CSV file
+    async.eachSeries(jsonArrayObj, function(student, callback) {
+
+      // Ignore entire row if it is a redundant subject
+      if(student["Name"] == null || student["Score"] == null || student["Grade"] == null) {
+        callback();
+      } else {
+
+        let studentName = student["Name"];
+        let studentGrade = student["Grade"];
+        let studentScore = student["Score"];
+
+        console.log("Reading in - Name: " + studentName + ", Grade: " + studentGrade + ", Score: " + studentScore);
+
+        // Searches for current student in DB, updates if found
+        Student.findOne({ name: studentName }, function (err, user) {
+          if (err) {
+            return handleError(err);
+            callback();
+          }
+          if(user) {
+            // Searches for already existing RAP period
+            let found = false;
+            for (let i = 0; i < user.rap.length; i++) {
+              if(user.rap[i].year == year &&
+                 user.rap[i].term == term &&
+                 user.rap[i].week == week) {
+                  found = true;
+              }
+            }
+            // Update student if RAP period not found
+            // Don't touch already existing RAP periods
+            if(!found) {
+              user.rap.push({average: studentScore, year: year, term: term, week: week, grade: studentGrade});
+              user.save().then((newUser) => {
+                console.log('Adding old RAP period data for: ' + studentName);
+                callback();
+              });
+            } else {
+              console.log("RAP period already exists, skipping...");
+              callback();
+            }
+          } else {
+            console.log("Student doesn't exist on system, skipping...");
+            callback();
+          }
+        });
+      }
+    }, function(err) {
+      if( err ) {
+      console.log('An error occurred: ' + err);
+      } else {
+        console.log('All students have been processed successfully');
+        fs.unlink(csvFilePath, (err) => {
+          if(err) {
+            console.log("An error occured");
+            throw err;
+          } else {
+            console.log('Temporary file was deleted');
+          }
+        });
+        req.flash('success_msg', 'All students have been imported successfully');
+        res.redirect('/importOld');
+        return null;
+      }
+    });
+
+  });
+});
+
+// Imports old RAP data (Name and Average)
+router.get('/calculateAveragesOld', function(req, res) {
+  RapPeriods.find({}, function(err, allPeriods) {
+    allPeriods.forEach(function(currentPeriod) {
+      var count = 0;
+      var total = 0;
+      var itemsProcessed = 0;
+      var year7total = 0;
+      var year7count = 0;
+      var year8total = 0;
+      var year8count = 0;
+      var year9total = 0;
+      var year9count = 0;
+      var year10total = 0;
+      var year10count = 0;
+      Student.find({
+        $and: [
+          { 'rap.year': currentPeriod.year },
+          { 'rap.term': currentPeriod.term },
+          { 'rap.week': currentPeriod.week }
+        ]
+      }).then(function(users) {
+        users.forEach(function(u, index, array) {
+          u.rap.forEach(function(r) {
+            if(r.year == currentPeriod.year
+            && r.term == currentPeriod.term
+            && r.week == currentPeriod.week) {
+              if(r.average != null) {
+                if(r.average > 0 ) {
+                  total += r.average;
+                  count++;
+                  //console.log(count + " - " + u.name + " - " + total);
+                  if(r.grade == 7) {
+                    year7total += r.average;
+                    year7count++;
+                  }
+                  if(r.grade == 8) {
+                    year8total += r.average;
+                    year8count++;
+                  }
+                  if(r.grade == 9) {
+                    year9total += r.average;
+                    year9count++;
+                  }
+                  if(r.grade == 10) {
+                    year10total += r.average;
+                    year10count++;
+                  }
+                }
+              }
+            }
+          });
+        });
+        if(count > 0) {
+          //console.log(total + " / " + count);
+          currentPeriod.average = Number(total/count).toFixed(2);
+          if(year7total > 0) { currentPeriod.year7 = Number(year7total / year7count).toFixed(2); }
+          if(year8total > 0) { currentPeriod.year8 = Number(year8total / year7count).toFixed(2); }
+          if(year9total > 0) { currentPeriod.year9 = Number(year9total / year9count).toFixed(2); }
+          if(year10total > 0) { currentPeriod.year10 = Number(year10total / year10count).toFixed(2); }
+          currentPeriod.save().then((newPeriod) => {
+            console.log("Year: " + currentPeriod.year + ", Term: " + currentPeriod.term + ", Week: " + currentPeriod.week + ", Average: " + currentPeriod.average);
+            console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
+            console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
+            console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
+            console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+          });
+        }
+      });
+    });
+    res.send("Averages updated!");
   });
 });
 
