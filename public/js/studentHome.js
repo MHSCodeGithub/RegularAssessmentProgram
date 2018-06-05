@@ -8,8 +8,10 @@ function generateScores(name) {
     } else {
       $('#scores').empty();
       $('#scores').append("<div id='accordion' role='tablist'>");
+      var show = "show";
       $.each(jsonData.rap, function(key,rapPeriod) {
         let currentAverage = rapPeriod.average;
+        // IF THERE IS NO SCORE
         if(rapPeriod.average == 0) {
           currentAverage = "No Score";
           $('#accordion').append(
@@ -35,6 +37,7 @@ function generateScores(name) {
               "</div>" +
             "</div>"
           );
+        // IF THERE IS A SCORE, SHOW THE TABLE
         } else {
           var rapID = rapPeriod.year + "_" + rapPeriod.term + "_" + rapPeriod.week;
           $('#accordion').append(
@@ -53,7 +56,7 @@ function generateScores(name) {
                   "</div>" +
                 "</div>" +
               "</div>" +
-              "<div id='collapse_" + rapID + "' class='collapse show scores-collapse' role='tabpanel' aria-labbelledby='heading_" + rapID + "' data-parent='#accordion'>" +
+              "<div id='collapse_" + rapID + "' class='collapse " + show + " scores-collapse' role='tabpanel' aria-labbelledby='heading_" + rapID + "' data-parent='#accordion'>" +
                 "<div class='card-body scores-container'>" +
                   "<table class='table table-striped scores-table'>" +
                     "<thead>" +
@@ -83,6 +86,9 @@ function generateScores(name) {
               "</tr>"
             );
           });
+          if(show == "show") {
+            show = "";
+          }
         }
       });
     }
