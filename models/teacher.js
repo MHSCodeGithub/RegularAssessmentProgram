@@ -6,7 +6,11 @@ const TeacherSchema = new Schema({
   name: {
     type: String,
     unique: true },
-  username: String,
+  username: {
+    type: String,
+    lowercase: true,
+    index: { unique: true }
+  },
   access: Number,
   faculty: String
 });

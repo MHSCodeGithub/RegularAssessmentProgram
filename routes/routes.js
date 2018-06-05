@@ -466,7 +466,7 @@ router.get('/login', (req,res) => {
 // Authenticate against Sentral server, redirect to home page
 router.post('/login', (req, res) => {
   try {
-    var username = req.body.username;
+    var username = req.body.username.toLowerCase();
   	var password = req.body.password;
     var form = new FormData();
     form.append('username', username);

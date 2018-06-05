@@ -29,9 +29,15 @@ const RapSchema = new Schema({
 
 const StudentSchema = new Schema({
   name: String,
-  username: String,
+  username: {
+    type: String,
+    lowercase: true
+  },
   gender: String,
-  id: Number,
+  id: {
+    type: Number,
+    index: { unique: true }
+  },
   access: Number,
   longTermAverage: Number,
   rap: [RapSchema]
