@@ -55,7 +55,7 @@ function wholeSchoolChart() {
     });
     $('#loading').fadeOut(200).empty();
     $('#chart').fadeIn(400);
-    $.getJSON("/getWholeAverage", function(average) {
+    $.getJSON("/getWholeAverage?current=true", function(average) {
       $('#stats').empty().hide();
       $('#stats').append("<h5>Whole School Average: <strong>" + average + "</strong></h4>");
       $('#stats').fadeIn(400);
