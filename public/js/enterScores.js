@@ -162,7 +162,7 @@ function generateScores(name) {
               "onclick='deleteStudent(\"" + student.name + "\", \"" + y.code + "\", \"" + student.id + "\", \"" + name + "\")'>X</button>" +
             "</td>" +
             "<td class='student-label'>" +
-              "<a href='check/single?name=" + unescape(student.name) + "' " +
+              "<a href='../check/single?name=" + unescape(student.name) + "' " +
               "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.id + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
             "</td>" +
             "<td class='scoreColumn'>" +

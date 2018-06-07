@@ -164,12 +164,12 @@ router.get('/namefix', authCheck, (req, res) => {
   });
 });
 
-// Admin dashboard
-router.get('/dashboard', authCheck, (req, res) => {
+// RAP Period administration
+router.get('/rapPeriods', authCheck, (req, res) => {
   if(req.session.user.access < 2) {
     res.render('/', {user: req.session.user});
   } else {
-    res.render('dashboard', {user: req.session.user});
+    res.render('rapPeriods', {user: req.session.user});
   }
 });
 
@@ -393,25 +393,25 @@ router.get('/generatePosters.pdf', authCheck, (req, res) => {
 
 // Sets the current RAP Period
 router.post('/setCurrentPeriod', (req, res) => {
-
-  // Set parameters
   let year = req.body.year;
   let term = req.body.term;
   let week = req.body.week;
-
+  let active = req.body.active;
   RapPeriods.find({}).then(function(periods) {
     let found = false;
     periods.forEach(function(p) {
       if(p.year == year && p.term == term && p.week == week) {
         found = true;
         p.current = true;
+        p.active = active;
         p.save().then((period) => {
-          console.log("Current RAP Period is updated: " + p.year + ", " + p.term + ", " + p.week);
+          console.log("Current RAP Period is now current: " + p.year + ", " + p.term + ", " + p.week + ", Active: " + p.active);
         });
       } else {
         p.current = false;
+        p.active = false;
         p.save().then((period) => {
-          //console.log("Not current: " + p.year + ", " + p.term + ", " + p.week);
+          //console.log("RAP Period no longer current: " + p.year + ", " + p.term + ", " + p.week);
         });
       }
     });
@@ -424,14 +424,21 @@ router.post('/setCurrentPeriod', (req, res) => {
         active: false
       });
       rp.save().then((period) => {
-        console.log("New RAP period created: " + period.year + ", " + period.term + ", " + period.week);
+        console.log("New RAP period created: " + period.year + ", " + period.term + ", " + period.week + ", Active: " + period.active);
+        res.redirect("/rapPeriods");
       });
+    } else {
+      res.send("true");
     }
   });
 
-  req.flash('success_msg', 'RAP Period updated successfully');
-  res.redirect('/dashboard');
+});
 
+// Gets the current RAP Period
+router.get('/getRapPeriods', (req, res) => {
+  RapPeriods.find({}).sort({year: 'descending', term: 'descending', week: 'descending'}).then(function(periods) {
+    res.send(JSON.stringify(periods));
+  });
 });
 
 // Query a specific teacher via URL

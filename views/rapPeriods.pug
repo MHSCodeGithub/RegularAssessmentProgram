@@ -1,3 +1,5 @@
+- var page = "rapPeriods"
+doctype html
 html
   include partials/header.pug
   body
@@ -8,9 +10,14 @@ html
           .card#content-container
             .card-body#content-body
               .row
-                .col-sm-12
-                  h3 Dashboard
-                  p Program setup, usage statistics, manual data entry
+                .col-sm-6
+                  h3 RAP Periods
+                .col-sm-6
+                  #currentPeriod.d-flex.justify-content-end
+                .col-sm-6
+                  p Create new, set current and activate/lock RAP Periods.
+                .col-sm-6
+                  #currentStatus.d-flex.justify-content-end
               .row
                 .col-sm-12
                   form#upload-form(action="/setCurrentPeriod", autocomplete="off", method="POST", encType="multipart/form-data")
@@ -18,7 +25,6 @@ html
                       .col-md-3.form-group
                         label(for='year') Year:
                         select.form-control.form-control-lg(id='year', name='year')
-                          option 2017
                           option(selected) 2018
                           option 2019
                           option 2020
@@ -39,7 +45,9 @@ html
                           option 9
                       .col-md-3.form-group
                         div(style='margin-top: 32px;')
-                        button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Set Current
+                        button.btn.btn-primary.btn-lg(type='submit', style='width: 100%;') Add New
+              .row
+                #periods.col-sm-12
               .row
                 .col-sm-12
                   if locals.error_msg != null && locals.error_msg.length > 0
