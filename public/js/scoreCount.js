@@ -114,7 +114,7 @@ function studentLoginsChart() {
     $('#chart').fadeIn(400);
     $.getJSON("/getWholeAverage", function(average) {
       $('#stats').empty().hide();
-      $('#stats').append("<h5>Number of Student Logins: <strong>" + values.checked + "</strong></h4>");
+      $('#stats').append("<h5>Number of Student Logins: <strong><a href='../check/logins'>" + values.checked + "</a></strong></h4>");
       $('#stats').fadeIn(400);
     });
   });

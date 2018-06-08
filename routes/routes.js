@@ -652,32 +652,6 @@ router.get('/trackChecked', (req, res) => {
   });
 });
 
-// Tracks which students have checked their RAP scores in the current period
-router.get('/whoChecked', (req, res) => {
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({
-      $and: [
-        { 'rap.checked': true },
-        { 'rap.year': currentPeriod.year },
-        { 'rap.term': currentPeriod.term },
-        { 'rap.week': currentPeriod.week }
-      ]
-    }).then(function(students) {
-      var studentsChecked = [];
-      students.forEach(function(student) {
-        student.rap.forEach(function(r) {
-          if(r.year == currentPeriod.year
-          && r.term == currentPeriod.term
-          && r.week == currentPeriod.week) {
-            studentsChecked.push({'name':student.name,'currentAverage':r.average,'longTermAverage':student.longTermAverage})
-          }
-        });
-      });
-      res.send(JSON.stringify(studentsChecked));
-    });
-  });
-});
-
 // Adds a missing student to a class
 router.post('/addStudent', (req, res) => {
 

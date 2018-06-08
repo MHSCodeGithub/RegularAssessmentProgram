@@ -148,6 +148,27 @@ router.get('/all', authCheck, (req, res) => {
   });
 });
 
+// Query all students (render page and get data)
+router.get('/logins', authCheck, (req, res) => {
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week
+          && r.checked == true) {
+            students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+          }
+        });
+      });
+      students.sort((a, b) => b.currentAverage - a.currentAverage);
+      res.render('whoChecked', {user: req.session.user, students: students});
+    });
+  });
+});
+
 // Query all students (render page)
 router.get('/change', authCheck, (req, res) => {
   res.render('checkChange', {user: req.session.user});
