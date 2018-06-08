@@ -6,6 +6,30 @@ function generateScores(name) {
       $('#scores').empty();
       $('#scores').append("<h5 id='not-found'>No RAP scores found</h5>");
     } else {
+
+      // Sort the Data from newest to oldest
+      jsonData.rap.sort((a, b) => {
+        if (a.year < b.year) {
+          return 1;
+        }
+        if (a.year > b.year) {
+          return -1;
+        }
+        if (a.term < b.term) {
+          return 1;
+        }
+        if (a.term > b.term) {
+          return -1;
+        }
+        if (a.week < b.week) {
+          return 1;
+        }
+        if (a.week > b.week) {
+          return -1;
+        }
+        return 0;
+      });
+
       $('#scores').empty();
       $('#scores').append("<div id='accordion' role='tablist'>");
       var show = "show";

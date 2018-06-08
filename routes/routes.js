@@ -13,7 +13,6 @@ var async = require('async');
 
 // Batch job to update averages every 5 minutes
 var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
-  //console.log('Running batch job: Update Averages');
   updateAverages();
 });
 
@@ -1983,6 +1982,11 @@ router.post('/importOld', function(req, res) {
                  user.rap[i].term == term &&
                  user.rap[i].week == week) {
                   found = true;
+                  user.rap[i].average = studentScore;
+                  user.save().then((newUser) => {
+                    console.log('Updating RAP period data for: ' + studentName);
+                    callback();
+                  });
               }
             }
             // Update student if RAP period not found
@@ -1993,9 +1997,6 @@ router.post('/importOld', function(req, res) {
                 console.log('Adding old RAP period data for: ' + studentName);
                 callback();
               });
-            } else {
-              console.log("RAP period already exists, skipping...");
-              callback();
             }
           } else {
             console.log("Student doesn't exist on system, skipping...");
@@ -2096,6 +2097,48 @@ router.get('/calculateAveragesOld', function(req, res) {
       });
     });
     res.send("Averages updated!");
+  });
+});
+
+// Gets the current RAP Period
+router.get('/calculateChange', (req, res) => {
+  Student.find().then(function(students) {
+    students.forEach(function(student) {
+      console.log("Calculating change for " + student.name);
+      // Sort the RAP Periods into order first
+      student.rap.sort((a, b) => {
+        if (a.year < b.year) {
+          return -1;
+        }
+        if (a.year > b.year) {
+          return 1;
+        }
+        if (a.term < b.term) {
+          return -1;
+        }
+        if (a.term > b.term) {
+          return 1;
+        }
+        if (a.week < b.week) {
+          return -1;
+        }
+        if (a.week > b.week) {
+          return 1;
+        }
+        return 0;
+      });
+      // Loop through each RAP Period and calculate the change
+      for (var i = 1; i < student.rap.length; i++) {
+        if(student.rap[i].average > 0 && student.rap[i-1].average > 0) {
+          student.rap[i].change = Number(student.rap[i].average - student.rap[i-1].average).toFixed(2);
+        } else {
+          student.rap[i].change = 0;
+        }
+      }
+      // Save the data back to the student's file
+      student.save();
+    });
+    res.send("success");
   });
 });
 

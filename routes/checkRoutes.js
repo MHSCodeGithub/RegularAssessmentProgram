@@ -169,14 +169,34 @@ router.get('/logins', authCheck, (req, res) => {
   });
 });
 
-// Query all students (render page)
+// Query change
 router.get('/change', authCheck, (req, res) => {
-  res.render('checkChange', {user: req.session.user});
-});
-
-// Query all students (get data)
-router.post('/change', authCheck, (req, res) => {
-
+  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    Student.find({}).then(function(users) {
+      let goodStudents = [];
+      let badStudents = [];
+      let students = {'goodStudents':goodStudents,'badStudents':badStudents};
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week
+          && r.change !=null && r.change != 0) {
+            if(r.change > 0) {
+              students.goodStudents.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, change: r.change });
+            } else {
+              students.badStudents.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average, change: r.change });
+            }
+          }
+        });
+      });
+      students.goodStudents.sort((a, b) => b.change - a.change);
+      students.badStudents.sort((a, b) => a.change - b.change);
+      students.goodStudents = students.goodStudents.slice(0,50);
+      students.badStudents = students.badStudents.slice(0,50);
+      res.render('checkChange', {user: req.session.user, students: students});
+    });
+  });
 });
 
 // Query all students (render page and get data)
