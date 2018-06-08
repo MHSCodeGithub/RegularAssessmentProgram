@@ -1437,12 +1437,18 @@ router.get('/getWholeAverage', (req, res) => {
       res.send(JSON.stringify(currentPeriod.average));
     });
   } else {
-    RapPeriods.find({}, function(err, allPeriods) {
+    RapPeriods.find({}).sort({year: 'ascending', term: 'ascending', week: 'ascending'}).then(function(allPeriods) {
       var averages = [];
+      var periods = [];
+      var data = {'periods':periods, 'averages':averages};
       allPeriods.forEach(function(currentPeriod) {
-        averages.push(currentPeriod.average);
+        if(currentPeriod.average > 0) {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.periods.push(string);
+          data.averages.push(currentPeriod.average);
+        }
       });
-      res.send(JSON.stringify(averages));
+      res.send(JSON.stringify(data));
     });
   }
 });
@@ -1460,17 +1466,39 @@ router.get('/getGroupAverage', (req, res) => {
       }));
     });
   } else {
-    RapPeriods.find({}, function(err, allPeriods) {
-      var averages = [];
+    RapPeriods.find({}).sort({year: 'ascending', term: 'ascending', week: 'ascending'}).then(function(allPeriods) {
+      var year7 = {'periods':new Array, 'averages':new Array};
+      var year8 = {'periods':new Array, 'averages':new Array};
+      var year9 = {'periods':new Array, 'averages':new Array};
+      var year10 = {'periods':new Array, 'averages':new Array};
+      var data = {'year7':year7,'year8':year8,'year9':year9,'year10':year10};
       allPeriods.forEach(function(currentPeriod) {
-        averages.push({
-          'year7':currentPeriod.year7,
-          'year8':currentPeriod.year8,
-          'year9':currentPeriod.year9,
-          'year10':currentPeriod.year10
-        });
+        if(currentPeriod.year7 > 0) {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year7.periods.push(string);
+          data.year7.averages.push(currentPeriod.year7);
+        }
+        if(currentPeriod.year8 > 0) {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year8.periods.push(string);
+          data.year8.averages.push(currentPeriod.year8);
+        }
+        if(currentPeriod.year9 > 0) {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year9.periods.push(string);
+          data.year9.averages.push(currentPeriod.year9);
+        }
+        if(currentPeriod.year10 > 0) {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year10.periods.push(string);
+          data.year10.averages.push(currentPeriod.year10);
+        } else {
+          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year10.periods.push(string);
+          data.year10.averages.push(undefined);
+        }
       });
-      res.send(JSON.stringify(averages));
+      res.send(JSON.stringify(data));
     });
   }
 });
