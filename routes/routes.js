@@ -1554,7 +1554,6 @@ router.get('/getCohortAverage', (req, res) => {
     allPeriods.forEach(function(currentPeriod) {
 
       var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
-      console.log(string);
 
       // Push the current year 10 scores from when they were in year 7
       if(currentPeriod.year == currentYear - 3) {
