@@ -1466,41 +1466,168 @@ router.get('/getGroupAverage', (req, res) => {
       }));
     });
   } else {
+
     RapPeriods.find({}).sort({year: 'ascending', term: 'ascending', week: 'ascending'}).then(function(allPeriods) {
+
       var year7 = {'periods':new Array, 'averages':new Array};
       var year8 = {'periods':new Array, 'averages':new Array};
       var year9 = {'periods':new Array, 'averages':new Array};
       var year10 = {'periods':new Array, 'averages':new Array};
       var data = {'year7':year7,'year8':year8,'year9':year9,'year10':year10};
+
       allPeriods.forEach(function(currentPeriod) {
+
+        var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+
         if(currentPeriod.year7 > 0) {
-          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+          data.year7.periods.push(string);
+          data.year7.averages.push(currentPeriod.year7);
+        } else {
+          if(currentPeriod.average > 0) {
+            data.year7.periods.push(string);
+            data.year7.averages.push(undefined);
+          }
+        }
+
+        if(currentPeriod.year8 > 0) {
+          data.year8.periods.push(string);
+          data.year8.averages.push(currentPeriod.year8);
+        } else {
+          if(currentPeriod.average > 0) {
+            data.year8.periods.push(string);
+            data.year8.averages.push(undefined);
+          }
+        }
+
+        if(currentPeriod.year9 > 0) {
+          data.year9.periods.push(string);
+          data.year9.averages.push(currentPeriod.year9);
+        }
+        else {
+          if(currentPeriod.average > 0) {
+            data.year9.periods.push(string);
+            data.year9.averages.push(undefined);
+          }
+        }
+
+        if(currentPeriod.year10 > 0) {
+          data.year10.periods.push(string);
+          data.year10.averages.push(currentPeriod.year10);
+        } else {
+          if(currentPeriod.average > 0) {
+            data.year10.periods.push(string);
+            data.year10.averages.push(undefined);
+          }
+        }
+
+      });
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(data, null, 4));
+
+    });
+  }
+});
+
+// Get the averages for each cohort as they progress through the years
+router.get('/getCohortAverage', (req, res) => {
+
+  // Find all rap periods and sort them oldest to newest
+  RapPeriods.find({}).sort({year: 'ascending', term: 'ascending', week: 'ascending'}).then(function(allPeriods) {
+
+    // Setup data structures
+    var year7 = {'periods':new Array, 'averages':new Array};
+    var year8 = {'periods':new Array, 'averages':new Array};
+    var year9 = {'periods':new Array, 'averages':new Array};
+    var year10 = {'periods':new Array, 'averages':new Array};
+    var data = {'year7':year7,'year8':year8,'year9':year9,'year10':year10};
+    var currentYear = 0;
+
+    // Find the current year
+    allPeriods.forEach(function(currentPeriod) {
+      if(currentPeriod.current == true) {
+        currentYear = currentPeriod.year;
+      }
+    });
+
+    // Loop through each rap period and add the average to the correct cohort
+    allPeriods.forEach(function(currentPeriod) {
+
+      var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+      console.log(string);
+
+      // Push the current year 10 scores from when they were in year 7
+      if(currentPeriod.year == currentYear - 3) {
+        data.year7.periods.push(string);
+        data.year7.averages.push(undefined);
+        data.year8.periods.push(string);
+        data.year8.averages.push(undefined);
+        data.year9.periods.push(string);
+        data.year9.averages.push(undefined);
+        if(currentPeriod.year7 > 0) {
+          data.year10.periods.push(string);
+          data.year10.averages.push(currentPeriod.year7);
+        }
+      }
+      // Push the current year 9 scores from when they were in year 7
+      // Push the current year 10 scores from when they were in year 8
+      if(currentPeriod.year == currentYear - 2) {
+        data.year7.periods.push(string);
+        data.year7.averages.push(undefined);
+        data.year8.periods.push(string);
+        data.year8.averages.push(undefined);
+        if(currentPeriod.year7 > 0) {
+          data.year9.periods.push(string);
+          data.year9.averages.push(currentPeriod.year7);
+        }
+        if(currentPeriod.year8 > 0) {
+          data.year10.periods.push(string);
+          data.year10.averages.push(currentPeriod.year8);
+        }
+      }
+      // Push the current year 8 scores from when they were in year 7
+      // Push the current year 9 scores from when they were in year 8
+      // Push the current year 10 scores from when they were in year 9
+      if(currentPeriod.year == currentYear - 1) {
+        data.year7.periods.push(string);
+        data.year7.averages.push(undefined);
+        if(currentPeriod.year7 > 0) {
+          data.year8.periods.push(string);
+          data.year8.averages.push(currentPeriod.year7);
+        }
+        if(currentPeriod.year8 > 0) {
+          data.year9.periods.push(string);
+          data.year9.averages.push(currentPeriod.year8);
+        }
+        if(currentPeriod.year9 > 0) {
+          data.year10.periods.push(string);
+          data.year10.averages.push(currentPeriod.year9);
+        }
+      }
+      // Push all year group current scores
+      if(currentPeriod.year == currentYear) {
+        if(currentPeriod.year7 > 0) {
           data.year7.periods.push(string);
           data.year7.averages.push(currentPeriod.year7);
         }
         if(currentPeriod.year8 > 0) {
-          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
           data.year8.periods.push(string);
           data.year8.averages.push(currentPeriod.year8);
         }
         if(currentPeriod.year9 > 0) {
-          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
           data.year9.periods.push(string);
           data.year9.averages.push(currentPeriod.year9);
         }
         if(currentPeriod.year10 > 0) {
-          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
           data.year10.periods.push(string);
           data.year10.averages.push(currentPeriod.year10);
-        } else {
-          var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
-          data.year10.periods.push(string);
-          data.year10.averages.push(undefined);
         }
-      });
-      res.send(JSON.stringify(data));
+      }
     });
-  }
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(data, null, 4));
+  });
+
 });
 
 // Fills the RAP scores for a certain class with a single score

@@ -1,5 +1,100 @@
 var chart;
 
+function longTermCohortChart() {
+  //console.log("Generating chart...");
+  $('#chart').hide();
+  $('#loading').show();
+  $('#loading').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
+  $.getJSON("/getCohortAverage", function(values) {
+    console.log(values);
+    var canvas = document.getElementById("chart");
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    if(chart != null) {
+      chart.destroy();
+    }
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: values.year7.periods,
+            datasets:
+            [
+              {
+                label: 'Year 7',
+                data: values.year7.averages,
+                backgroundColor: 'rgba(255, 99, 132, 1)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              },
+              {
+                label: 'Year 8',
+                data: values.year8.averages,
+                backgroundColor: 'rgba(255, 206, 86, 1)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              },
+              {
+                label: 'Year 9',
+                data: values.year9.averages,
+                backgroundColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              },
+              {
+                label: 'Year 10',
+                data: values.year10.averages,
+                backgroundColor: 'rgba(255, 159, 64, 1)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:false
+                    }
+                }]
+            },
+            legend: {
+              display: true
+            }
+        }
+    });
+    $('#loading').fadeOut(200).empty();
+    $('#chart').fadeIn(400);
+      $.getJSON("/getGroupAverage?current=true", function(group) {
+        $('#loading').fadeOut(200).empty();
+        $('#chart').fadeIn(400);
+        $('#stats').empty().hide();
+        $('#stats').append("<div class='ml-5'><h5>Year 7: <strong>" + group.year7 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 8: <strong>" + group.year8 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 9: <strong>" + group.year9 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 10: <strong>" + group.year10 + "</strong></h4></div>");
+        $('#stats').fadeIn(800);
+    });
+  });
+}
+
 function longTermYearGroupChart() {
   //console.log("Generating chart...");
   $('#chart').hide();
@@ -28,7 +123,9 @@ function longTermYearGroupChart() {
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 3,
                 pointRadius: 6,
-                fill: false
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
               },
               {
                 label: 'Year 8',
@@ -37,7 +134,9 @@ function longTermYearGroupChart() {
                 borderColor: 'rgba(255, 206, 86, 1)',
                 borderWidth: 3,
                 pointRadius: 6,
-                fill: false
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
               },
               {
                 label: 'Year 9',
@@ -46,7 +145,9 @@ function longTermYearGroupChart() {
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 3,
                 pointRadius: 6,
-                fill: false
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
               },
               {
                 label: 'Year 10',
@@ -55,7 +156,9 @@ function longTermYearGroupChart() {
                 borderColor: 'rgba(255, 159, 64, 1)',
                 borderWidth: 3,
                 pointRadius: 6,
-                fill: false
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
               }
             ]
         },
@@ -74,10 +177,15 @@ function longTermYearGroupChart() {
     });
     $('#loading').fadeOut(200).empty();
     $('#chart').fadeIn(400);
-    $.getJSON("/getWholeAverage?current=true", function(average) {
-      $('#stats').empty().hide();
-      $('#stats').append("<h5>Whole School Average: <strong>" + average + "</strong></h4>");
-      $('#stats').fadeIn(400);
+      $.getJSON("/getGroupAverage?current=true", function(group) {
+        $('#loading').fadeOut(200).empty();
+        $('#chart').fadeIn(400);
+        $('#stats').empty().hide();
+        $('#stats').append("<div class='ml-5'><h5>Year 7: <strong>" + group.year7 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 8: <strong>" + group.year8 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 9: <strong>" + group.year9 + "</strong></h4></div>");
+        $('#stats').append("<div class='ml-5'><h5>Year 10: <strong>" + group.year10 + "</strong></h4></div>");
+        $('#stats').fadeIn(800);
     });
   });
 }
@@ -349,17 +457,26 @@ $(document).ready(function() {
   if(type == null || type == 'byWhole') {
     wholeSchoolChart();
     $('#pageTitle').html("Whole School Score Distribution");
+    $('#explanation').html("Shows the distribution of each score (1-5) for the current RAP Period.");
   } else if(type == 'longTerm') {
     longTermChart();
     $('#pageTitle').html("Long-Term School Averages");
+    $('#explanation').html("Shows the whole school average score for each RAP Period.");
   } else if(type == 'byYear') {
     byYearChart();
     $('#pageTitle').html("Score Distribution By Year Group");
+    $('#explanation').html("Shows the distribution of each score separated by year group.");
   } else if(type == 'longYear') {
     longTermYearGroupChart();
-    $('#pageTitle').html("Long-Term Year Group Averages");
+    $('#pageTitle').html("Long-Term Year Level Averages");
+    $('#explanation').html("Shows the average score achieved at that year level for each RAP Period.");
+  } else if(type == 'longCohort') {
+    longTermCohortChart();
+    $('#pageTitle').html("Long-Term Cohort Averages");
+    $('#explanation').html("Tracks the average scores of the cohort over time (each line follows a single cohort).");
   } else if(type == 'byLogins') {
     studentLoginsChart();
     $('#pageTitle').html("Number of Student Logins");
+    $('#explanation').html("Shows how many students have logged in to check their scores in the current RAP Period.");
   }
 });
