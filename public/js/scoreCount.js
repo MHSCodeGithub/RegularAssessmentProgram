@@ -1,5 +1,3 @@
-var chart;
-
 function longTermCohortChart() {
   //console.log("Generating chart...");
   $('#chart').hide();
@@ -10,12 +8,7 @@ function longTermCohortChart() {
     console.log(values);
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    if(chart != null) {
-      chart.destroy();
-    }
-    chart = new Chart(ctx, {
+    var chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: values.year7.periods,
@@ -105,12 +98,7 @@ function longTermYearGroupChart() {
     console.log(values);
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    if(chart != null) {
-      chart.destroy();
-    }
-    chart = new Chart(ctx, {
+    var chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: values.year7.periods,
@@ -200,12 +188,7 @@ function longTermChart() {
     console.log(values.averages);
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    if(chart != null) {
-      chart.destroy();
-    }
-    chart = new Chart(ctx, {
+    var chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: values.periods,
@@ -250,12 +233,7 @@ function wholeSchoolChart() {
   $.getJSON("/countScores", function(values) {
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    if(chart != null) {
-      chart.destroy();
-    }
-    chart = new Chart(ctx, {
+    var chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
@@ -313,14 +291,8 @@ function studentLoginsChart() {
   $.getJSON("/trackChecked", function(values) {
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    if(chart != null) {
-      chart.destroy();
-    }
     var data = [values.unchecked,values.checked];
-    console.log(data);
-    chart = new Chart(ctx, {
+    var chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ["Unchecked", "Checked"],
@@ -380,12 +352,7 @@ function byYearChart() {
 
             var canvas = document.getElementById("chart");
             var ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            if(chart != null) {
-              chart.destroy();
-            }
-            chart = new Chart(ctx, {
+            var chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                   labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
@@ -453,6 +420,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 
 $(document).ready(function() {
+  jQuery.ajaxSetup({ cache: false });
   var type = getUrlParameter('type');
   if(type == null || type == 'byWhole') {
     wholeSchoolChart();

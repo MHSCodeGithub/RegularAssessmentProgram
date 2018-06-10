@@ -58,8 +58,8 @@ function generateScores(name) {
             "<table class='table table-striped'>" +
               "<thead>" +
                 "<tr>" +
-                  "<th scope='col'>Name:</th>" +
-                  "<th scope='col' style='width:80px;' class='text-center'>Score:</th>" +
+                  "<th scope='col' class='student-label'>Name:</th>" +
+                  "<th scope='col' class='scoreColumnLocked'>Score:</th>" +
                 "</tr>" +
               "</thead>" +
               "<tbody id='subjects-body-" + x + "'></tbody>" +
@@ -80,7 +80,7 @@ function generateScores(name) {
               "<a href='../check/single?name=" + unescape(student.name) + "' " +
               "data-toggle='tooltip' data-placement='right' title='<img src=\"/img/students/" + student.id + ".jpg\"/>'>" + unescape(student.name) + "</a>" +
             "</td>" +
-            "<td class='text-center'>" + student.score + "</td>" +
+            "<td class='scoreColumnLocked'>" + student.score + "</td>" +
           "</tr>"
         );
 

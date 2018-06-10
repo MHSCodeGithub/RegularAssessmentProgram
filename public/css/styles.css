@@ -299,6 +299,11 @@ img {
   text-align: center;
 }
 
+.scoreColumnLocked {
+  width: 80px;
+  text-align: center;
+}
+
 
 /* --- MOBILE DEVICES --- */
 @media only screen
@@ -351,6 +356,12 @@ img {
       font-size: 3em;
     }
 
+    .scoreColumnLocked {
+      width: 80px;
+      text-align: center;
+      font-size: 3em;
+    }
+
     .scoreColumn a {
       width: 74px;
       display: inline-block;
@@ -364,7 +375,7 @@ img {
     }
 
     #subject-tabs {
-      font-size: 2em;
+      font-size: 2.5em;
     }
 
     .btn-delete {
