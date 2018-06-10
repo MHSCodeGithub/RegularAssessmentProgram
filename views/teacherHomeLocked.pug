@@ -1,0 +1,21 @@
+- var page = 'enterScoresLocked'
+if queryName
+  - var name = queryName
+else
+  - var name = user.name
+doctype html
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3#teacherName #{name}
+                if !queryName
+                  p This RAP period is now locked. You can still view your scores for the current period below.
+              .col-sm-12#classes
+    include partials/footer.pug

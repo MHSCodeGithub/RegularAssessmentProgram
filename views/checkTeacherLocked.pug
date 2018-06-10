@@ -1,0 +1,21 @@
+- var page = "enterScoresLocked"
+doctype html
+html
+  include partials/header.pug
+  body
+    .container-fluid#main
+      include partials/nav.pug
+      .row
+        .col-sm-12
+          .card#content-container
+            .card-body#content-body
+              .col-sm-12
+                h3 By Teacher
+                .form-group
+                  form#teacher-form(action="/teacher", autocomplete="off", method="GET" )
+                    .input-group
+                      input.form-control.form-control-lg(type='text', id='teacherName', name='teacherName', placeholder="Teacher Name")
+                      span.input-group-btn
+                        button.btn.btn-primary(type='submit') Go!
+              .col-sm-12#classes
+    include partials/footer.pug

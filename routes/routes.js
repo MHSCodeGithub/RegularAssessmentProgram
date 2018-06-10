@@ -145,7 +145,13 @@ router.get('/', authCheck, (req, res) => {
   if(req.session.user.access == 0) {
     res.render('studentHome', {user: req.session.user});
   } else {
-    res.render('teacherHome', {user: req.session.user});
+    RapPeriods.findOne({ current: true }, function (err, period) {
+        if(period.active == true) {
+          res.render('teacherHome', {user: req.session.user});
+        } else {
+          res.render('teacherHomeLocked', {user: req.session.user});
+        }
+    });
   }
 });
 
@@ -440,16 +446,6 @@ router.get('/getRapPeriods', (req, res) => {
   });
 });
 
-// Query a specific teacher via URL
-router.get('/queryTeacher', authCheck, (req, res) => {
-  if(req.query.name != null) {
-    console.log(req.session.user.name + " looked up scores for " + req.query.name);
-    res.render('teacherHome', {user: req.session.user, queryName: req.query.name});
-  } else {
-    res.render('teacherHome', {user: req.session.user});
-  }
-});
-
 // Render 'Import From Edval' screen
 router.get('/importEdval', authCheck, (req, res) => {
   res.render('importEdval', {user: req.session.user});
@@ -541,11 +537,6 @@ router.get('/logout', function(req, res){
 // Returns classes and student lists for a certain teacher
 router.get('/teacher', (req, res) => {
 
-  // Redirect invalid requests to this route
-  if(req.query.name == null) {
-    res.render('teacherHome', {user: req.session.user});
-    return null;
-  }
   var teacher = req.query.name;
   let classes = [];
 

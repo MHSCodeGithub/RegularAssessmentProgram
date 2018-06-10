@@ -17,7 +17,13 @@ const authCheck = (req, res, next) => {
 
 // Search for teacher on Check Teacher page
 router.get('/teacher', authCheck, (req, res) => {
-  res.render('checkTeacher', {user: req.session.user});
+  RapPeriods.findOne({ current: true }, function (err, period) {
+      if(period.active == true) {
+        res.render('checkTeacher', {user: req.session.user});
+      } else {
+        res.render('checkTeacherLocked', {user: req.session.user});
+      }
+  });
 });
 
 // Search for teacher on Check Teacher page
