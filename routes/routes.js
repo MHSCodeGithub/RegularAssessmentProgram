@@ -20,120 +20,117 @@ var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
 function updateAverages() {
   try {
     RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
-      Student.find({
-        $and: [
-          { 'rap.year': currentPeriod.year },
-          { 'rap.term': currentPeriod.term },
-          { 'rap.week': currentPeriod.week }
-        ]
-      }).then(function(users) {
-        var itemsProcessed = 0;
-        var schoolTotal = 0;
-        var schoolCount = 0;
-        var year7total = 0;
-        var year7count = 0;
-        var year8total = 0;
-        var year8count = 0;
-        var year9total = 0;
-        var year9count = 0;
-        var year10total = 0;
-        var year10count = 0;
-        users.forEach(function(u, index, array) {
-          let userTotal = 0;
-          let userCount = 0;
-          u.rap.forEach(function(r) {
-            if(r.year == currentPeriod.year
-            && r.term == currentPeriod.term
-            && r.week == currentPeriod.week) {
-              let rapTotal = 0;
-              let rapCount = 0;
-              r.scores.forEach(function(s) {
-                if(s.value > 0) {
-                  rapTotal += s.value;
-                  rapCount++;
+      if(currentPeriod) {
+        Student.find({
+          $and: [
+            { 'rap.year': currentPeriod.year },
+            { 'rap.term': currentPeriod.term },
+            { 'rap.week': currentPeriod.week }
+          ]
+        }).then(function(users) {
+          var itemsProcessed = 0;
+          var schoolTotal = 0;
+          var schoolCount = 0;
+          var year7total = 0;
+          var year7count = 0;
+          var year8total = 0;
+          var year8count = 0;
+          var year9total = 0;
+          var year9count = 0;
+          var year10total = 0;
+          var year10count = 0;
+          users.forEach(function(u, index, array) {
+            let userTotal = 0;
+            let userCount = 0;
+            u.rap.forEach(function(r) {
+              if(r.year == currentPeriod.year
+              && r.term == currentPeriod.term
+              && r.week == currentPeriod.week) {
+                let rapTotal = 0;
+                let rapCount = 0;
+                r.scores.forEach(function(s) {
+                  if(s.value > 0) {
+                    rapTotal += s.value;
+                    rapCount++;
+                  }
+                });
+                if(rapTotal == 0 ) {
+                  r.average = 0;
+                } else {
+                  if(rapCount > 0) {
+                    r.average = Number(rapTotal/rapCount).toFixed("2");
+                  }
                 }
-              });
-              if(rapTotal == 0 ) {
-                r.average = 0;
+                if(r.average > 0) {
+                  userTotal += r.average;
+                  schoolTotal += r.average;
+                  userCount++;
+                  schoolCount++;
+                  if(r.grade == 7) {
+                    year7total += r.average;
+                    year7count++;
+                  } else if(r.grade == 8) {
+                    year8total += r.average;
+                    year8count++;
+                  } else if(r.grade == 9) {
+                    year9total += r.average;
+                    year9count++;
+                  } else if(r.grade == 10) {
+                    year10total += r.average;
+                    year10count++;
+                  }
+                  //console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
+                }
               } else {
-                if(rapCount > 0) {
-                  r.average = Number(rapTotal/rapCount).toFixed(2);
+                // Add scores from other RAP periods to the user's long term average
+                if(r.average > 0) {
+                  userTotal += r.average;
+                  userCount++;
                 }
               }
-              if(r.average > 0) {
-                userTotal += r.average;
-                schoolTotal += r.average;
-                userCount++;
-                schoolCount++;
-                if(r.grade == 7) {
-                  year7total += r.average;
-                  year7count++;
-                } else if(r.grade == 8) {
-                  year8total += r.average;
-                  year8count++;
-                } else if(r.grade == 9) {
-                  year9total += r.average;
-                  year9count++;
-                } else if(r.grade == 10) {
-                  year10total += r.average;
-                  year10count++;
-                }
-                //console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
-              }
+            });
+            if(userTotal == 0 ) {
+              //console.log(u.name + " has a total of " + userTotal);
+              u.longTermAverage = 0;
             } else {
-              // Add scores fro other RAP periods to the user's long term average
-              if(r.average > 0) {
-                userTotal += r.average;
-                userCount++;
+              if(userCount > 0) {
+                u.longTermAverage = Number(userTotal/userCount).toFixed(2);
               }
             }
-          });
-          if(userTotal == 0 ) {
-            //console.log(u.name + " has a total of " + userTotal);
-            u.longTermAverage = 0;
-          } else {
-            if(userCount > 0) {
-              u.longTermAverage = Number(userTotal/userCount).toFixed(2);
-            }
-          }
-          u.save().then((newUser) => {
-            //console.log('Updated averages for ' + u.name);
-            itemsProcessed++;
-            //console.log(itemsProcessed + " / " + array.length);
-            if(itemsProcessed == array.length) {
-              //console.log("School count: " + schoolCount);
-              if(schoolCount > 0) {
-                if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
+            u.save().then((newUser) => {
+              itemsProcessed++;
+              if(itemsProcessed == array.length) {
+                if(schoolCount > 0) {
                   if(schoolTotal > 0) {
                     currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
-                    console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
+                    console.log("Whole School: " + currentPeriod.average);
                   }
                   if(year7total > 0) {
                     currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
-                    console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
+                    console.log("Year 7: " + currentPeriod.year7);
                   }
                   if(year8total > 0) {
-                    currentPeriod.year8 = Number(year8total / year7count).toFixed(2);
-                    console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
+                    currentPeriod.year8 = Number(year8total / year8count).toFixed(2);
+                    console.log("Year 8: " + currentPeriod.year8);
                   }
                   if(year9total > 0) {
                     currentPeriod.year9 = Number(year9total / year9count).toFixed(2);
-                    console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
+                    console.log("Year 9: " + currentPeriod.year9);
                   }
                   if(year10total > 0) {
                     currentPeriod.year10 = Number(year10total / year10count).toFixed(2);
-                    console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+                    console.log("Year 10: " + currentPeriod.year10);
                   }
-                  console.log('All student average RAP scores recalculated successfully');
                 }
+                currentPeriod.save().then((newPeriod) => {
+                  console.log('All student average RAP scores recalculated successfully');
+                  return true;
+                });
               }
-              currentPeriod.save().then((newPeriod) => {
-                return true;
-              });
-            }
+            });
           });
         });
-      });
+      }
     });
   } catch (error) {
     console.log('An error occured while attempting to update averages:');
@@ -418,10 +415,12 @@ router.get('/generatePosters.pdf', authCheck, (req, res) => {
 
 // Sets the current RAP Period
 router.post('/setCurrentPeriod', (req, res) => {
+
   let year = req.body.year;
   let term = req.body.term;
   let week = req.body.week;
   let active = req.body.active;
+
   RapPeriods.find({}).then(function(periods) {
     let found = false;
     periods.forEach(function(p) {
@@ -457,11 +456,12 @@ router.post('/setCurrentPeriod', (req, res) => {
 
 // Sets the active RAP Period
 router.post('/setActivePeriod', (req, res) => {
+
   let year = req.body.year;
   let term = req.body.term;
   let week = req.body.week;
   let active = req.body.active;
-  console.log(active);
+
   RapPeriods.find({}).then(function(periods) {
     let found = false;
     periods.forEach(function(p) {
@@ -587,7 +587,7 @@ router.get('/teacher', (req, res) => {
 
   // This function searches for all students with the current teacher in the current RAP period
   // It then loops through and builds a list of students for each of the teacher's classes
-  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({$or: [{ active: true}, { current: true }]}).sort({active: -1}).then(function(currentPeriod) {
     Student.find({
       $and: [
         { 'rap.scores.teacher': teacher },
@@ -1302,153 +1302,155 @@ router.get('/showNoTeacher', (req, res) => {
 // Count individual score values
 router.get('/countScores', (req, res) => {
 
-  if(req.query.year == null) {
-    //console.log("Counting scores for the whole school...");
-    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-      Student.count({
-        $and: [
-          { 'rap.scores.value': 1},
-          { 'rap.year': currentPeriod.year },
-          { 'rap.term': currentPeriod.term },
-          { 'rap.week': currentPeriod.week }
-        ]
-      }, function (err, ones) {
-        if (err) { next(err); }
-        else {
-          Student.count({
-            $and: [
-              { 'rap.scores.value': 2},
-              { 'rap.year': currentPeriod.year },
-              { 'rap.term': currentPeriod.term },
-              { 'rap.week': currentPeriod.week }
-            ]
-          }, function (err, twos) {
-            if (err) { next(err); }
-            else {
-              Student.count({
-                $and: [
-                  { 'rap.scores.value': 3},
-                  { 'rap.year': currentPeriod.year },
-                  { 'rap.term': currentPeriod.term },
-                  { 'rap.week': currentPeriod.week }
-                ]
-              }, function (err, threes) {
-                if (err) { next(err); }
-                else {
-                  Student.count({
-                    $and: [
-                      { 'rap.scores.value': 4},
-                      { 'rap.year': currentPeriod.year },
-                      { 'rap.term': currentPeriod.term },
-                      { 'rap.week': currentPeriod.week }
-                    ]
-                  }, function (err, fours) {
-                    if (err) { next(err); }
-                    else {
-                      Student.count({
-                        $and: [
-                          { 'rap.scores.value': 5},
-                          { 'rap.year': currentPeriod.year },
-                          { 'rap.term': currentPeriod.term },
-                          { 'rap.week': currentPeriod.week }
-                        ]
-                      }, function (err, fives) {
-                        if (err) { next(err); }
-                        else {
-                          var string = [ones, twos, threes, fours, fives];
-                          //console.log(string);
-                          res.send(JSON.stringify(string));
-                        }
-                      });
-                    }
-                  });
+    RapPeriods.findOne({current:true}).then(function(currentPeriod) {
+
+      var data = {'current':new Array};
+
+      Student.find({}).then(function(students) {
+
+        var whole = [0,0,0,0,0];
+        var year7 = [0,0,0,0,0];
+        var year8 = [0,0,0,0,0];
+        var year9 = [0,0,0,0,0];
+        var year10 = [0,0,0,0,0];
+
+        students.forEach(function(student) {
+          // then loop through each RAP period to find the current one
+          student.rap.forEach(function(r) {
+            if(currentPeriod.year == r.year
+            && currentPeriod.term == r.term
+            && currentPeriod.week == r.week
+            && r.average > 0) {
+              r.scores.forEach(function(s) {
+                if(s.value == 1) {
+                  whole[0]++;
+                  if(r.grade == 7) {
+                    year7[0]++;
+                  } else if(r.grade ==8) {
+                    year8[0]++;
+                  } else if(r.grade == 9) {
+                    year9[0]++;
+                  } else if(r.grade == 10) {
+                    year10[0]++;
+                  }
+                }
+                if(s.value == 2) {
+                  whole[1]++;
+                  if(r.grade == 7) {
+                    year7[1]++;
+                  } else if(r.grade ==8) {
+                    year8[1]++;
+                  } else if(r.grade == 9) {
+                    year9[1]++;
+                  } else if(r.grade == 10) {
+                    year10[1]++;
+                  }
+                }
+                if(s.value == 3) {
+                  whole[2]++;
+                  if(r.grade == 7) {
+                    year7[2]++;
+                  } else if(r.grade ==8) {
+                    year8[2]++;
+                  } else if(r.grade == 9) {
+                    year9[2]++;
+                  } else if(r.grade == 10) {
+                    year10[2]++;
+                  }
+                }
+                if(s.value == 4) {
+                  whole[3]++;
+                  if(r.grade == 7) {
+                    year7[3]++;
+                  } else if(r.grade ==8) {
+                    year8[3]++;
+                  } else if(r.grade == 9) {
+                    year9[3]++;
+                  } else if(r.grade == 10) {
+                    year10[3]++;
+                  }
+                }
+                if(s.value == 5) {
+                  whole[4]++;
+                  if(r.grade == 7) {
+                    year7[4]++;
+                  } else if(r.grade ==8) {
+                    year8[4]++;
+                  } else if(r.grade == 9) {
+                    year9[4]++;
+                  } else if(r.grade == 10) {
+                    year10[4]++;
+                  }
                 }
               });
             }
           });
-        }
+        });
+
+        var counts = {'whole':whole, 'year7':year7, 'year8': year8, 'year9':year9, 'year10':year10};
+        var totals = {'whole':whole, 'year7':year7, 'year8': year8, 'year9':year9, 'year10':year10};
+        var percentages = {'whole':whole, 'year7':year7, 'year8': year8, 'year9':year9, 'year10':year10};
+        var averages = {'whole':whole, 'year7':year7, 'year8': year8, 'year9':year9, 'year10':year10};
+
+        totals.whole = whole[0] + whole[1] + whole[2] + whole[3] + whole[4];
+        totals.year7 = year7[0] + year7[1] + year7[2] + year7[3] + year7[4];
+        totals.year8 = year8[0] + year8[1] + year8[2] + year8[3] + year8[4];
+        totals.year9 = year9[0] + year9[1] + year9[2] + year9[3] + year9[4];
+        totals.year10 = year10[0] + year10[1] + year10[2] + year10[3] + year10[4];
+
+        percentages.whole = [
+          Number(whole[0] / totals.whole * 100).toFixed(2),
+          Number(whole[1] / totals.whole * 100).toFixed(2),
+          Number(whole[2] / totals.whole * 100).toFixed(2),
+          Number(whole[3] / totals.whole * 100).toFixed(2),
+          Number(whole[4] / totals.whole * 100).toFixed(2)
+        ];
+
+        percentages.year7 = [
+          Number(year7[0] / totals.year7 * 100).toFixed(2),
+          Number(year7[1] / totals.year7 * 100).toFixed(2),
+          Number(year7[2] / totals.year7 * 100).toFixed(2),
+          Number(year7[3] / totals.year7 * 100).toFixed(2),
+          Number(year7[4] / totals.year7 * 100).toFixed(2)
+        ];
+
+        percentages.year8 = [
+          Number(year8[0] / totals.year8 * 100).toFixed(2),
+          Number(year8[1] / totals.year8 * 100).toFixed(2),
+          Number(year8[2] / totals.year8 * 100).toFixed(2),
+          Number(year8[3] / totals.year8 * 100).toFixed(2),
+          Number(year8[4] / totals.year8 * 100).toFixed(2)
+        ];
+
+        percentages.year9 = [
+          Number(year9[0] / totals.year9 * 100).toFixed(2),
+          Number(year9[1] / totals.year9 * 100).toFixed(2),
+          Number(year9[2] / totals.year9 * 100).toFixed(2),
+          Number(year9[3] / totals.year9 * 100).toFixed(2),
+          Number(year9[4] / totals.year9 * 100).toFixed(2)
+        ];
+
+        percentages.year10 = [
+          Number(year10[0] / totals.year10 * 100).toFixed(2),
+          Number(year10[1] / totals.year10 * 100).toFixed(2),
+          Number(year10[2] / totals.year10 * 100).toFixed(2),
+          Number(year10[3] / totals.year10 * 100).toFixed(2),
+          Number(year10[4] / totals.year10 * 100).toFixed(2)
+        ];
+
+        averages.whole = Number((whole[0] + (whole[1] * 2) + (whole[2] * 3) + (whole[3] * 4) + (whole[4] * 5)) / totals.whole).toFixed("2");
+        averages.year7 = Number((year7[0] + (year7[1] * 2) + (year7[2] * 3) + (year7[3] * 4) + (year7[4] * 5)) / totals.year7).toFixed("2");
+        averages.year8 = Number((year8[0] + (year8[1] * 2) + (year8[2] * 3) + (year8[3] * 4) + (year8[4] * 5)) / totals.year8).toFixed("2");
+        averages.year9 = Number((year9[0] + (year9[1] * 2) + (year9[2] * 3) + (year9[3] * 4) + (year9[4] * 5)) / totals.year9).toFixed("2");
+        averages.year10 = Number((year10[0] + (year10[1] * 2) + (year10[2] * 3) + (year10[3] * 4) + (year10[4] * 5)) / totals.year10).toFixed("2");
+
+        var data = {'counts':counts, 'totals':totals, 'percentages':percentages, 'averages':averages};
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(data, null, 4));
+
       });
     });
-  } else {
-    //console.log("Counting scores for year " + req.query.year);
-    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-      Student.count({
-        $and: [
-          { 'rap.scores.value': 1},
-          { 'rap.grade': parseInt(req.query.year)},
-          { 'rap.year': currentPeriod.year },
-          { 'rap.term': currentPeriod.term },
-          { 'rap.week': currentPeriod.week },
-        ]
-      }, function (err, ones) {
-        if (err) { next(err); }
-        else {
-          Student.count({
-            $and: [
-              { 'rap.scores.value': 2},
-              { 'rap.grade': parseInt(req.query.year)},
-              { 'rap.year': currentPeriod.year },
-              { 'rap.term': currentPeriod.term },
-              { 'rap.week': currentPeriod.week }
-            ]
-          }, function (err, twos) {
-            if (err) { next(err); }
-            else {
-              Student.count({
-                $and: [
-                  { 'rap.scores.value': 3},
-                  { 'rap.grade': parseInt(req.query.year)},
-                  { 'rap.year': currentPeriod.year },
-                  { 'rap.term': currentPeriod.term },
-                  { 'rap.week': currentPeriod.week }
-                ]
-              }, function (err, threes) {
-                if (err) { next(err); }
-                else {
-                  Student.count({
-                    $and: [
-                      { 'rap.scores.value': 4},
-                      { 'rap.grade': parseInt(req.query.year)},
-                      { 'rap.year': currentPeriod.year },
-                      { 'rap.term': currentPeriod.term },
-                      { 'rap.week': currentPeriod.week }
-                    ]
-                  }, function (err, fours) {
-                    if (err) { next(err); }
-                    else {
-                      Student.count({
-                        $and: [
-                          { 'rap.scores.value': 5},
-                          { 'rap.grade': parseInt(req.query.year)},
-                          { 'rap.year': currentPeriod.year },
-                          { 'rap.term': currentPeriod.term },
-                          { 'rap.week': currentPeriod.week }
-                        ]
-                      }, function (err, fives) {
-                        if (err) { next(err); }
-                        else {
-                          var totals = [ones, twos, threes, fours, fives];
-                          var count = ones + twos + threes + fours + fives;
-                          ones = Number(ones / count * 100).toFixed(2);
-                          twos = Number(twos / count * 100).toFixed(2);
-                          threes = Number(threes / count * 100).toFixed(2);
-                          fours = Number(fours / count * 100).toFixed(2);
-                          fives = Number(fives / count * 100).toFixed(2);
-                          var percentages = [ones, twos, threes, fours, fives];
-                          //console.log(JSON.stringify({'percentages': percentages, 'totals':totals, 'count':count}));
-                          res.send(JSON.stringify({'percentages': percentages, 'totals':totals, 'count':count}));
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
-        }
-      });
-    });
-  }
 });
 
 // Get the whole-school average for either the current, or all RAP periods
@@ -1684,9 +1686,6 @@ router.get('/getGenderAverage', (req, res) => {
             }
           });
         });
-
-        console.log(maleTotal);
-        console.log(maleCount);
 
         if(maleTotal > 0 && maleCount > 0) {
           data.male.periods.push(string);

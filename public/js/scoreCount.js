@@ -225,12 +225,13 @@ function longTermChart() {
 }
 
 function wholeSchoolChart() {
-  //console.log("Generating chart...");
+  console.log("Generating chart...");
   $('#chart').hide();
   $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
   $.getJSON("/countScores", function(values) {
+    console.log(values);
     var canvas = document.getElementById("chart");
     var ctx = canvas.getContext('2d');
     var chart = new Chart(ctx, {
@@ -239,7 +240,7 @@ function wholeSchoolChart() {
             labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
             datasets: [{
                 label: 'Count',
-                data: values,
+                data: values.percentages.whole,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -339,70 +340,64 @@ function byYearChart() {
   $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
-  $.getJSON("/countScores?year=7", function(year7) {
-    $.getJSON("/countScores?year=8", function(year8) {
-      $.getJSON("/countScores?year=9", function(year9) {
-        $.getJSON("/countScores?year=10", function(year10) {
-          $.getJSON("/getGroupAverage?current=true", function(group) {
+  $.getJSON("/countScores", function(scores) {
+    $.getJSON("/getGroupAverage?current=true", function(group) {
 
-            var year7average = group.year7;
-            var year8average = group.year8;
-            var year9average = group.year9;
-            var year10average = group.year10;
+      var year7average = group.year7;
+      var year8average = group.year8;
+      var year9average = group.year9;
+      var year10average = group.year10;
 
-            var canvas = document.getElementById("chart");
-            var ctx = canvas.getContext('2d');
-            var chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                  labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
-                  datasets: [
-                      {
-                          label: "Year 7",
-                          backgroundColor: "blue",
-                          data: year7.percentages
-                      },
-                      {
-                          label: "Year 8",
-                          backgroundColor: "red",
-                          data: year8.percentages
-                      },
-                      {
-                          label: "Year 9",
-                          backgroundColor: "green",
-                          data: year9.percentages
-                      },
-                      {
-                          label: "Year 10",
-                          backgroundColor: "orange",
-                          data: year10.percentages
-                      }
-                  ]
+      var canvas = document.getElementById("chart");
+      var ctx = canvas.getContext('2d');
+      var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ["Ones", "Twos", "Threes", "Fours", "Fives"],
+            datasets: [
+                {
+                    label: "Year 7",
+                    backgroundColor: "blue",
+                    data: scores.percentages.year7
                 },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero:true
-                            }
-                        }]
-                    },
-                    legend: {
-                      display: true
-                    }
+                {
+                    label: "Year 8",
+                    backgroundColor: "red",
+                    data: scores.percentages.year8
+                },
+                {
+                    label: "Year 9",
+                    backgroundColor: "green",
+                    data: scores.percentages.year9
+                },
+                {
+                    label: "Year 10",
+                    backgroundColor: "orange",
+                    data: scores.percentages.year10
                 }
-            });
-            $('#loading').fadeOut(200).empty();
-            $('#chart').fadeIn(400);
-            $('#stats').empty().hide();
-            $('#stats').append("<div class='ml-5'><h5>Year 7: <strong>" + year7average + "</strong></h4></div>");
-            $('#stats').append("<div class='ml-5'><h5>Year 8: <strong>" + year8average + "</strong></h4></div>");
-            $('#stats').append("<div class='ml-5'><h5>Year 9: <strong>" + year9average + "</strong></h4></div>");
-            $('#stats').append("<div class='ml-5'><h5>Year 10: <strong>" + year10average + "</strong></h4></div>");
-            $('#stats').fadeIn(800);
-          });
-        });
+            ]
+          },
+          options: {
+              scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero:true
+                      }
+                  }]
+              },
+              legend: {
+                display: true
+              }
+          }
       });
+      $('#loading').fadeOut(200).empty();
+      $('#chart').fadeIn(400);
+      $('#stats').empty().hide();
+      $('#stats').append("<div class='ml-5'><h5>Year 7: <strong>" + year7average + "</strong></h4></div>");
+      $('#stats').append("<div class='ml-5'><h5>Year 8: <strong>" + year8average + "</strong></h4></div>");
+      $('#stats').append("<div class='ml-5'><h5>Year 9: <strong>" + year9average + "</strong></h4></div>");
+      $('#stats').append("<div class='ml-5'><h5>Year 10: <strong>" + year10average + "</strong></h4></div>");
+      $('#stats').fadeIn(800);
     });
   });
 }
