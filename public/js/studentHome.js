@@ -7,6 +7,8 @@ function generateScores(name) {
       $('#scores').append("<h5 id='not-found'>No RAP scores found</h5>");
     } else {
 
+      $('#stats').empty().append("<div class='ml-5'><h5>Long Term Average: <strong>" + jsonData.longTermAverage + "</strong></h4></div>");
+
       // Sort the Data from newest to oldest
       jsonData.rap.sort((a, b) => {
         if (a.year < b.year) {

@@ -10,9 +10,14 @@ html
         .col-sm-12
           .card#content-container
             .card-body#content-body
-              .col-sm-12
-                h3#studentNameHeading #{name}
-                p Below you can see your most recent and historical RAP scores. 
-                  | See the #[a(href='/rubric') RAP Rubric] for more details about how the scores are calculated.
-              .col-sm-12#scores
+              .row
+                .col-sm-6
+                  h3#studentNameHeading #{name}                  
+                .col-sm-6
+                  #stats.d-flex.justify-content-end
+                .col-sm-12
+                  p Below you can see your most recent and historical RAP scores. 
+                    | See the #[a(href='/rubric') RAP Rubric] for more details about how the scores are calculated.
+              .row
+                .col-sm-12#scores
     include partials/footer.pug

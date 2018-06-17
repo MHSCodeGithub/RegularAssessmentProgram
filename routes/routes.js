@@ -19,7 +19,7 @@ var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
 // loops through all students and updates their averages
 function updateAverages() {
   try {
-    RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+    RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
       Student.find({
         $and: [
           { 'rap.year': currentPeriod.year },
@@ -104,16 +104,26 @@ function updateAverages() {
               //console.log("School count: " + schoolCount);
               if(schoolCount > 0) {
                 if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
-                  currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
-                  currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
-                  currentPeriod.year8 = Number(year8total / year7count).toFixed(2);
-                  currentPeriod.year9 = Number(year9total / year9count).toFixed(2);
-                  currentPeriod.year10 = Number(year10total / year10count).toFixed(2);
-                  console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
-                  console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
-                  console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
-                  console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
-                  console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+                  if(schoolTotal > 0) {
+                    currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
+                    console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
+                  }
+                  if(year7total > 0) {
+                    currentPeriod.year7 = Number(year7total / year7count).toFixed(2); 
+                    console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
+                  }
+                  if(year8total > 0) {
+                    currentPeriod.year8 = Number(year8total / year7count).toFixed(2);
+                    console.log("Year 8: " + Number(year8total / year8count).toFixed(2));
+                  }
+                  if(year9total > 0) {
+                    currentPeriod.year9 = Number(year9total / year9count).toFixed(2);
+                    console.log("Year 9: " + Number(year9total / year9count).toFixed(2));
+                  }
+                  if(year10total > 0) {
+                    currentPeriod.year10 = Number(year10total / year10count).toFixed(2);
+                    console.log("Year 10: " + Number(year10total / year10count).toFixed(2));
+                  }
                   console.log('All student average RAP scores recalculated successfully');
                 }
               }
@@ -153,11 +163,13 @@ router.get('/', authCheck, (req, res) => {
   if(req.session.user.access == 0) {
     res.render('studentHome', {user: req.session.user});
   } else {
-    RapPeriods.findOne({ current: true }, function (err, period) {
-        if(period.active == true) {
+    RapPeriods.findOne({ active: true }, function (err, period) {
+        if(period) {
           res.render('teacherHome', {user: req.session.user});
         } else {
-          res.render('teacherHomeLocked', {user: req.session.user});
+          RapPeriods.findOne({ current: true }, function (err, period2) {
+            res.render('teacherHomeLocked', {user: req.session.user});
+          });
         }
     });
   }
@@ -550,7 +562,7 @@ router.get('/teacher', (req, res) => {
 
   // This function searches for all students with the current teacher in the current RAP period
   // It then loops through and builds a list of students for each of the teacher's classes
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.find({
       $and: [
         { 'rap.scores.teacher': teacher },
@@ -1132,7 +1144,7 @@ router.post('/save', (req, res) => {
   var score = req.body.score;
   var teacher = req.body.teacher;
 
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.findOne({
       $and: [
         { name: student },
@@ -1685,7 +1697,7 @@ router.post('/fillRadios', (req, res) => {
   let teacher = req.body.teacher;
 
   // Match the rap period to the current period
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     // Loop through every student from class list
     Student.find({
       $and: [

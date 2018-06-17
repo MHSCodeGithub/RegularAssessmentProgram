@@ -9,16 +9,23 @@ html
         .col-sm-12
           .card#content-container
             .card-body#content-body
-              .col-sm-12
-                if name
-                  h3#studentNameHeading #{name}
-                else
-                  h3 By Student
-                  .form-group
-                    form#student-form(action="/student", autocomplete="off", method="GET" )
-                      .input-group
-                        input.form-control.form-control-lg(type='text', id='studentName', name='studentName', placeholder="Student Name")
-                        span.input-group-btn
-                          button.btn.btn-primary(type='submit') Go!
-              .col-sm-12#scores
+              .row
+                .col-sm-6
+                  if name
+                    h3#studentNameHeading #{name}                    
+                  else
+                    h3 By Student
+                .col-sm-6
+                  #stats.d-flex.justify-content-end
+              if !name
+                .row
+                  .col-sm-12
+                    .form-group
+                      form#student-form(action="/student", autocomplete="off", method="GET" )
+                        .input-group
+                          input.form-control.form-control-lg(type='text', id='studentName', name='studentName', placeholder="Student Name")
+                          span.input-group-btn
+                            button.btn.btn-primary(type='submit') Go!
+              .row
+                .col-sm-12#scores
     include partials/footer.pug
