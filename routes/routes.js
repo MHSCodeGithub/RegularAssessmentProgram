@@ -80,9 +80,16 @@ function updateAverages() {
                 }
                 //console.log("Calc: " + schoolTotal + " / " + schoolCount + " = " + Number(schoolTotal / schoolCount).toFixed(2));
               }
+            } else {
+              // Add scores fro other RAP periods to the user's long term average
+              if(r.average > 0) {
+                userTotal += r.average;
+                userCount++;
+              }
             }
           });
           if(userTotal == 0 ) {
+            //console.log(u.name + " has a total of " + userTotal);
             u.longTermAverage = 0;
           } else {
             if(userCount > 0) {
@@ -94,6 +101,7 @@ function updateAverages() {
             itemsProcessed++;
             //console.log(itemsProcessed + " / " + array.length);
             if(itemsProcessed == array.length) {
+              //console.log("School count: " + schoolCount);
               if(schoolCount > 0) {
                 if(currentPeriod.average != Number(schoolTotal / schoolCount).toFixed(2)) {
                   currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
@@ -614,30 +622,25 @@ router.get('/student', (req, res) => {
 // Tracks how many students have checked their RAP scores in the current period
 router.get('/trackChecked', (req, res) => {
   RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.count({
-      $and: [
-        { 'rap.checked': true },
-        { 'rap.year': currentPeriod.year },
-        { 'rap.term': currentPeriod.term },
-        { 'rap.week': currentPeriod.week }
-      ]
-    }, function (err, checked) {
-      Student.count({
-        $and: [
-          { $or:
-            [
-              {'rap.checked': false },
-              {'rap.checked': null }
-            ]
-          },
-          { 'rap.year': currentPeriod.year },
-          { 'rap.term': currentPeriod.term },
-          { 'rap.week': currentPeriod.week }
-        ]
-      }, function (err, unchecked) {
-        //console.log({'unchecked':unchecked,'checked':checked});
-        res.send(JSON.stringify({'unchecked':unchecked,'checked':checked}));
+    Student.find({}).then(function(users) {
+      var unchecked = 0;
+      var checked = 0;
+      let students = [];
+      users.forEach(function(u) {
+        u.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            if (r.checked == true) {
+              checked++;
+            } else {
+              unchecked++;
+            }
+          }
+        });
       });
+      console.log({'unchecked':unchecked,'checked':checked});
+      res.send(JSON.stringify({'unchecked':unchecked,'checked':checked}));
     });
   });
 });
@@ -1620,6 +1623,59 @@ router.get('/getCohortAverage', (req, res) => {
 
 });
 
+// Get the averages for each year gender for either the current, or all RAP periods
+router.get('/getGenderAverage', (req, res) => {
+  RapPeriods.find({}).sort({year: 'ascending', term: 'ascending', week: 'ascending'}).then(function(allPeriods) {
+
+    var male = {'periods':new Array, 'averages':new Array};
+    var female = {'periods':new Array, 'averages':new Array};
+    var data = {'male':male,'female':female};
+
+    Student.find({}).then(function(students) {
+      allPeriods.forEach(function(currentPeriod) {
+        var string = "W" + currentPeriod.week + ",T" + currentPeriod.term + "," + String(currentPeriod.year).substring(2, 4);
+        var maleTotal = 0;
+        var femaleTotal = 0;
+        var maleCount = 0;
+        var femaleCount = 0;
+
+        students.forEach(function(student) {
+          // then loop through each RAP period to find the current one
+          student.rap.forEach(function(r) {
+            if(currentPeriod.year == r.year
+            && currentPeriod.term == r.term
+            && currentPeriod.week == r.week
+            && r.average > 0) {
+              if(student.gender == "M") {
+                maleTotal += r.average;
+                maleCount++;
+              } else if (student.gender == "F") {
+                femaleTotal += r.average;
+                femaleCount++;
+              }
+            }
+          });
+        });
+
+        console.log(maleTotal);
+        console.log(maleCount);
+
+        if(maleTotal > 0 && maleCount > 0) {
+          data.male.periods.push(string);
+          data.male.averages.push(Number(maleTotal/maleCount).toFixed("2"));
+          data.female.periods.push(string);
+          data.female.averages.push(Number(femaleTotal/femaleCount).toFixed("2"));
+        }
+
+      });
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(data, null, 4));
+
+    });
+  });
+});
+
 // Fills the RAP scores for a certain class with a single score
 router.post('/fillRadios', (req, res) => {
 
@@ -1684,7 +1740,7 @@ router.post('/upload', function(req, res) {
   var csvFilePath = "./uploads/imported.csv";
 
   // Imports CSV and corrects structure for RAP usage
-  csv().fromFile(csvFilePath).done(function(jsonArrayObj) {
+  csv().fromFile(csvFilePath).then(function(jsonArrayObj) {
 
     // Async loop to play nice with MongoDB
     async.eachSeries(jsonArrayObj, function(student, callback) {
@@ -1692,7 +1748,7 @@ router.post('/upload', function(req, res) {
       // Ignore entire row if it is a redundant subject
       if(student["Subject"] == "Assembly" || student["Subject"] == "Care" || student["Subject"] == "Sport"
        || student["Subject"] == "Distance ED" || student["Teacher"] == "undefined "
-       || student["Year"] == "11" || student["Year"] == "12") {
+       || student["Year"] == "11" || student["Year"] == "12" || student["Student code"] == "undefined" ) {
         callback();
       } else {
 
@@ -1711,16 +1767,18 @@ router.post('/upload', function(req, res) {
         // Import ID Numbers, set invalid numbers to 0
         let idNum = student["Student code"];
         if(parseInt(idNum)!=idNum){
-        	idNum = 0;
+        	callback();
         }
 
         // Searches for current student in DB, adds them if not found
-        Student.findOne({ name: studentName }, function (err, user) {
+        Student.findOne({ id: idNum }, function (err, user) {
           if (err) {
             return handleError(err);
             callback();
           }
           if(user) {
+
+            console.log(user.name + " found, updating details...");
 
             // Update student for new RAP period
             let found = false;
@@ -1812,7 +1870,7 @@ router.post('/upload', function(req, res) {
                         let newTeacherResult = await newTeacher.save()
                         console.log("Added " + s.teacher + " to the list of teachers");
                       } catch(err) {
-                        console.log("Error adding teacher: possible duplicate");
+                        //console.log("Error adding teacher: possible duplicate");
                       }
                     }
                   } catch(err) {
@@ -1822,7 +1880,7 @@ router.post('/upload', function(req, res) {
             });
           });
         });
-        console.log('Teacher list refreshed successfully');
+        //console.log('Teacher list refreshed successfully');
         req.flash('success_msg', 'All students have been imported successfully');
         res.redirect('/importEdval');
         return null;
@@ -1856,7 +1914,7 @@ router.post('/importEMU', function(req, res) {
   var csvFilePath = "./uploads/importedEMU.csv";
 
   // Imports CSV and corrects structure for RAP usage
-  csv().fromFile(csvFilePath).done(function(jsonArrayObj) {
+  csv().fromFile(csvFilePath).then(function(jsonArrayObj) {
 
     console.log("Importing " + jsonArrayObj.length + " students...");
 
@@ -2284,6 +2342,91 @@ router.get('/calculateChange', (req, res) => {
       student.save();
     });
     res.send("success");
+  });
+});
+
+// Render Import From EMU Screen
+router.get('/importLMBR', authCheck, (req, res) => {
+  res.render('importLMBR', {user: req.session.user});
+});
+
+// Import data from EMU to update student usernames
+router.post('/importLMBR', function(req, res) {
+
+  // Read in the POST data
+  let fileUpload = req.files.fileUpload;
+
+  // Set CSV file path
+  var csvFilePath = "./uploads/importedLMBR.csv";
+
+  // Move the file to a local folder on the server
+  fileUpload.mv(csvFilePath, function(err) {
+    if (err) {
+      console.log("There was an error while attempting to upload the EMU data");
+      return res.status(500).send(err);
+    }
+  });
+
+  // Imports CSV and corrects structure for RAP usage
+  csv().fromFile(csvFilePath).then(function(jsonArrayObj) {
+
+    console.log("Importing " + jsonArrayObj.length + " students...");
+
+    // Async loop to play nice with MongoDB
+    async.eachSeries(jsonArrayObj, function(student, callback) {
+
+      // Ignore entire row if it doesn't contain the data we need
+      if(student["StudentCode"] == null || student["M/F"] == null) {
+        console.log("Error in LMBR file");
+        callback();
+      } else {
+
+        // Set variables
+        let id = student["StudentCode"];
+        let gender = student["M/F"];
+
+        // Searches for current student in DB, adds them if not found
+        Student.findOne({ id: id }, function (err, user) {
+          if (err) {
+            // If there is an error with the query
+            return handleError(err);
+            callback();
+          }
+          if(user) {
+            // If student ID number is found
+            user.gender = gender;
+            user.save().then((stu) => {
+              console.log("Gender '" + stu.gender + "' updated for " + stu.name);
+            });
+            callback();
+          } else {
+            // If student ID number is NOT found
+            callback();
+          }
+        });
+      }
+    }, function(err) {
+      if( err ) {
+        console.log('An error occurred: ' + err); return false;
+        req.flash('error_msg', 'Error updating student genders');
+        res.redirect('/importLMBR');
+        return null;
+      }
+      else {
+        console.log('All student genders have been updated successfully');
+        fs.unlink(csvFilePath, (err) => {
+          if(err) {
+            console.log("An error occured");
+            throw err;
+          } else {
+            console.log('Temporary file was deleted');
+          }
+        });
+        req.flash('success_msg', 'All student genders have been updated successfully');
+        res.redirect('/importLMBR');
+        return null;
+      }
+    });
   });
 });
 

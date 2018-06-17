@@ -407,6 +407,71 @@ function byYearChart() {
   });
 }
 
+function longTermGenderChart() {
+  //console.log("Generating chart...");
+  $('#chart').hide();
+  $('#loading').show();
+  $('#loading').append("<div id='loading-spinner'></div>");
+  $('#loading-spinner').jmspinner('large');
+  $.getJSON("/getGenderAverage", function(values) {
+    var boys = values.male.averages[values.male.averages.length-1];
+    var girls = values.female.averages[values.female.averages.length-1];
+    var canvas = document.getElementById("chart");
+    var ctx = canvas.getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: values.male.periods,
+            datasets:
+            [
+              {
+                label: 'Boys',
+                data: values.male.averages,
+                backgroundColor: 'rgba(255, 99, 132, 1)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              },
+              {
+                label: 'Girls',
+                data: values.female.averages,
+                backgroundColor: 'rgba(255, 206, 86, 1)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHitRadius: 12,
+                fill: false,
+              }
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:false
+                    }
+                }]
+            },
+            legend: {
+              display: true
+            }
+        }
+    });
+    $('#loading').fadeOut(200).empty();
+    $('#chart').fadeIn(400);
+      $('#loading').fadeOut(200).empty();
+      $('#chart').fadeIn(400);
+      $('#stats').empty().hide();
+      $('#stats').append("<div class='ml-5'><h5>Boys: <strong>" + boys + "</strong></h4></div>");
+      $('#stats').append("<div class='ml-5'><h5>Girls: <strong>" + girls + "</strong></h4></div>");
+      $('#stats').fadeIn(800);
+  });
+}
+
 // Find out if the page was accessed with a GET parameter
 var getUrlParameter = function getUrlParameter(sParam) {
   var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -446,5 +511,9 @@ $(document).ready(function() {
     studentLoginsChart();
     $('#pageTitle').html("Number of Student Logins");
     $('#explanation').html("Shows how many students have logged in to check their scores in the current RAP Period.");
+  } else if(type == 'byGender') {
+    longTermGenderChart();
+    $('#pageTitle').html("Long-Term Average By Gender");
+    $('#explanation').html("Shows the average score differences betwen boys and girls for each RAP Period");
   }
 });
