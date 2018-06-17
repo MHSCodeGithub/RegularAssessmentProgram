@@ -109,7 +109,7 @@ function updateAverages() {
                     console.log("Whole School: " + Number(schoolTotal / schoolCount).toFixed(2));
                   }
                   if(year7total > 0) {
-                    currentPeriod.year7 = Number(year7total / year7count).toFixed(2); 
+                    currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
                     console.log("Year 7: " + Number(year7total / year7count).toFixed(2));
                   }
                   if(year8total > 0) {
@@ -428,13 +428,11 @@ router.post('/setCurrentPeriod', (req, res) => {
       if(p.year == year && p.term == term && p.week == week) {
         found = true;
         p.current = true;
-        p.active = active;
         p.save().then((period) => {
           console.log("Current RAP Period is now current: " + p.year + ", " + p.term + ", " + p.week + ", Active: " + p.active);
         });
       } else {
         p.current = false;
-        p.active = false;
         p.save().then((period) => {
           //console.log("RAP Period no longer current: " + p.year + ", " + p.term + ", " + p.week);
         });
@@ -445,11 +443,9 @@ router.post('/setCurrentPeriod', (req, res) => {
         year: year,
         term: term,
         week: week,
-        current: true,
-        active: false
       });
       rp.save().then((period) => {
-        console.log("New RAP period created: " + period.year + ", " + period.term + ", " + period.week + ", Active: " + period.active);
+        console.log("New RAP period created: " + period.year + ", " + period.term + ", " + period.week);
         res.redirect("/rapPeriods");
       });
     } else {
@@ -457,6 +453,35 @@ router.post('/setCurrentPeriod', (req, res) => {
     }
   });
 
+});
+
+// Sets the active RAP Period
+router.post('/setActivePeriod', (req, res) => {
+  let year = req.body.year;
+  let term = req.body.term;
+  let week = req.body.week;
+  let active = req.body.active;
+  console.log(active);
+  RapPeriods.find({}).then(function(periods) {
+    let found = false;
+    periods.forEach(function(p) {
+      if(p.year == year && p.term == term && p.week == week) {
+        if(active == "true") {
+          p.active = true;
+        } else {
+          p.active = false;
+        }
+        p.save().then((period) => {
+          console.log("Current RAP Period is now current: " + p.year + ", " + p.term + ", " + p.week + ", Active: " + p.active);
+          found = true;
+        });
+      } else {
+        p.active = false;
+        p.save();
+      }
+    });
+    res.send("true");
+  });
 });
 
 // Gets the current RAP Period
@@ -665,7 +690,7 @@ router.post('/addStudent', (req, res) => {
   var teacher = req.body.teacher;
   let subject = req.body.subject;
 
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.findOne({
       $and: [
         { name: student },
@@ -711,7 +736,7 @@ router.post('/deleteStudent', (req, res) => {
   var teacherName = req.body.teacherName;
   console.log("Attempting to delete " + student);
 
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.findOne({
       $and: [
         { name: student },
@@ -792,7 +817,7 @@ router.post('/addClass', (req, res) => {
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
 
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.find({
       $and: [
         { 'rap.scores.code': classCode },
@@ -863,7 +888,7 @@ router.post('/addClass', (req, res) => {
 router.post('/removeClass', (req, res) => {
   var classCode = req.body.classCode;
   var teacher = req.body.teacher;
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
     Student.find({
       $and: [
         { 'rap.scores.code': classCode },
@@ -1025,27 +1050,18 @@ router.get('/autocomplete', (req, res) => {
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteStudents', (req, res) => {
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
-    Student.find({
-      $and: [
-        { 'rap.year': currentPeriod.year },
-        { 'rap.term': currentPeriod.term },
-        { 'rap.week': currentPeriod.week }
-      ]
-    }).sort({name: 'ascending'}).then(function(users) {
-      let students = [];
-      users.forEach(function(u) {
-        students.push(u.name);
-      });
-      //console.log(teachers);
-      res.send(JSON.stringify(students));
+  Student.find({}).sort({name: 'ascending'}).then(function(users) {
+    let students = [];
+    users.forEach(function(u) {
+      students.push(u.name);
     });
+    res.send(JSON.stringify(students));
   });
 });
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteClasses', (req, res) => {
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({$or: [{ current: true}, { active: true }]}, function(err, currentPeriod) {
     Student.find({
       $and: [
         { 'rap.year': currentPeriod.year },
@@ -1070,7 +1086,7 @@ router.get('/autocompleteClasses', (req, res) => {
 
 // Returns a list of Students for the autocomplete
 router.get('/autocompleteSubjects', (req, res) => {
-  RapPeriods.findOne({ current: true }, function(err, currentPeriod) {
+  RapPeriods.findOne({$or: [{ current: true}, { active: true }]}, function(err, currentPeriod) {
     Student.find({
       $and: [
         { 'rap.year': currentPeriod.year },

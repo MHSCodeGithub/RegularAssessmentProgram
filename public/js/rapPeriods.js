@@ -7,12 +7,8 @@ function setCurrent(year, term, week) {
     if(success == "true") {
       $(".btn-primary").prop('disabled', false);
       $(button).prop('disabled', true);
-      $(".btn-secondary").prop('disabled', true).html("Set Active");
-      $(button).closest('tr').find('.btn-secondary').prop('disabled', false).html("Set Active");
       $('#currentPeriod').empty();
-      $('#currentStatus').empty();
       $('#currentPeriod').append(currentString);
-      $('#currentStatus').append(statusString);
     } else {
       alert("An error occured");
     }
@@ -21,12 +17,12 @@ function setCurrent(year, term, week) {
 
 function setActive(year, term, week) {
   var button = event.target;
-  var currentString = `<h5><strong>Current Period: </strong>Week ${week}, Term ${term}, ${year}</h5>`;
   if($(button).html() == "Set Active") {
-    var statusString = `<h5><strong>Status:</strong> Active</h5>`;
-    var posting = $.post( "/setCurrentPeriod", { year: year, term: term, week: week, active: true });
+    var statusString = `<h5><strong>Active Period:</strong> Week ${week}, Term ${term}, ${year}</h5>`;
+    var posting = $.post( "/setActivePeriod", { year: year, term: term, week: week, active: true });
     posting.done(function(success) {
       if(success == "true") {
+        $(".btn-secondary").html("Set Active");
         $(button).html("Lock");
         $('#currentStatus').empty();
         $('#currentStatus').append(statusString);
@@ -35,8 +31,8 @@ function setActive(year, term, week) {
       }
     });
   } else {
-    var statusString = `<h5><strong>Status:</strong> Locked</h5>`;
-    var posting = $.post( "/setCurrentPeriod", { year: year, term: term, week: week, active: false });
+    var statusString = `<h5><strong>Active Period:</strong> All Locked</h5>`;
+    var posting = $.post( "/setActivePeriod", { year: year, term: term, week: week, active: false });
     posting.done(function(success) {
       if(success == "true") {
         $(button).html("Set Active");
@@ -79,9 +75,9 @@ function generatePeriods() {
         var id2 = period.year+","+period.term+","+period.week+"-current";
         if(period.current == true) {
           let currentString = `<h5><strong>Current Period: </strong>Week ${period.week}, Term ${period.term}, ${period.year}</h5>`;
+          $('#currentPeriod').append(currentString);
           if(period.active == true) {
-            var statusString = `<h5><strong>Status:</strong> Active</h5>`;
-            $('#currentPeriod').append(currentString);
+            var statusString = `<h5><strong>Active Period: </strong>Week ${period.week}, Term ${period.term}, ${period.year}</h5>`;
             $('#currentStatus').append(statusString);
             $('#periods-body').append(
               "<tr>" +
@@ -95,9 +91,6 @@ function generatePeriods() {
               "</tr>"
             );
           } else {
-            var statusString = `<h5><strong>Status:</strong> Locked</h5>`;
-            $('#currentPeriod').append(currentString);
-            $('#currentStatus').append(statusString);
             $('#periods-body').append(
               "<tr>" +
                 "<td>" + period.year + "</td>" +
@@ -110,20 +103,35 @@ function generatePeriods() {
               "</tr>"
             );
           }
-
         }
         else {
-          $('#periods-body').append(
-            "<tr>" +
-              "<td>" + period.year + "</td>" +
-              "<td>" + period.term + "</td>" +
-              "<td>" + period.week + "</td>" +
-              "<td><button id="+id1+" type='submit' class='btn btn-primary' style='width: 100%;' " +
-                "onclick='setCurrent("+period.year+","+period.term+","+period.week+")'>Set Current</button></td>" +
-                "<td><button id="+id2+" type='submit' class='btn btn-secondary' style='width: 100%;' disabled " +
-                  "onclick='setActive("+period.year+","+period.term+","+period.week+")'>Set Active</button></td>" +
-            "</tr>"
-          );
+          if(period.active == true) {
+            var statusString = `<h5><strong>Active Period: </strong>Week ${period.week}, Term ${period.term}, ${period.year}</h5>`;
+            $('#currentStatus').append(statusString);
+            $('#periods-body').append(
+              "<tr>" +
+                "<td>" + period.year + "</td>" +
+                "<td>" + period.term + "</td>" +
+                "<td>" + period.week + "</td>" +
+                "<td><button id="+id1+" type='submit' class='btn btn-primary' style='width: 100%;' " +
+                  "onclick='setCurrent("+period.year+","+period.term+","+period.week+")'>Set Current</button></td>" +
+                  "<td><button id="+id2+" type='submit' class='btn btn-secondary' style='width: 100%;' " +
+                    "onclick='setActive("+period.year+","+period.term+","+period.week+")'>Lock</button></td>" +
+              "</tr>"
+            );
+          } else {
+            $('#periods-body').append(
+              "<tr>" +
+                "<td>" + period.year + "</td>" +
+                "<td>" + period.term + "</td>" +
+                "<td>" + period.week + "</td>" +
+                "<td><button id="+id1+" type='submit' class='btn btn-primary' style='width: 100%;' " +
+                  "onclick='setCurrent("+period.year+","+period.term+","+period.week+")'>Set Current</button></td>" +
+                  "<td><button id="+id2+" type='submit' class='btn btn-secondary' style='width: 100%;' " +
+                    "onclick='setActive("+period.year+","+period.term+","+period.week+")'>Set Active</button></td>" +
+              "</tr>"
+            );
+          }
         }
       });
     }
