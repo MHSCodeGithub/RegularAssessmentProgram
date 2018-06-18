@@ -402,13 +402,17 @@ function byYearChart() {
   });
 }
 
-function longTermGenderChart() {
-  //console.log("Generating chart...");
+function longTermGenderChart(year) {
+  $('#chart').remove();
+  $('#content').prepend(
+    "<canvas id='chart' width='500px' height='220px' />"
+  );
   $('#chart').hide();
   $('#loading').show();
   $('#loading').append("<div id='loading-spinner'></div>");
   $('#loading-spinner').jmspinner('large');
-  $.getJSON("/getGenderAverage", function(values) {
+  $.getJSON("/getGenderAverage?year="+year, function(values) {
+    $('#chart').empty();
     var boys = values.male.averages[values.male.averages.length-1];
     var girls = values.female.averages[values.female.averages.length-1];
     var canvas = document.getElementById("chart");
@@ -507,8 +511,30 @@ $(document).ready(function() {
     $('#pageTitle').html("Number of Student Logins");
     $('#explanation').html("Shows how many students have logged in to check their scores in the current RAP Period.");
   } else if(type == 'byGender') {
-    longTermGenderChart();
+    longTermGenderChart("all");
     $('#pageTitle').html("Long-Term Average By Gender");
     $('#explanation').html("Shows the average score differences betwen boys and girls for each RAP Period");
+    $('#content').append(
+      "<br><br>" +
+      "<div class='form-group'>" +
+        "<div class='row'>" +
+          "<div class='col-sm-4'>" +
+            "<button class='btn btn-primary year-button' id='year7' style='width: 100%;' onclick='longTermGenderChart(\"all\");'>All Years</button>" +
+          "</div>" +
+          "<div class='col-sm-2'>" +
+            "<button class='btn btn-primary year-button' id='year7' style='width: 100%;' onclick='longTermGenderChart(\"7\");'>7</button>" +
+          "</div>" +
+          "<div class='col-sm-2'>" +
+            "<button class='btn btn-primary year-button' id='year7' style='width: 100%;' onclick='longTermGenderChart(\"8\");'>8</button>" +
+          "</div>" +
+          "<div class='col-sm-2'>" +
+            "<button class='btn btn-primary year-button' id='year7' style='width: 100%;' onclick='longTermGenderChart(\"9\");'>9</button>" +
+          "</div>" +
+          "<div class='col-sm-2'>" +
+            "<button class='btn btn-primary year-button' id='year7' style='width: 100%;' onclick='longTermGenderChart(\"10\");'>10</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>"
+    );
   }
 });

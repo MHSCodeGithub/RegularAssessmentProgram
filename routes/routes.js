@@ -1695,6 +1695,8 @@ router.get('/getGenderAverage', (req, res) => {
     var male = {'periods':new Array, 'averages':new Array};
     var female = {'periods':new Array, 'averages':new Array};
     var data = {'male':male,'female':female};
+    var year = req.query.year;
+    console.log(year);
 
     Student.find({}).then(function(students) {
       allPeriods.forEach(function(currentPeriod) {
@@ -1711,12 +1713,23 @@ router.get('/getGenderAverage', (req, res) => {
             && currentPeriod.term == r.term
             && currentPeriod.week == r.week
             && r.average > 0) {
-              if(student.gender == "M") {
-                maleTotal += r.average;
-                maleCount++;
-              } else if (student.gender == "F") {
-                femaleTotal += r.average;
-                femaleCount++;
+              if(year == undefined || year == "all") {
+                if(student.gender == "M") {
+                  maleTotal += r.average;
+                  maleCount++;
+                } else if (student.gender == "F") {
+                  femaleTotal += r.average;
+                  femaleCount++;
+                }
+              }
+              else if(r.grade == parseInt(year)) {
+                if(student.gender == "M") {
+                  maleTotal += r.average;
+                  maleCount++;
+                } else if (student.gender == "F") {
+                  femaleTotal += r.average;
+                  femaleCount++;
+                }
               }
             }
           });
