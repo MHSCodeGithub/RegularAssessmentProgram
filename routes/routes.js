@@ -148,7 +148,6 @@ function getCurrentPeriod() {
 
 // Check if logged in
 const authCheck = (req, res, next) => {
-  console.log(req.session.user);
   if(!req.session.user) {
     res.redirect('/login');
   } else {
@@ -518,60 +517,95 @@ router.get('/login', (req,res) => {
 
 // Authenticate against Sentral server, redirect to home page
 router.post('/login', (req, res) => {
-  try {
-    var username = req.body.username.toLowerCase();
-  	var password = req.body.password;
-    var form = new FormData();
-    form.append('username', username);
-    form.append('password', password);
-    form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
-      if(response.headers.location != "/portal/dashboard") {
-        console.log(username + " was not able to log in via Sentral Student Portal");
-        // try again with different portal for staff
-        var form2 = new FormData();
-        form2.append('sentral-username', username);
-        form2.append('sentral-password', password);
-        form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
-          if(response2.statusCode == 200) {
-            console.log(username + " was not able to log in via Sentral Staff Portal");
-            res.render('login', {error: "Invalid username or password"});
-          } else {
-            console.log("Logged in through Sentral Staff Portal");
-            console.log("Checking to see if the user is a staff member...");
-            Teacher.findOne({ username: username }, function (err, user) {
-              if(user) {
-                req.session.user = user;
-                res.redirect('/');
-              }
-            });
-          }
-        });
-      } else {
-        // See if user is a teacher
-        Teacher.findOne({ username: username }, function (err, user) {
-          if(user) {
-            req.session.user = user;
-            console.log(user.name + " logged in");
-            res.redirect('/');
-          } else {
-            // See if user is a student
-            console.log("Checking to see if the user is a student...");
-            Student.findOne({ username: username }, function (err, user) {
-              if(user) {
-                req.session.user = user;
-                console.log(user.name + " logged in");
-                res.redirect('/');
-              } else {
-                res.render('login', {error: "Invalid username or password"});
-              }
-            });
-          }
-        });
-      }
-    });
-  } catch (e) {
-    res.render('login', {error: "Invalid username or password"});
-  }
+
+  var username = req.body.username.toLowerCase();
+  var password = req.body.password;
+
+  Teacher.findOne({ username: username }, function (err, user) {
+    if(user) {
+      req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+      console.log("Teacher: " + user.name + " logged in");
+      res.redirect('/');
+    } else {
+      Student.findOne({ username: username }, function (err, user) {
+        if(user) {
+          req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+          console.log("Student: " + user.name + " logged in");
+          res.redirect('/');
+        } else {
+          res.render('login', {error: "Invalid username or password"});
+        }
+      });
+    }
+  });
+
+  // try {
+  //   var username = req.body.username.toLowerCase();
+  // 	var password = req.body.password;
+  //   var form = new FormData();
+  //   form.append('username', username);
+  //   form.append('password', password);
+  //   form.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/portal/login/login', function(err, response) {
+  //     if(response.headers.location != "/portal/dashboard") {
+  //       console.log(username + " was not able to log in via Sentral Student Portal");
+  //       // try again with different portal for staff
+  //       var form2 = new FormData();
+  //       form2.append('sentral-username', username);
+  //       form2.append('sentral-password', password);
+  //       form2.submit('https://web2.mullumbimb-h.schools.nsw.edu.au/check_login', function(err2, response2) {
+  //         if(response2.statusCode == 200) {
+  //           console.log(username + " was not able to log in via Sentral Staff Portal");
+  //           res.render('login', {error: "Invalid username or password"});
+  //         } else {
+  //           console.log("Logged in through Sentral Staff Portal");
+  //           console.log("Checking to see if the user is a staff member...");
+  //           Teacher.findOne({ username: username }, function (err, user) {
+  //             if(user) {
+  //               req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+  //               console.log(user.name + " logged in");
+  //               res.redirect('/');
+  //             } else {
+  //               console.log("Checking to see if the user is a student...");
+  //               Student.findOne({ username: username }, function (err, user) {
+  //                 if(user) {
+  //                   req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+  //                   console.log(user.name + " logged in");
+  //                   res.redirect('/');
+  //                 } else {
+  //                   res.render('login', {error: "Invalid username or password"});
+  //                 }
+  //               });
+  //             }
+  //           });
+  //         }
+  //       });
+  //     } else {
+  //       // See if user is a teacher
+  //       Teacher.findOne({ username: username }, function (err, user) {
+  //         if(user) {
+  //           req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+  //           console.log(user.name + " logged in");
+  //           res.redirect('/');
+  //         } else {
+  //           // See if user is a student
+  //           console.log("Checking to see if the user is a student...");
+  //           Student.findOne({ username: username }, function (err, user) {
+  //             if(user) {
+  //               req.session.user = {'name':user.name, 'access':user.access, 'username':user.username};
+  //               console.log(user.name + " logged in");
+  //               res.redirect('/');
+  //             } else {
+  //               res.render('login', {error: "Invalid username or password"});
+  //             }
+  //           });
+  //         }
+  //       });
+  //     }
+  //   });
+  // } catch (e) {
+  //   res.render('login', {error: "Invalid username or password"});
+  // }
+
 });
 
 // Auth logout
