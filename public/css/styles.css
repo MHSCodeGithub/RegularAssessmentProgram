@@ -231,6 +231,14 @@ img {
   align-items:center;
 }
 
+#loading-spinner-login {
+  width: 100%;
+  height: calc(70vh - 270px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
 .spinner {
   transform: scale(3.0);
 }
