@@ -103,27 +103,27 @@ function updateAverages() {
                 if(schoolCount > 0) {
                   if(schoolTotal > 0) {
                     currentPeriod.average = Number(schoolTotal / schoolCount).toFixed(2);
-                    console.log("Whole School: " + currentPeriod.average);
+                    //console.log("Whole School: " + currentPeriod.average);
                   }
                   if(year7total > 0) {
                     currentPeriod.year7 = Number(year7total / year7count).toFixed(2);
-                    console.log("Year 7: " + currentPeriod.year7);
+                    //console.log("Year 7: " + currentPeriod.year7);
                   }
                   if(year8total > 0) {
                     currentPeriod.year8 = Number(year8total / year8count).toFixed(2);
-                    console.log("Year 8: " + currentPeriod.year8);
+                    //console.log("Year 8: " + currentPeriod.year8);
                   }
                   if(year9total > 0) {
                     currentPeriod.year9 = Number(year9total / year9count).toFixed(2);
-                    console.log("Year 9: " + currentPeriod.year9);
+                    //console.log("Year 9: " + currentPeriod.year9);
                   }
                   if(year10total > 0) {
                     currentPeriod.year10 = Number(year10total / year10count).toFixed(2);
-                    console.log("Year 10: " + currentPeriod.year10);
+                    //console.log("Year 10: " + currentPeriod.year10);
                   }
                 }
                 currentPeriod.save().then((newPeriod) => {
-                  console.log('All student average RAP scores recalculated successfully');
+                  //console.log('All student average RAP scores recalculated successfully');
                   return true;
                 });
               }
@@ -148,6 +148,7 @@ function getCurrentPeriod() {
 
 // Check if logged in
 const authCheck = (req, res, next) => {
+  console.log(req.session.user);
   if(!req.session.user) {
     res.redirect('/login');
   } else {
