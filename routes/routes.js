@@ -1696,7 +1696,6 @@ router.get('/getGenderAverage', (req, res) => {
     var female = {'periods':new Array, 'averages':new Array};
     var data = {'male':male,'female':female};
     var year = req.query.year;
-    console.log(year);
 
     Student.find({}).then(function(students) {
       allPeriods.forEach(function(currentPeriod) {
