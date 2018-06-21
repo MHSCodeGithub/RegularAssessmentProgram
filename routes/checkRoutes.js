@@ -250,4 +250,53 @@ router.get('/threes', authCheck, (req, res) => {
   });
 });
 
+router.get('/aboveFour', (req, res) => {
+  //var type = req.query.type;
+  RapPeriods.findOne({current: true}).then(function(currentPeriod) {
+    Student.find({}).then(function(students) {
+      let studentsArray = {'all':new Array, 'aboveFour':new Array};
+      students.forEach(function(student) {
+        let total = 0;
+        let count = 0;
+        let grade = 0;
+        student.rap.forEach(function(r) {
+          grade = r.grade;
+          if(currentPeriod.year == r.year
+          && currentPeriod.term == r.term
+          && r.average > 1) {
+            if(r.week == 5) {
+              total += r.average;
+              count++
+            }
+            if(r.week == 9) {
+              total += r.average;
+              count++
+            }
+          }
+        });
+        if(total > 0) {
+          let average = Number(total/count).toFixed('2');
+          if(average >= 4) {
+            studentsArray.all.push({'name':student.name, 'year':grade, 'average':average});
+            studentsArray.aboveFour.push({'name':student.name, 'year':grade, 'average':average});
+          }
+          else {
+            studentsArray.all.push({'name':student.name, 'year':grade, 'average':average});
+          }
+        }
+      });
+      studentsArray.all.sort((a, b) => a.name - b.name);
+      studentsArray.all.sort((a, b) => b.average - a.average);
+      studentsArray.aboveFour.sort((a, b) => a.name - b.name);
+      studentsArray.aboveFour.sort((a, b) => b.average - a.average);
+      //if(!type) {
+      //  res.send(JSON.stringify(studentsArray.all, null, 4));
+      //} else {
+      //  res.send(JSON.stringify(studentsArray.aboveFour, null, 4));
+      //}
+      res.render('checkTermAverages', {user: req.session.user, students: studentsArray.aboveFour});
+    });
+  });
+});
+
 module.exports = router;
