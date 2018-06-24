@@ -22,7 +22,7 @@ function generateScores() {
       $.each(jsonData, function(key,subject) {
         $('#scores-body').append(
           "<tr>" +
-            "<td><a href='/queryTeacher?name=" + subject.teacher + "'>" + subject.teacher + "</a></td>" +
+            "<td><a href='/check/teacher?name=" + subject.teacher + "'>" + subject.teacher + "</a></td>" +
             "<td>" + subject.code + "</td>" +
           "</tr>"
         );
