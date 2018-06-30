@@ -14,6 +14,7 @@ var async = require('async');
 // Batch job to update averages every 5 minutes
 var updateJob = schedule.scheduleJob('*/5 * * * *', function(){
   updateAverages();
+  calculateChange()
 });
 
 // loops through all students and updates their averages
@@ -134,6 +135,52 @@ function updateAverages() {
     });
   } catch (error) {
     console.log('An error occured while attempting to update averages:');
+    console.log(error);
+    return false;
+  }
+}
+
+function calculateChange() {
+  try {
+    Student.find().then(function(students) {
+      students.forEach(function(student) {
+        //console.log("Calculating change for " + student.name);
+        // Sort the RAP Periods into order first
+        student.rap.sort((a, b) => {
+          if (a.year < b.year) {
+            return -1;
+          }
+          if (a.year > b.year) {
+            return 1;
+          }
+          if (a.term < b.term) {
+            return -1;
+          }
+          if (a.term > b.term) {
+            return 1;
+          }
+          if (a.week < b.week) {
+            return -1;
+          }
+          if (a.week > b.week) {
+            return 1;
+          }
+          return 0;
+        });
+        // Loop through each RAP Period and calculate the change
+        for (var i = 1; i < student.rap.length; i++) {
+          if(student.rap[i].average > 0 && student.rap[i-1].average > 0) {
+            student.rap[i].change = Number(student.rap[i].average - student.rap[i-1].average).toFixed(2);
+          } else {
+            student.rap[i].change = 0;
+          }
+        }
+        // Save the data back to the student's file
+        student.save();
+      });
+    });
+  } catch (error) {
+    console.log('An error occured while attempting to calculate change:');
     console.log(error);
     return false;
   }
@@ -1104,6 +1151,7 @@ router.get('/updateAverages', authCheck, (req, res) => {
 // Re-calculate averages for each student
 router.post('/updateAverages', (req, res) => {
   updateAverages();
+  calculateChange()
   console.log('All students have been processed successfully');
   req.flash('success_msg', 'All student usernames been updated successfully');
   res.redirect('/updateAverages');
@@ -2418,44 +2466,7 @@ router.get('/calculateAveragesOld', function(req, res) {
 
 // Gets the current RAP Period
 router.get('/calculateChange', (req, res) => {
-  Student.find().then(function(students) {
-    students.forEach(function(student) {
-      console.log("Calculating change for " + student.name);
-      // Sort the RAP Periods into order first
-      student.rap.sort((a, b) => {
-        if (a.year < b.year) {
-          return -1;
-        }
-        if (a.year > b.year) {
-          return 1;
-        }
-        if (a.term < b.term) {
-          return -1;
-        }
-        if (a.term > b.term) {
-          return 1;
-        }
-        if (a.week < b.week) {
-          return -1;
-        }
-        if (a.week > b.week) {
-          return 1;
-        }
-        return 0;
-      });
-      // Loop through each RAP Period and calculate the change
-      for (var i = 1; i < student.rap.length; i++) {
-        if(student.rap[i].average > 0 && student.rap[i-1].average > 0) {
-          student.rap[i].change = Number(student.rap[i].average - student.rap[i-1].average).toFixed(2);
-        } else {
-          student.rap[i].change = 0;
-        }
-      }
-      // Save the data back to the student's file
-      student.save();
-    });
-    res.send("success");
-  });
+
 });
 
 // Render Import From EMU Screen
