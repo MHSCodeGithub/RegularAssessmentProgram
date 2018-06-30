@@ -146,12 +146,16 @@ router.get('/all', authCheck, (req, res) => {
           if(r.year == currentPeriod.year
           && r.term == currentPeriod.term
           && r.week == currentPeriod.week) {
-            students.push({name: u.name, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
+            students.push({name: u.name, id:u.id, grade: r.grade, longTermAverage: u.longTermAverage, currentAverage: r.average });
           }
         });
       });
       students.sort((a, b) => b.currentAverage - a.currentAverage);
-      res.render('checkAll', {user: req.session.user, students: students});
+      if(req.session.user.access < 3) {
+        res.render('checkAll', {user: req.session.user, students: students});
+      } else {
+        res.render('checkAllAdmin', {user: req.session.user, students: students});
+      }
     });
   });
 });

@@ -809,6 +809,45 @@ router.post('/deleteStudent', (req, res) => {
   });
 });
 
+// Deletes a student from a class
+router.post('/deleteStudentFromPeriod', (req, res) => {
+
+  var student = req.body.student;
+  console.log("Attempting to delete " + student + " from active RAP period...");
+
+  RapPeriods.findOne({ active: true }, function(err, currentPeriod) {
+    Student.findOne({
+      $and: [
+        { id: student },
+        { 'rap.year': currentPeriod.year },
+        { 'rap.term': currentPeriod.term },
+        { 'rap.week': currentPeriod.week }
+      ]
+    }, function (err, user) {
+      if (err) { console.log("Error deleting student"); }
+      if (user) {
+        let found = false;
+        user.rap.forEach(function(r) {
+          if(r.year == currentPeriod.year
+          && r.term == currentPeriod.term
+          && r.week == currentPeriod.week) {
+            user.rap.pull(r); // deletes entire RAP period from student's history
+            found = true;
+            user.save().then((stu) => {
+              console.log(req.session.user.name + " deleted " + stu.name + " from active RAP Period.");
+              res.send(JSON.stringify(true));
+            });
+          }
+        });
+        if(!found) {
+          console.log("Error Deleting Student");
+          res.send(JSON.stringify(false));
+        }
+      }
+    });
+  });
+});
+
 // Deletes a teacher from the system
 router.post('/deleteTeacher', (req, res) => {
   var teacher = req.body.teacher;
