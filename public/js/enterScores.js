@@ -17,8 +17,196 @@ function handleClick(student, classCode, score, teacher, obj) {
   });
 }
 
+
+// todo: delete student method
+
 // Fill down score for particular class
 function fillRadios(num, classCode, teacher) {
+
+  // NEW FUNCTION: Describe Rubric
+
+  if(num == 5)
+  {
+    $('#rubric-modal-title').text("Outstanding");
+    $('#rubric-modal-col1').html(
+      "<strong>Is a respectful student who always:</strong>" +
+      "<ul>" +
+        "<li>Wears school uniform to promote a positive image of the school</li>" +
+        "<li>Follows staff instructions</li>" +
+        "<li>Speaks politely and uses manners</li>" +
+        "<li>Maintains a clean and safe environment</li>" +
+        "<li>Listens to the speaker without interrupting</li>" +
+        "<li>Puts their hand up to speak</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col2').html(
+      "<strong>Is a responsible student who always:</strong>" +
+      "<ul>" +
+        "<li>Is in the right place at the right time</li>" +
+        "<li>Has digital devices on silent and in their bag</li>" +
+        "<li>Has a pass to be out of class when necessary</li>" +
+        "<li>Tells the truth and is honest regarding the property of the school and others.</li>" +
+        "<li>Uses equipment for its purpose</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col3').html(
+      "<strong>Demonstrates learning by always:</strong>" +
+      "<ul>" +
+        "<li>Having necessary equipment ready to learn</li>" +
+        "<li>Asking questions if unsure of task</li>" +
+        "<li>Completing all tasks to the standard requested.</li>" +
+        "<li>Letting others work</li>" +
+        "<li>Submitting work on time</li>" +
+      "</ul>"
+    );
+  }
+
+  if(num == 4)
+  {
+    $('#rubric-modal-title').text("Excellent");
+    $('#rubric-modal-col1').html(
+      "<strong>Is a respectful student who consistently:</strong>" +
+      "<ul>" +
+        "<li>Wears school uniform to promote a positive image of the school</li>" +
+        "<li>Follows staff instructions</li>" +
+        "<li>Speaks politely and uses manners</li>" +
+        "<li>Maintains a clean and safe environment</li>" +
+        "<li>Listens to the speaker without interrupting</li>" +
+        "<li>Puts their hand up to speak</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col2').html(
+      "<strong>Is a responsible student who consistently:</strong>" +
+      "<ul>" +
+        "<li>Is in the right place at the right time</li>" +
+        "<li>Has digital devices on silent and in their bag</li>" +
+        "<li>Has a pass to be out of class when necessary</li>" +
+        "<li>Tells the truth and is honest regarding the property of the school and others.</li>" +
+        "<li>Uses equipment for its purpose</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col3').html(
+      "<strong>Demonstrates learning by consistently:</strong>" +
+      "<ul>" +
+        "<li>Having necessary equipment ready to learn</li>" +
+        "<li>Asking questions if unsure of task</li>" +
+        "<li>Completing all tasks to the standard requested.</li>" +
+        "<li>Letting others work</li>" +
+        "<li>Submitting work on time</li>" +
+      "</ul>"
+    );
+  }
+
+  if(num == 3)
+  {
+    $('#rubric-modal-title').text("Good");
+    $('#rubric-modal-col1').html(
+      "<strong>Is a respectful student who satisfactorily:</strong>" +
+      "<ul>" +
+        "<li>Wears school uniform to promote a positive image of the school</li>" +
+        "<li>Follows staff instructions</li>" +
+        "<li>Speaks politely and uses manners</li>" +
+        "<li>Maintains a clean and safe environment</li>" +
+        "<li>Listens to the speaker without interrupting</li>" +
+        "<li>Puts their hand up to speak</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col2').html(
+      "<strong>Is a responsible student who satisfactorily:</strong>" +
+      "<ul>" +
+        "<li>Is in the right place at the right time</li>" +
+        "<li>Has digital devices on silent and in their bag</li>" +
+        "<li>Has a pass to be out of class when necessary</li>" +
+        "<li>Tells the truth and is honest regarding the property of the school and others.</li>" +
+        "<li>Uses equipment for its purpose</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col3').html(
+      "<strong>Demonstrates learning by satisfactorily:</strong>" +
+      "<ul>" +
+        "<li>Having necessary equipment ready to learn</li>" +
+        "<li>Asking questions if unsure of task</li>" +
+        "<li>Completing all tasks to the standard requested.</li>" +
+        "<li>Letting others work</li>" +
+        "<li>Submitting work on time</li>" +
+      "</ul>"
+    );
+  }
+
+  if(num == 2)
+  {
+    $('#rubric-modal-title').text("Of Concern");
+    $('#rubric-modal-col1').html(
+      "<strong>Is a student who at times:</strong>" +
+      "<ul>" +
+        "<li>Demonstrates disruptive behaviours such as talking, not listening, calling out and interfering with the rights of other students to learn</li>" +
+        "<li>Interrupts the teacher</li>" +
+        "<li>Needs rule reminders</li>" +
+        "<li>Wears school uniform incorrectly or disregards the dress code</li>" +
+        "<li>Fails to maintain a clean and safe environment</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col2').html(
+      "<strong>Is a student who at times:</strong>" +
+      "<ul>" +
+        "<li>Late for class or truants class</li>" +
+        "<li>Is reminded to put their phone away.</li>" +
+        "<li>Leaves the classroom without permission and no pass</li>" +
+        "<li>Dishonest regarding the property of the school and others</li>" +
+        "<li>Uses equipment inappropriately</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col3').html(
+      "<strong>Is a student who at times:</strong>" +
+      "<ul>" +
+        "<li>Arriving with no equipment ready for the lesson</li>" +
+        "<li>Does not ask questions if unsure of tasks or asks inappropriate questions</li>" +
+        "<li>Does not complete tasks to the standard requested</li>" +
+        "<li>Does not submit assessment tasks on time</li>" +
+        "<li>Interrupts the learning of others</li>" +
+      "</ul>"
+    );
+  }
+
+  if(num == 1)
+  {
+    $('#rubric-modal-title').text("Unsatisfactory Performance");
+    $('#rubric-modal-col1').html(
+      "<strong>Is a student who often:</strong>" +
+      "<ul>" +
+        "<li>Demonstrates disruptive behaviours such as talking, not listening, calling out and interfering with the rights of other students to learn</li>" +
+        "<li>Interrupts the teacher</li>" +
+        "<li>Needs rule reminders</li>" +
+        "<li>Wears school uniform incorrectly or disregards the dress code</li>" +
+        "<li>Fails to maintain a clean and safe environment</li>" +
+        "<li>Is referred to the Head Teacher</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col2').html(
+      "<strong>Is a student who often:</strong>" +
+      "<ul>" +
+        "<li>Late for class or truants class</li>" +
+        "<li>Is reminded to put their phone away.</li>" +
+        "<li>Leaves the classroom without permission and no pass</li>" +
+        "<li>Dishonest regarding the property of the school and others</li>" +
+        "<li>Uses equipment inappropriately</li>" +
+      "</ul>"
+    );
+    $('#rubric-modal-col3').html(
+      "<strong>Is a student who often:</strong>" +
+      "<ul>" +
+        "<li>Arriving with no equipment ready for the lesson</li>" +
+        "<li>Does not ask questions if unsure of tasks or asks inappropriate questions</li>" +
+        "<li>Does not complete tasks to the standard requested</li>" +
+        "<li>Does not submit assessment tasks on time</li>" +
+        "<li>Interrupts the learning of others</li>" +
+      "</ul>"
+    );
+  }
+
+  $('#rubric-modal').modal();
+
+  /* REMOVED DUE TO ABUSE
   let matches = document.querySelectorAll(".form-check-input");
   $.each(matches, function(i, stu) {
     if(stu.value == classCode && stu.id.slice(0,1) == num) {
@@ -28,6 +216,7 @@ function fillRadios(num, classCode, teacher) {
     }
   });
   $.post( "/fillRadios", { classCode: classCode, score: num, teacher: teacher });
+  */
 }
 
 // Generate the HTML for student scores for each class
@@ -122,11 +311,11 @@ function generateScores(name) {
                   "<th scope='col' style='width: 20px;'></th>" +
                   "<th scope='col'>Name:</th>" +
                   "<th scope='col' class='scoreColumn'>" +
-                    "<a href='#' onClick='fillRadios(1, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 1'>1 </a>" +
-                    "<a href='#' onClick='fillRadios(2, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 2'>2 </a>" +
-                    "<a href='#' onClick='fillRadios(3, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 3'>3 </a>" +
-                    "<a href='#' onClick='fillRadios(4, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 4'>4 </a>" +
-                    "<a href='#' onClick='fillRadios(5, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Fill Down 5'>5 </a>" +
+                    "<a href='#' onClick='fillRadios(1, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Click for Description'>1 </a>" +
+                    "<a href='#' onClick='fillRadios(2, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Click for Description'>2 </a>" +
+                    "<a href='#' onClick='fillRadios(3, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Click for Description'>3 </a>" +
+                    "<a href='#' onClick='fillRadios(4, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Click for Description'>4 </a>" +
+                    "<a href='#' onClick='fillRadios(5, \""+y.code+"\", \"" + name + "\");' data-toggle='tooltip' data-placement='bottom' title='Click for Description'>5 </a>" +
                   "</th>" +
                 "</tr>" +
               "</thead>" +
@@ -424,6 +613,36 @@ function startup() {
     var name = $('#teacherName').html();
     generateScores(name);
   }
+
+  // MODAL WINDOW
+  $('body').append(
+    "<!-- Modal -->" +
+    "<div class='modal fade' id='rubric-modal' tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true'>" +
+      "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+        "<div class='modal-content'>" +
+          "<div class='modal-header'>" +
+            "<h5 class='modal-title' id='rubric-modal-title'></h5>" +
+            "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+              "<span aria-hidden='true'>&times;</span>" +
+            "</button>" +
+          "</div>" +
+          "<div class='modal-body'>" +
+            "<div class='row'>" +
+              "<div class='col-sm-4' id='rubric-modal-col1'></div>" +
+              "<div class='col-sm-4' id='rubric-modal-col2'></div>" +
+              "<div class='col-sm-4' id='rubric-modal-col3'></div>" +
+            "</div>" +
+          "</div>" +
+          "<div class='modal-footer'>" +
+            "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+    "</div>"
+  );
+
+
+
 }
 
 // Runs when document loaded

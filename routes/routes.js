@@ -1840,6 +1840,7 @@ router.get('/getGenderAverage', (req, res) => {
 // Fills the RAP scores for a certain class with a single score
 router.post('/fillRadios', (req, res) => {
 
+  /*
   // Set parameters
   let classCode = req.body.classCode;
   let score = req.body.score;
@@ -1880,6 +1881,7 @@ router.post('/fillRadios', (req, res) => {
     });
   });
   res.end();
+  */
 });
 
 // Import data from Edval to setup students with classes/teachers
