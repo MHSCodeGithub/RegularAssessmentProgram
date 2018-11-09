@@ -40,7 +40,7 @@ function updateAverages() {
           var year9count = 0;
           var year10total = 0;
           var year10count = 0;
-          async.eachSeries(users, function(u, callback) {
+          users.forEach(function(u, index, array) {
             let userTotal = 0;
             let userCount = 0;
             u.rap.forEach(function(r) {
@@ -136,16 +136,17 @@ function updateAverages() {
                       //console.log("Year 10: " + currentPeriod.year10);
                     }
                   }
-                  currentPeriod.save().then(newPeriod => {
-                    //console.log('All student average RAP scores recalculated successfully');
-                    callback();
-                    return true;
-                  });
                 }
+              })
+              .then(() => {
+                currentPeriod.save().then(newPeriod => {
+                  //console.log('All student average RAP scores recalculated successfully');
+                  return true;
+                });
               })
               .catch(err => {
                 console.log("An error occured, student: " + u.name);
-                console.log(u);
+                console.log(JSON.stringify(u));
                 console.log(err);
               });
           });
