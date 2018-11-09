@@ -150,7 +150,6 @@ function updateAverages() {
                 console.log("An error occured, student: " + u.name);
                 console.log(JSON.stringify(u));
                 console.log(err);
-                break;
               });
           });
         });
