@@ -93,14 +93,14 @@ function updateAverages() {
               }
             });
             if (userTotal == 0) {
-              //console.log(u.name + " has a total of " + userTotal);
+              console.log(u.name + " has a total of " + userTotal);
               u.longTermAverage = 0;
             } else {
               if (userCount > 0) {
                 u.longTermAverage = Number(userTotal / userCount).toFixed(2);
               }
             }
-            u.save()
+            u.update()
               .then(newUser => {
                 itemsProcessed++;
                 if (itemsProcessed == array.length) {
@@ -140,7 +140,9 @@ function updateAverages() {
               })
               .then(() => {
                 currentPeriod.save().then(newPeriod => {
-                  //console.log('All student average RAP scores recalculated successfully');
+                  console.log(
+                    "All student average RAP scores recalculated successfully"
+                  );
                   return true;
                 });
               })
