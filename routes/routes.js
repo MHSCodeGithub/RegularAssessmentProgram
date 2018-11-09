@@ -143,10 +143,7 @@ function updateAverages() {
                 }
               })
               .catch(err => {
-                console.log(
-                  "An error occured while attempting to update averages:"
-                );
-                console.log(error);
+                console.log("An error occured, student: " + newUser.name);
               });
           });
         });
