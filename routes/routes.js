@@ -102,6 +102,7 @@ function updateAverages() {
             }
             u.save()
               .then(newUser => {
+                console.log(newUser);
                 itemsProcessed++;
                 if (itemsProcessed == array.length) {
                   if (schoolCount > 0) {
