@@ -136,15 +136,13 @@ function updateAverages() {
                       //console.log("Year 10: " + currentPeriod.year10);
                     }
                   }
+                  currentPeriod.save().then(newPeriod => {
+                    console.log(
+                      "All student average RAP scores recalculated successfully"
+                    );
+                    return true;
+                  });
                 }
-              })
-              .then(() => {
-                currentPeriod.save().then(newPeriod => {
-                  console.log(
-                    "All student average RAP scores recalculated successfully"
-                  );
-                  return true;
-                });
               })
               .catch(err => {
                 console.log("An error occured, student: " + u.name);
