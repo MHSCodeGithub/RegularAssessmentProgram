@@ -102,7 +102,6 @@ function updateAverages() {
             }
             u.save()
               .then(newUser => {
-                console.log(newUser);
                 itemsProcessed++;
                 if (itemsProcessed == array.length) {
                   if (schoolCount > 0) {
@@ -145,6 +144,7 @@ function updateAverages() {
               })
               .catch(err => {
                 console.log("An error occured, student: " + u.name);
+                console.log(u);
                 console.log(err);
               });
           });
