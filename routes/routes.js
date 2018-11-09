@@ -40,7 +40,7 @@ function updateAverages() {
           var year9count = 0;
           var year10total = 0;
           var year10count = 0;
-          users.forEach(function(u, index, array) {
+          async.eachSeries(users, function(u, callback) {
             let userTotal = 0;
             let userCount = 0;
             u.rap.forEach(function(r) {
@@ -138,6 +138,7 @@ function updateAverages() {
                   }
                   currentPeriod.save().then(newPeriod => {
                     //console.log('All student average RAP scores recalculated successfully');
+                    callback();
                     return true;
                   });
                 }
