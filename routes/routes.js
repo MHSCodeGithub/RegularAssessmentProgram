@@ -62,6 +62,9 @@ function updateAverages() {
                 } else {
                   if (rapCount > 0) {
                     r.average = Number(rapTotal / rapCount).toFixed("2");
+                    r.save().then(newRap => {
+                      console.log("rap score saved");
+                    });
                   }
                 }
                 if (r.average > 0) {
@@ -100,7 +103,7 @@ function updateAverages() {
                 u.longTermAverage = Number(userTotal / userCount).toFixed(2);
               }
             }
-            u.update()
+            u.save()
               .then(newUser => {
                 itemsProcessed++;
                 if (itemsProcessed == array.length) {
