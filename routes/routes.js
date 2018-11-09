@@ -143,7 +143,7 @@ function updateAverages() {
                 }
               })
               .catch(err => {
-                console.log("An error occured, student: " + newUser.name);
+                console.log("An error occured, student: " + u.name);
               });
           });
         });
