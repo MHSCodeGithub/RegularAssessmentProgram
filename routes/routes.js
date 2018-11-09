@@ -62,9 +62,6 @@ function updateAverages() {
                 } else {
                   if (rapCount > 0) {
                     r.average = Number(rapTotal / rapCount).toFixed("2");
-                    r.save().then(newRap => {
-                      console.log("rap score saved");
-                    });
                   }
                 }
                 if (r.average > 0) {
@@ -153,6 +150,7 @@ function updateAverages() {
                 console.log("An error occured, student: " + u.name);
                 console.log(JSON.stringify(u));
                 console.log(err);
+                break;
               });
           });
         });
